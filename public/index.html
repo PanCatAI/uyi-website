@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="ja" data-l="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* Pick the language before first paint: URL ?l= > saved choice > browser > ja. */
+(function(){try{
+var q=new URLSearchParams(location.search).get('l'),s=localStorage.getItem('uyi-l');
+var l=(q==='ja'||q==='en')?q:((s==='ja'||s==='en')?s:(((navigator.language||'').toLowerCase().indexOf('en')===0)?'en':'ja'));
+var d=document.documentElement;d.dataset.l=l;d.lang=l;
+if(l==='ja'){var p=document.createElement('link');p.rel='preload';p.as='font';p.type='font/woff2';p.href='/assets/fonts/mplus.woff2';p.crossOrigin='anonymous';document.head.appendChild(p);}
+}catch(e){}})();
+</script>
+<link rel="canonical" href="https://uyi.live/">
+<meta property="og:title" content="UYI — Your idea brings this room to life.">
+<meta property="og:description" content="A desktop 3D room where an AI character lives, and makes things with you.">
+<meta property="og:url" content="https://uyi.live/">
+<meta property="og:image" content="https://uyi.live/assets/img/og.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="UYI — Your idea brings this room to life.">
+<meta name="twitter:description" content="A desktop 3D room where an AI character lives, and makes things with you.">
+<meta name="twitter:image" content="https://uyi.live/assets/img/og.jpg">
+<meta name="theme-color" content="#0b0920">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2215%22 fill=%22%230b0920%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2210%22 fill=%22none%22 stroke=%22%23d2adf7%22 stroke-width=%222%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%223%22 fill=%22%23ffe2a8%22/%3E%3C/svg%3E">
+<link rel="preload" as="image" fetchpriority="high"
+      href="/assets/img/room-1672.avif"
+      imagesrcset="/assets/img/room-640.avif 640w, /assets/img/room-960.avif 960w, /assets/img/room-1280.avif 1280w, /assets/img/room-1672.avif 1672w"
+      imagesizes="(min-width:701px) 1672px, 100vw">
+<title>UYI | あなたのひらめきに、小さな世界が応える。</title>
+<meta name="description" content="UYI: a desktop 3D room where an AI character lives, and makes things with you. / AIキャラクターと過ごし、一緒にものづくりを楽しむ、デスクトップの小さな3D空間。">
+<style>
+:root{--ink:#0b0920;--ink2:#171433;--line:#33305f;--text:#f2effc;--mute:#b0acd0;--violet2:#d2adf7;--lamp:#ffe2a8;
+--jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;--en:"Space Grotesk","Helvetica Neue",Arial,sans-serif;color-scheme:dark}
+html[data-l=en] j,html[data-l=ja] e{display:none}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--text);font:400 16px/1.75 var(--jp);-webkit-font-smoothing:antialiased}
+html[data-l=en] body{font-family:var(--en)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
+#stage{position:fixed;inset:0;overflow:hidden}
+#room{position:absolute;left:0;top:0;max-width:none;user-select:none;-webkit-user-drag:none}
+.ab{position:absolute;pointer-events:none}
+#dim{position:absolute;inset:0;background:radial-gradient(ellipse at 40% 40%,rgba(8,6,26,.35),rgba(8,6,26,.86));opacity:0;transition:opacity .6s;pointer-events:none}
+#stage.focus #dim{opacity:1}
+#shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(11,9,32,.95) 0,rgba(11,9,32,.55) 28%,rgba(11,9,32,0) 52%),linear-gradient(180deg,rgba(11,9,32,.6),rgba(11,9,32,0) 18%)}
+.mg{border-radius:50%;background:radial-gradient(circle,rgba(255,246,220,.95),rgba(255,246,220,0) 66%);mix-blend-mode:screen;scale:.2;opacity:0;transition:scale 1.1s cubic-bezier(.3,.8,.3,1),opacity 1s}
+#stage.moon .mg{scale:1.5;opacity:1}
+.lg{border-radius:50%;background:radial-gradient(circle,rgba(255,200,120,.55),rgba(255,200,120,0) 65%);mix-blend-mode:screen;opacity:.35;transition:opacity .6s;animation:br 5s ease-in-out infinite}
+#stage.lamp .lg{opacity:1;animation:none}
+@keyframes br{50%{opacity:.6}}
+.eq{display:flex;align-items:center;gap:4%;opacity:.9}
+.eq b{flex:1;height:100%;background:#dcaeff;border-radius:2px;box-shadow:0 0 8px #b06bff;animation:e .9s ease-in-out infinite alternate}
+.eq b:nth-child(2n){animation-duration:.55s}.eq b:nth-child(3n){animation-duration:1.15s;animation-delay:-.3s}.eq b:nth-child(5n){animation-duration:.72s}
+@keyframes e{from{transform:scaleY(.12)}to{transform:scaleY(1)}}
+#np{display:flex;align-items:center;gap:8px;font:500 13px/1 var(--en);color:var(--lamp);background:rgba(11,9,32,.85);border:1px solid #5b4b98;border-radius:8px;padding:0 12px;white-space:nowrap;transition:opacity .25s}
+#bub{position:absolute;max-width:min(300px,62vw);background:rgba(15,12,40,.9);backdrop-filter:blur(6px);border:1px solid #5b4b98;border-radius:16px 16px 16px 4px;padding:9px 14px;font-size:14px;line-height:1.5;transition:opacity .3s;pointer-events:none}
+#bub.sw{opacity:0}
+.hs{position:absolute;translate:-50% -50%;width:38px;height:38px;border-radius:50%;border:2px solid var(--lamp);background:rgba(255,226,168,.2);cursor:pointer;padding:0;z-index:3}
+.hs::before{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--lamp);animation:r 2.2s ease-out infinite}
+@keyframes r{to{transform:scale(2);opacity:0}}
+.hs span{position:absolute;left:50%;top:calc(100% + 8px);translate:-50% 0;white-space:nowrap;font:500 12px/1.3 var(--en);background:rgba(15,12,40,.95);border:1px solid var(--line);border-radius:8px;padding:4px 9px;opacity:0;pointer-events:none;transition:opacity .2s}
+.hs:hover span,.hs:focus-visible span,.hs.cur span{opacity:1}
+#stage.focus .hs:not(.cur){opacity:.35}
+/* chrome */
+.bar{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(16px + env(safe-area-inset-top,0px)) 20px 0}
+.logo{font:700 26px/1 var(--en);letter-spacing:.2em}
+.r{display:flex;gap:10px;align-items:center}
+.sw2{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:rgba(11,9,32,.7)}
+.sw2 button{background:none;border:0;padding:7px 14px;font:500 13px var(--en);cursor:pointer;color:var(--mute)}
+.joinb{background:var(--lamp);color:#1a1230;border:0;border-radius:99px;padding:8px 18px;font-weight:700;font-size:14px;cursor:pointer}
+#hero{position:fixed;left:24px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:4;max-width:min(760px,calc(100% - 48px));pointer-events:none;transition:opacity .4s}
+#stage.focus~#hero{opacity:0}
+.chip{display:inline-flex;gap:8px;align-items:center;font:500 13px var(--en);color:var(--lamp);border:1px solid var(--line);border-radius:99px;padding:5px 14px;background:rgba(11,9,32,.6)}
+.chip i{width:7px;height:7px;border-radius:50%;background:#7be3b0;box-shadow:0 0 10px #7be3b0;animation:r0 2.4s infinite}
+@keyframes r0{50%{opacity:.3}}
+h1{font-size:clamp(34px,7.6vw,92px);line-height:1.08;font-weight:900;margin:14px 0 10px;text-shadow:0 3px 30px rgba(8,6,26,.9)}
+html[data-l=en] h1{font-family:var(--en);font-weight:700;letter-spacing:-.02em;line-height:1.02}
+.lede{font-size:15px;color:#e2def5;max-width:36em;margin:0;text-shadow:0 1px 14px #0b0920}
+.cc{font-size:12px;color:var(--mute);margin:10px 0 0}
+#tl{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;overflow-x:auto;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,rgba(11,9,32,.96),rgba(11,9,32,.6));scrollbar-width:none}
+#tl button{flex:0 0 auto;background:rgba(23,20,51,.8);border:1px solid var(--line);border-radius:12px;padding:8px 16px;cursor:pointer;text-align:left;line-height:1.3;transition:border-color .2s,background .2s}
+#tl button small{display:block;font:500 11px var(--en);color:var(--violet2)}
+#tl button.cur{border-color:var(--lamp);background:rgba(255,226,168,.12)}
+/* panel */
+.pn{position:fixed;z-index:6;top:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));width:min(480px,100%);padding:calc(76px + env(safe-area-inset-top,0px)) 32px 32px;background:rgba(14,11,36,.88);backdrop-filter:blur(14px);border-left:1px solid var(--line);overflow:auto;translate:105% 0;transition:translate .5s cubic-bezier(.2,.8,.2,1);visibility:hidden}
+.pn.on{translate:0 0;visibility:visible}
+.pn h2{font-size:30px;line-height:1.25;margin:0 0 6px;font-weight:900}
+html[data-l=en] .pn h2{font-family:var(--en);font-weight:700}
+.pn .k{font:500 13px var(--en);color:var(--violet2);margin:0 0 18px;display:block}
+.pn p{margin:0 0 14px}
+.x{position:absolute;top:calc(70px + env(safe-area-inset-top,0px));right:20px;background:none;border:1px solid var(--line);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px;line-height:1}
+.b{max-width:94%;padding:10px 14px;border-radius:14px;background:var(--ink2);border:1px solid var(--line);margin-bottom:10px}
+.b.me{margin-left:auto;background:#2a2150;border-color:#4a4580}.b.hide{display:none}
+.try{background:none;border:1px dashed var(--lamp);color:var(--lamp);border-radius:14px;padding:9px 16px;cursor:pointer;text-align:left;margin-bottom:14px}.try[disabled]{opacity:.35}
+.cover{position:relative;width:150px;aspect-ratio:1;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#0a1140,#1f2a73 70%,#5b4c9c);margin:6px 0 10px}
+.cover .m{position:absolute;right:18%;top:16%;width:22%;aspect-ratio:1;border-radius:50%;background:#fff6dc;box-shadow:0 0 30px rgba(255,246,220,.6);transition:all 1s cubic-bezier(.3,.8,.3,1)}
+.cover.big .m{width:46%;right:12%;top:10%}
+.cover i{position:absolute;inset:auto 0 0;height:22%;background:#0c0a22;clip-path:polygon(0 60%,10% 40%,18% 55%,30% 20%,38% 50%,52% 30%,60% 55%,72% 15%,84% 50%,100% 35%,100% 100%,0 100%)}
+ol{margin:0 0 16px;padding-left:22px}ol li{margin-bottom:8px}
+.later{border:1px dashed #4a4580;border-radius:14px;padding:14px 16px;font-size:14px;color:#d3cfea}
+form.join{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+form.join input{font:inherit;color:var(--text);background:var(--ink2);border:1px solid #4a4580;border-radius:12px;padding:14px 16px}
+form.join button{background:var(--lamp);color:#1a1230;border:0;border-radius:12px;padding:14px;font-weight:700;cursor:pointer}
+.msg{min-height:2.6em;font-size:14px;color:var(--mute);margin:0}.msg.ok{color:#7be3b0}.msg.err{color:#ff9fa8}
+@media(max-width:700px){.pn{width:100%;top:auto;height:78svh;bottom:calc(70px + env(safe-area-inset-bottom,0px));translate:0 110%;border-left:0;border-top:1px solid var(--line);padding:56px 22px 24px;border-radius:20px 20px 0 0}.x{top:12px}#hero{left:16px}.hs{width:34px;height:34px}}
+@media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+
+#room{transition:filter .6s}#moon-disc{border-radius:50%;opacity:0;transform:scale(.98);transition:transform .85s cubic-bezier(.2,.75,.18,1),opacity .35s;box-shadow:0 0 20px #ffd8b988}#stage.moon #moon-disc{opacity:1;transform:scale(1.94)}#stage.moon .mg{opacity:.77;scale:1.25}#stage.lamp-room #room{filter:brightness(1.12) sepia(.17) saturate(1.14)}#stage.lamp-room .lg{animation:none;opacity:1;scale:2.25;background:radial-gradient(ellipse,#ffd288c9 0%,#f6b85d70 29%,transparent 70%)}.lg{transform-origin:center;transition:opacity .55s,scale .55s}.eq{opacity:.53}#npw{opacity:0}#stage.focus #npw{opacity:1}.bar{z-index:8;pointer-events:none}.bar button,.bar a{pointer-events:auto}.brandline{display:flex;align-items:center;gap:20px}.community{display:flex;align-items:center;gap:13px;padding:5px 10px;border-radius:10px;background:#130d2399;backdrop-filter:blur(12px);font:600 12px/1.6 var(--en)}.community a{color:#f9ecf8;text-decoration:none;white-space:nowrap;display:block;padding:5px 2px}.community a:hover{text-decoration:underline;text-underline-offset:4px}.community.inside{justify-content:flex-start;gap:18px;flex-wrap:wrap;padding:12px 0 0;border-top:1px solid var(--line);border-radius:0;background:none}.community.inside a{color:#e1c8ed}
+#hero{max-width:min(610px,calc(100% - 48px));bottom:calc(78px + env(safe-area-inset-bottom,0px))}h1{font-size:clamp(36px,4.7vw,75px);line-height:1.14;margin:0 0 12px;font-feature-settings:"palt";letter-spacing:-.055em}html[data-l=en] h1{font-size:clamp(35px,5vw,78px);line-height:1.02}.lede{font-size:14px;line-height:1.6}.ideas{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0 0}.ideas button{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #f6dfa096;border-radius:30px;font-size:13px;font-weight:700;line-height:1.45;background:#2d2034d9;backdrop-filter:blur(10px);color:#ffedc4;pointer-events:auto;cursor:pointer}.ideas button:first-child{background:#ffe4aa;color:#31243b;border-color:#ffe4aa}.ideas button[aria-pressed=true]{box-shadow:0 0 0 2px #d6afdc}.gist{font:400 19px/1 system-ui}#stage.focus~#hero{visibility:hidden}#hero .cc{margin:7px 0 0;font-size:10px;color:#e2d3e6}.hs{width:36px;height:36px;border-width:1.5px}.hs:after{content:'+';display:grid;place-items:center;font:400 19px/1 system-ui;color:#ffefd3;text-shadow:0 1px 5px #20102b}.hs span{border-color:#c7a2b9a8}#bub{z-index:3;font-size:13px;box-shadow:0 4px 20px #18102040}#dim{background:linear-gradient(90deg,#0c092426,#0c092458 69%,#0c092488)}#tl{gap:6px}#tl button{font-size:13px;min-height:42px}.pn{padding-top:84px}.pn h2{padding-right:22px;font-size:27px}.pn .x{top:79px}.b.hide,.hide{display:none}#hero button:focus-visible,.hs:focus-visible{outline-offset:5px}.pn:focus{outline:none}
+@media(max-width:700px){.bar{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0}.logo{font-size:23px}.brandline{gap:0}.brandline .community{position:absolute;left:12px;top:calc(48px + env(safe-area-inset-top,0px));gap:8px;padding:1px 7px;line-height:1.3;font-size:11px}.community a{padding:5px 2px}.sw2 button{padding:6px 9px}.joinb{font-size:12px;padding:6px 12px}.r{gap:6px}#hero{left:14px;bottom:calc(67px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 28px)}h1,html[data-l=en] h1{font-size:clamp(28px,7.5vw,48px)}#hero .lede{font-size:12px;max-width:31em}.ideas{margin-top:10px;gap:6px}.ideas button{padding:8px 10px;font-size:12px}.hs{width:38px;height:38px}#tl{padding:7px 10px calc(8px + env(safe-area-inset-bottom,0px));gap:5px}#tl button{padding:7px 10px;min-height:40px;white-space:nowrap}.pn{height:min(70svh,calc(100svh - 145px));bottom:calc(55px + env(safe-area-inset-bottom,0px));padding:43px 18px 16px}.pn .x{top:9px}.pn h2{font-size:23px}.pn .k{margin-bottom:10px}.ideas .gist{font-size:16px}#shade{background:linear-gradient(0deg,#0c0924fb 0,#0c0924c7 20%,#0c092445 43%,transparent 65%),linear-gradient(180deg,#0c092473,transparent 20%)}}@media(max-height:550px){#hero h1{font-size:30px;margin-bottom:3px}.ideas{margin-top:6px}.cc{display:none}.pn{padding-top:60px}.pn .x{top:55px}}
+
+
+.provider{font-size:12px!important;line-height:1.55;opacity:.8}.msg:empty{display:none}
+/* Subset of space.
+Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+*/
+@font-face{font-family:"UYI Geometry";src:url("/assets/fonts/geometry.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap;}
+/* Subset of mplus1.
+Copyright 2021 The M+ FONTS Project Authors (https://github.com/coz-m/MPLUS_FONTS)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+*/
+@font-face{font-family:"UYI MPlus";src:url("/assets/fonts/mplus.woff2") format("woff2");font-weight:300 700;font-style:normal;font-display:swap;font-display:swap;unicode-range:U+20-7E,U+B7,U+D7,U+2013,U+2019,U+2026,U+3000-301F,U+3030-3035,U+303B-3094,U+3099-30FD,U+4E00,U+4E16,U+4E2D,U+4E88,U+4ECA,U+4ED6-4ED8,U+4EFB,U+4F11,U+4F1D,U+4F3C,U+4F53-4F55,U+4F5C,U+4F7F,U+4F9D,U+4FDD-4FE1,U+505C,U+5099,U+50CF,U+5143,U+5148,U+5165,U+516C,U+5185,U+518D,U+51E6,U+51FA,U+521D,U+5229,U+524A,U+529B,U+52A0,U+52D5,U+52DF,U+53C2,U+53D6-53D7,U+53E3,U+5408-540C,U+5411,U+54C1,U+554F,U+55B6,U+56DE,U+5728,U+5831-5834,U+58F0,U+5909,U+5916,U+591C,U+5927,U+5973,U+597D,U+59CB,U+5B57-5B58,U+5B9A,U+5BB9,U+5BFE,U+5C0F-5C11,U+5C4A-5C4B,U+5EA6,U+5F0F,U+5F7C,U+5F85,U+5F8C,U+5FDC,U+601D,U+60C5,U+60D1,U+610F,U+623B,U+624B,U+6295,U+629E,U+62BC,U+632F,U+63CF,U+64CD,U+6587,U+65B0,U+65B9,U+65E5,U+660E,U+6620,U+6642,U+666F,U+66AE,U+66F8,U+6700,U+6708,U+671F,U+672C,U+6765,U+6848,U+691C,U+696D,U+697D,U+6A5F,U+6B21,U+6B62-6B63,U+6D41,U+6E96,U+706F,U+7248,U+7269,U+73FE,U+7406,U+751F,U+7528,U+7531,U+754C,U+767A-767B,U+7684,U+76EE,U+773A,U+7740,U+77E5,U+78BA,U+793A,U+79D2,U+79FB,U+7A3F,U+7A7A,U+7A93,U+7BC0,U+7D2B,U+7D4C,U+7D61,U+7D9A,U+7DD2,U+8005,U+8074,U+80FD,U+8349,U+843D,U+8449,U+884C,U+8868,U+898B,U+89A7,U+89E6,U+8A00-8A02,U+8A0E,U+8A18,U+8A66,U+8A8D,U+8A9E,U+8AAC-8AAD,U+8EE2,U+8FF7,U+9001,U+9023,U+904B-904E,U+9069,U+9078,U+90E8,U+914D,U+9262,U+9332,U+9589-958B,U+9593,U+95B2,U+9632,U+9664,U+96A3,U+96C6,U+9759,U+9762,U+97F3,U+983C,U+98FE,U+9A13,U+9AEA,U+FF01-FF60;}
+/* Screen typography. Keep stronger labels on the light-filled controls. */
+:root {
+  --jp:"UYI Geometry","UYI MPlus","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  --en:"UYI Geometry","UYI MPlus","Helvetica Neue","Hiragino Sans",Arial,sans-serif;
+}
+html,body,button,input {font-family:var(--jp)}
+html[data-l=en] body,html[data-l=en] button,html[data-l=en] input {font-family:var(--en)}
+html,body {font-synthesis:none}
+#hero {max-width:min(710px,calc(100% - 48px))}
+#hero h1 {
+  font-family:var(--jp);font-weight:320;letter-spacing:-.014em;
+  font-size:clamp(36px,4.6vw,72px);line-height:1.17;
+  text-shadow:0 1px 3px #100b21b0,0 3px 22px #100b2194;
+}
+html[data-l=en] #hero h1 {
+  font-family:var(--en);font-weight:310;letter-spacing:-.047em;
+  font-size:clamp(41px,5.5vw,83px);line-height:1.02;
+}
+.pn h2,html[data-l=en] .pn h2 {font-weight:365;line-height:1.31;letter-spacing:-.018em}
+html[data-l=en] .pn h2 {letter-spacing:-.032em}
+.logo {font-family:var(--en);font-weight:505;letter-spacing:.13em}
+.lede,#bub,.pn p,.b,.later,.pn ol {font-weight:400}
+.lede {line-height:1.7}
+#bub {line-height:1.55}
+#tl button,.pn .k,.hs span,.sw2 button,.community a {font-weight:470}
+.ideas button,form.join button,.joinb {font-weight:520}
+form.join input,.hs span,#np {font-family:var(--jp)}
+@media(max-width:700px){
+  #hero{max-width:calc(100% - 28px)}
+  #hero h1{font-size:clamp(27px,7.3vw,47px)}
+  html[data-l=en] #hero h1{font-size:clamp(35px,9vw,55px)}
+  .pn h2{font-size:23px}
+}
+@media(max-height:550px){
+  #hero h1,html[data-l=en] #hero h1{font-size:clamp(24px,4.3vw,35px);margin-bottom:4px}
+}
+
+/* Official channels: keep the account handle readable over the room. */
+.bar .brandline{gap:20px}
+nav.community, .brandline nav.community, nav.community.inside{
+  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+  background:none;backdrop-filter:none;padding:0;border-radius:0;
+}
+.community a.social, .community.inside a.social{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:40px;padding:8px 15px;border-radius:12px;
+  font:500 14px/1.15 var(--en);letter-spacing:.012em;
+  border:1px solid transparent;color:#fff;text-decoration:none;
+  box-shadow:0 2px 14px #120b1b44;
+  transition:filter .16s ease,border-color .16s ease;
+}
+.community .social.social-x{background:#101018f2;border-color:#dddae46e}
+.community .social.social-discord{background:#4b52d1;border-color:#c9c9ff82}
+.community .social:hover{filter:brightness(1.17);border-color:#fff}
+.community .social:focus-visible{outline:2px solid #ffe2a8;outline-offset:3px}
+.community .social svg{display:block;flex:none;width:17px;height:17px;color:inherit}
+.community .social-discord svg{width:21px}
+nav.community.inside{border-top:1px solid var(--line);padding-top:16px;margin:16px 0 4px;flex-wrap:wrap}
+.community.inside a.social{min-height:44px}
+@media(max-width:700px){
+  .bar .brandline{gap:0}
+  .brandline nav.community{left:12px;top:calc(50px + env(safe-area-inset-top,0px));gap:6px}
+  .brandline .community a.social{min-height:35px;padding:7px 11px;gap:7px;font-size:12.5px;border-radius:9px}
+  .brandline .community .social svg{width:15px;height:15px}
+  .brandline .community .social-discord svg{width:19px}
+}
+@media(prefers-reduced-motion:reduce){.community a.social{transition:none}}
+
+@media(max-width:370px){html[data-l=en] #hero h1{font-size:clamp(27px,9.5vw,35px)}}
+
+/* The preview is playable now. The release light refers to the Mac app. */
+.release-tag{display:inline-flex;align-items:center;gap:9px;border:1px solid #f6d8b58c;background:linear-gradient(110deg,#261c28ed,#261e38e8);border-radius:6px;padding:7px 11px;min-height:32px;line-height:1;color:#fff1db;text-decoration:none;vertical-align:middle}
+button.release-tag{pointer-events:auto;cursor:pointer;margin:0 0 11px}
+button.release-tag:hover,button.release-tag:focus-visible{border-color:#ffe3b8;background:#3e2c3f}
+.release-light{width:6px;height:6px;border-radius:50%;background:#ffe2ac;box-shadow:0 0 9px #edc595a8;animation:release-glow 3.8s ease-in-out infinite}
+.soon-en{font:550 11px/1 var(--en);letter-spacing:.13em;text-transform:uppercase}
+.release-platform{font:450 11px/1.15 var(--jp);color:#f0e3ec;border-left:1px solid #d8adc159;padding-left:9px}
+.release-arrow{font:400 13px/1 var(--en);margin-left:2px;color:#ffe2b5}
+.release-note{margin-bottom:14px}.pn h2+p{margin-top:12px}
+@keyframes release-glow{50%{box-shadow:0 0 3px #edc59555}}
+@media(prefers-reduced-motion:reduce){.release-light{animation:none}}
+@media(max-height:540px){button.release-tag{min-height:25px;padding-block:4px;margin-bottom:4px}}
+
+#hero .film-cta{display:block;margin:4px 0 0}
+#uyi-watch-film{display:inline-flex;align-items:center;gap:7px;min-height:29px;padding:2px 4px 2px 0;border:0;background:transparent;color:#fff1e6;font:480 12px/1.35 var(--jp);letter-spacing:.02em;text-shadow:0 1px 6px #110b1a,0 1px 2px #110b1a;cursor:pointer;pointer-events:auto}
+#uyi-watch-film:hover{text-decoration:underline;text-underline-offset:3px}
+#uyi-watch-film:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
+.film-playmark{width:17px;height:17px;flex:none;display:grid;place-items:center;border:1px solid #ffe8d1bc;background:#281f36ae;border-radius:50%}
+.film-playmark::after{content:"";margin-left:1px;border-left:5px solid #ffecd7;border-top:3px solid transparent;border-bottom:3px solid transparent}
+#uyi-film-dialog{position:fixed;inset:0;z-index:12;width:min(1040px,calc(100vw - 34px));width:min(1040px,calc(100vw - 34px),calc(177svh - 135px));max-width:100%;max-height:calc(100svh - 22px);padding:0;margin:auto;overflow:auto;border:1px solid #8f7b9790;border-radius:14px;color:#fff4ec;background:#1b1522;box-shadow:0 25px 110px #100a1b94}
+#uyi-film-dialog:not([open]){display:none}
+#uyi-film-dialog::backdrop{background:rgba(15,10,22,.86);backdrop-filter:blur(6px)}
+.film-head{display:flex;align-items:center;justify-content:space-between;padding:5px 9px 5px 16px;gap:15px}
+#uyi-film-title{margin:0;font:450 14px/1.4 var(--jp);letter-spacing:.025em}
+#uyi-film-close{min-width:40px;min-height:40px;display:grid;place-items:center;background:transparent;color:inherit;border:0;font:300 25px/1 var(--en);cursor:pointer}
+#uyi-film-close:focus-visible{outline-offset:-2px}
+#uyi-film-player{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#100d12;object-fit:contain}
+.film-error{font:400 13px/1.5 var(--jp);padding:9px 15px;margin:0}
+.film-error a{color:#ffe3b5;text-decoration:underline;text-underline-offset:3px}
+#uyi-film-dialog [hidden]{display:none!important}
+@media(max-width:700px){#uyi-film-dialog{width:calc(100vw - 14px);border-radius:9px}#hero .film-cta{margin-top:2px}#uyi-watch-film{min-height:31px}}
+@media(max-height:550px){#hero .film-cta{margin-top:1px}#uyi-watch-film{min-height:24px}}
+
+/* Light appears in the same image coordinate system as the room objects. */
+#stage .uyi-moon-bloom {
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 25%, #fff4e26b 32%, #ddd6ff24 37%, transparent 58%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+#stage.moon .uyi-moon-bloom {
+  animation: uyi-moon-bloom 1.25s cubic-bezier(.19,.59,.32,1) .14s both;
+}
+@keyframes uyi-moon-bloom {
+  0%   {opacity: 0; transform: scale(.37)}
+  23%  {opacity: .72}
+  100% {opacity: 0; transform: scale(1.5)}
+}
+#stage .uyi-lamp-spill {
+  pointer-events: none;
+  clip-path: polygon(0 25%, 100% 0%, 100% 28%, 0 92%);
+  mix-blend-mode: screen;
+}
+#stage .uyi-lamp-spill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 15% 60%, #ffedc07a 0%, #ffc27765 21%, #ffae5c2e 49%, transparent 73%);
+  opacity: 0;
+  transform: scale(.45,.77);
+  transform-origin: 16% 60%;
+  transition: opacity .52s ease-out, transform .68s ease-out;
+}
+#stage.lamp-room #room {filter: brightness(1.07) sepia(.11) saturate(1.09)}
+#stage.lamp-room .uyi-lamp-spill::after {
+  opacity: 1;
+  transform: scale(1,1);
+  transition: opacity .8s ease-out .04s, transform 1.08s cubic-bezier(.17,.6,.28,1);
+}
+@media(prefers-reduced-motion:reduce) {
+  #stage.moon .uyi-moon-bloom {animation:none}
+  #stage .uyi-lamp-spill::after {transition:none;transform:none}
+}
+
+.release-platform{display:inline-flex;align-items:center;gap:5px}
+.release-platform .mac-mark{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.65}
+.platform-later{display:inline-flex;gap:6px;align-items:center;color:#d5c6db}
+.platform-later .path-mark{width:12px;height:8px;fill:none;stroke:currentColor;stroke-width:1.2;opacity:.76}
+.platform-later .win-mark{width:12px;height:12px;fill:currentColor;opacity:.86}
+#uyi-reaction{display:none;pointer-events:none}
+#bub.with-reaction{display:flex;align-items:center;gap:9px;padding:5px 12px 5px 5px;max-width:min(310px,65vw)}
+#bub.with-reaction #uyi-reaction{display:block;flex:0 0 auto;width:58px;height:54px;border-radius:12px 12px 12px 4px;object-fit:cover;object-position:58% 48%;background:#372839}
+html[data-l=ja] #bub.with-reaction e,html[data-l=en] #bub.with-reaction j{display:none}
+@media(max-width:700px){#bub.with-reaction{max-width:min(220px,65vw);font-size:12px;gap:7px}#bub.with-reaction #uyi-reaction{width:43px;height:44px;border-radius:10px}}
+@media(prefers-reduced-motion:no-preference){
+  #hero h1,#hero>.lede,#hero>.ideas{animation:uyi-enter-copy .52s cubic-bezier(.18,.68,.17,1) both}
+  #hero>.lede{animation-delay:.07s}#hero>.ideas{animation-delay:.11s}
+  @keyframes uyi-enter-copy{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+}
+
+#stage.over-character{cursor:pointer}
+#hello-spot.hs{height:24px;width:24px;color:#fff3dc;border-color:#f9dbaa;box-shadow:0 0 0 4px #ffe2ae19,0 2px 9px #382b4866;background:#3a2d42a3}
+#hello-spot.hs::after{content:"";margin:auto;width:7px;height:7px;border-radius:50%;background:#ffe3b0;box-shadow:0 0 6px #ffdc9f85}
+#hello-spot.hs::before{inset:-10px;border:0;animation:none}
+#hello-spot.hs span{top:50%;left:calc(100% + 7px);translate:0 -50%;opacity:.94;font-size:11px;padding:5px 8px;line-height:1.2}
+#stage.focus #hello-spot.hs span{opacity:0}
+@media(max-width:700px){#hello-spot.hs span{top:calc(100% + 5px);left:auto;right:-3px;translate:0 0;font-size:10px;padding:4px 6px}}
+
+#stage.music-open #dim {opacity:.24}
+#stage.music-open #bub, #stage.music-open #npw {visibility:hidden}
+#stage .eq {opacity:0}
+#stage.music-playing .eq {opacity:.35}
+.monitor-hit {position:absolute;z-index:3;display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:pointer}
+.monitor-hit:before {content:"";position:absolute;inset:0;clip-path:polygon(1% 0,93% 6%,100% 91%,9% 100%);background:rgba(225,195,255,.12);opacity:0;transition:opacity .18s}
+.monitor-hit:hover:before,.monitor-hit:focus-visible:before {opacity:1}
+.monitor-mark {display:grid;place-items:center;width:36px;height:36px;border:1.5px solid #ffe2ae;border-radius:50%;background:#3021359e;box-shadow:0 0 0 4px #ffe2ae20;color:#ffe8bd}
+.monitor-mark svg {width:16px;height:16px}
+.monitor-label {position:absolute;top:calc(50% + 24px);left:50%;translate:-50% 0;white-space:nowrap;font-size:12px;padding:3px 8px;border:1px solid #a38eaa;background:#211a2fea;border-radius:6px;opacity:0}
+.monitor-hit:hover .monitor-label,.monitor-hit:focus-visible .monitor-label {opacity:1}
+#stage.focus .monitor-hit {opacity:.38}
+#stage.music-open .monitor-hit {opacity:1}
+#p1 {--track:#dac2f3;--wash:#634776;--wave:#a08dac;top:clamp(86px,19vh,175px);height:auto;bottom:auto;right:clamp(16px,4vw,72px);width:min(380px,calc(100vw - 32px));max-height:calc(100dvh - 178px);padding:24px;border:1px solid #97869c8a;border-radius:18px;background:linear-gradient(140deg,#2f2537f5,#191521f7 84%);box-shadow:0 18px 64px #160f2954;backdrop-filter:blur(16px);translate:12px 0;opacity:0;transition:opacity .23s,translate .23s}
+#p1.on {opacity:1;translate:0 0}
+#p1[data-style=jazz] {--track:#efc693;--wash:#78583f;--wave:#b19777}
+#p1[data-style=ambient] {--track:#a4d7e1;--wash:#365d69;--wave:#82a3ae}
+#p1>.x {top:11px;right:10px;width:36px;height:36px;min-width:0;border:0;background:transparent;color:#c7bcca;font-size:24px;line-height:1}
+#p1 h2 {margin:0 16px 0 0;font:385 clamp(22px,2.4vw,26px)/1.3 var(--jp);letter-spacing:-.025em;color:#fff6f0}
+#p1 #music-voice {margin:8px 0 17px;color:#d8cad9;font-size:13px;line-height:1.5}
+.sound-display {padding:14px 14px 10px;margin-bottom:13px;border:1px solid #a99cac40;border-radius:8px;background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--wash) 32%,transparent),transparent 80%),#17131d;color:var(--track)}
+.sound-line {display:flex;align-items:center;justify-content:space-between;gap:8px}
+#music-track {font:410 20px/1 var(--en);letter-spacing:-.02em}
+#music-state {display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.4;color:#d5cbd8}
+#music-state:before {content:"";width:5px;height:5px;flex:none;border:1px solid currentColor;border-radius:50%}
+#p1[data-sound=playing] #music-state:before {color:var(--track);background:currentColor;box-shadow:0 0 5px var(--track)}
+#music-wave {display:block;width:100%;height:47px;margin-top:9px;stroke:var(--wave)}
+#music-wave .played-samples {stroke:var(--track)}
+.sound-choices {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.sound-choices button {border-radius:7px;border:1px solid #a897ac55;background:#ffffff06;min-height:40px;font:425 13px/1.25 var(--jp);color:#d9cfdc;padding:4px;cursor:pointer}
+.sound-choices button:hover {border-color:#dacbe1}
+.sound-choices [aria-pressed=true] {background:color-mix(in srgb,var(--wash) 38%,transparent);border-color:var(--track);color:#fff7f6}
+#music-transport {display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:38px;margin-top:12px;padding:6px 17px;border:1px solid #fff0dd75;border-radius:20px;font:525 13px/1.2 var(--jp);color:#251c27;background:#f4ddc2;cursor:pointer}
+#music-transport i {width:10px;height:10px;display:block;background:currentColor;clip-path:polygon(12% 0,100% 50%,12% 100%)}
+#p1:is([data-sound=playing],[data-sound=loading]) #music-transport i {clip-path:inset(9% round 1px)}
+@media(max-width:700px){
+  #p1 {top:auto;right:10px;bottom:calc(63px + env(safe-area-inset-bottom,0px));width:calc(100% - 20px);max-height:calc(100dvh - 162px);padding:18px;border-radius:15px;translate:0 10px}
+  #p1.on {translate:0 0}
+  #p1 #music-voice {margin:6px 0 12px}
+  .sound-display {padding:10px 12px 8px;margin-bottom:9px}
+  #music-wave {height:33px;margin-top:7px}
+  #p1>.x {top:8px;right:7px}
+}
+@media(max-height:520px){#p1 {top:48px;bottom:58px;max-height:none;overflow:auto}}
+
+#stage.music-open #bub {visibility:visible}
+#stage.music-open #bub::after {content:"";position:absolute;width:9px;height:9px;left:12px;bottom:-6px;transform:skewY(-32deg);border-left:1px solid #5b4b98;border-bottom:1px solid #5b4b98;background:#251c39}
+#p1 h2 {font-size:19px;margin:0 20px 16px 0}
+#p1 .sound-choices {margin-bottom:0}
+#p1[data-answered=false] :is(.sound-display,#music-transport) {display:none}
+#p1 .sound-display {margin:16px 0 0}
+#p1 #music-voice:empty {display:none}
+#p1 #music-voice {margin:10px 0 0}
+@media(max-width:700px){#p1 h2 {font-size:18px;margin-bottom:12px}#p1 .sound-display {margin-top:10px}}
+@media(max-height:520px) and (min-width:580px){#stage.music-open #bub {max-width:27vw}}
+/* Leave the character and the room visible around and through each card. */
+#stage.focus #dim {opacity:.22}
+.pn, #p1 {
+  --card-width:312px;
+  --card-top:clamp(75px,19vh,184px);
+  top:var(--card-top);right:clamp(16px,4.6vw,78px);bottom:auto;
+  width:min(var(--card-width),calc(100% - 28px));height:auto;
+  max-height:calc(100dvh - var(--card-top) - 76px);
+  padding:15px 17px 16px;
+  border:1px solid rgba(252,233,251,.33);border-radius:14px;
+  background:linear-gradient(133deg,rgba(42,30,47,.60),rgba(19,16,31,.55));
+  -webkit-backdrop-filter:blur(7px) saturate(.84);
+  backdrop-filter:blur(7px) saturate(.84);
+  box-shadow:0 7px 24px rgba(13,9,24,.18);
+  color:#fff8fb;overflow:auto;overscroll-behavior:contain;
+  translate:0 6px;opacity:0;transition:opacity .18s,translate .18s;
+}
+.pn.on, #p1.on {translate:0 0;opacity:1}
+#p1 {--card-width:279px}
+#p2 {--card-width:289px}
+#p3 {--card-width:292px}
+#p4 {--card-width:310px}
+#p5 {--card-width:316px}
+.pn h2, html[data-l=en] .pn h2, #p1 h2 {
+  margin:0 20px 9px 0;padding:0;
+  font-size:18px;line-height:1.35;font-weight:440;letter-spacing:-.018em;
+}
+#p3 h2 br {display:none}
+.pn>.x, #p1>.x {
+  top:3px;right:3px;width:34px;height:34px;margin:0;padding:0;
+  display:grid;place-items:center;border:0;background:transparent;
+  font:350 21px/1 var(--en);color:#f7ebfa;border-radius:50%;
+}
+.pn>.x:focus-visible, #p1>.x:focus-visible {outline-offset:-4px}
+.pn .k,.pn p,.pn ol,.pn .later {font-size:13px;line-height:1.58}
+.pn .k {margin:2px 0 8px;color:#efe1f3}
+.pn p,.pn h2+p {margin:6px 0 0}
+.pn p:last-child {margin-bottom:0}
+.pn ol {padding-inline-start:1.55em;margin:7px 0 10px}
+.pn ol li+li {margin-top:3px}
+.pn .later {padding:8px 10px;border:1px solid #ffffff34;border-radius:8px;background:#21182540;color:#f0e6f2;font-size:12px}
+#p1 .sound-display {margin-top:9px;padding:8px 10px;border-color:#ffffff3c;background:#21192b66}
+#music-track {font-size:17px}
+#music-wave {height:24px;margin-top:4px}
+#music-transport {margin-top:7px;min-height:32px;padding:4px 12px;font-size:12px}
+#p1 .sound-choices, #company-choices {gap:5px}
+#company-choices {display:flex;flex-wrap:wrap;margin-top:9px}
+#p1 .sound-choices button,#company-choices button {
+  min-height:34px;padding:4px 6px;border-radius:7px;font:450 12px/1.35 var(--jp);
+  color:#fff8ff;border:1px solid #f0dcf46a;background:#20182850;cursor:pointer;
+}
+#company-choices button {padding-inline:10px}
+#company-voice {margin-top:6px}
+#p1 .sound-choices button:hover,#company-choices button:hover {background:#4c3d56aa;border-color:#ffebf3}
+#p1 .sound-choices [aria-pressed=true],#company-choices [aria-pressed=true] {
+  border-color:var(--track,#e5c8ee);background:#514057ad;
+}
+.creator-soon {
+  display:inline-block;vertical-align:middle;white-space:nowrap;
+  font:500 10px/1.2 var(--en);letter-spacing:.025em;color:#ffe1ac;
+}
+#tl .creator-soon {margin-inline-start:5px;opacity:.92}
+#p3 .creator-soon {margin:0 0 5px;padding:2px 6px;border:1px solid #ffdfa653;border-radius:20px}
+#p5 .release-note {margin:0 0 8px;min-height:25px;padding:4px 7px}
+#p5 form.join {gap:6px;margin-top:8px}
+#p5 form.join input,#p5 form.join button {
+  width:100%;min-width:0;min-height:36px;padding:7px 10px;border-radius:8px;
+}
+#p5 form.join input {background:#201a2c80;border-color:#e2cfee75;font-size:16px}
+#p5 form.join input::placeholder {color:#ccbdce}
+#p5 form.join button {font-size:13px}
+#p5 .provider {font-size:11px!important;line-height:1.45;opacity:1;color:#ebdfed}
+#p5 nav.community.inside {margin:8px 0 0;padding:8px 0 0;border-top:1px solid #ffffff40;gap:6px}
+#p5 nav.community.inside a {min-height:32px;padding:5px 9px;font-size:12px}
+#p5 nav.community.inside svg {height:14px}
+#tl button {padding-inline:11px;min-height:36px}
+@media(max-width:700px) {
+  .pn,#p1 {
+    top:auto;right:max(12px,calc((100% - var(--card-width))/2));
+    bottom:calc(58px + env(safe-area-inset-bottom,0px));
+    max-height:min(48dvh,calc(100dvh - 150px));padding:13px 14px 14px;border-radius:12px;
+  }
+  #tl button {padding-inline:9px;min-height:38px}
+}
+@media(max-height:520px) and (min-width:701px) {
+  .pn,#p1 {--card-top:54px;max-height:calc(100dvh - 113px)}
+}
+@media(prefers-reduced-transparency:reduce) {
+  .pn,#p1 {background:#2a2032}
+}
+#tl {
+  gap:6px;padding:8px 16px calc(9px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(0deg,rgba(13,10,27,.55),rgba(13,10,27,.17));
+}
+#tl button {
+  min-height:34px;padding:5px 10px;font-size:12px;border-radius:9px;
+  color:#fff5fe;background:rgba(29,23,43,.45);border-color:rgba(229,209,239,.33);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+#tl button:hover,#tl button:focus-visible {background:rgba(64,46,69,.67);border-color:#dbbfdb}
+#tl button.cur {background:rgba(102,77,69,.58);border-color:#eed7a4;color:#fff0d0}
+#p1 .sound-choices button {white-space:nowrap;padding-inline:2px}
+@media(max-width:700px) {
+  #tl {gap:5px;padding:6px 9px calc(7px + env(safe-area-inset-bottom,0px))}
+  #tl button {min-height:36px;padding-inline:8px}
+}
+
+#stage.company-open #bub {visibility:visible}
+@media(max-width:700px){#stage.focus #npw {visibility:hidden}}
+#stage.company-still #bub {opacity:0}
+#stage.company-still .hs:before {animation-play-state:paused;opacity:0}
+@media(prefers-reduced-motion:no-preference){#stage.company-still #bub {transition:opacity .8s ease-out}}
+#tl .privacy-entry {align-self:center;flex:0 0 auto;margin-inline-start:auto;padding:5px 6px;font-size:11px;line-height:1.4;color:#e1d6e8;text-decoration:underline;text-underline-offset:3px}
+#p5 .privacy-before-send {margin:0;font-size:12px;line-height:1.55;color:#f4eaf3}
+#p5 .privacy-before-send a,.legal-dialog a {color:#ffe1b4;text-decoration:underline;text-underline-offset:2px}
+.legal-dialog {box-sizing:border-box;width:min(456px,calc(100vw - 24px));max-height:calc(100dvh - 40px);max-width:none;border:1px solid #978998a6;border-radius:14px;padding:0;margin:auto;color:#fbf5fc;background:#241e2cf5;box-shadow:0 10px 42px #100b1e4a;overflow:hidden}
+.legal-dialog[open] {display:flex;flex-direction:column}
+.legal-dialog::backdrop {background:#120c1f80}
+.legal-dialog header {flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px 10px 19px;border-bottom:1px solid #e7d4fa28}
+.legal-dialog h2 {margin:0;font-size:19px;font-weight:440;letter-spacing:-.02em;line-height:1.35}
+.legal-dialog .privacy-close {width:32px;height:32px;flex:none;background:transparent;color:inherit;border:0;border-radius:50%;font:400 23px/1 var(--en);cursor:pointer}
+.legal-dialog .privacy-sr {position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
+.privacy-copy {padding:14px 19px 18px;overflow-y:auto;overscroll-behavior:contain;min-height:0;overflow-wrap:anywhere}
+.privacy-copy h3 {margin:14px 0 4px;font-size:14px;font-weight:550;line-height:1.5;color:#fff3df}
+.privacy-copy h3:first-child {margin-top:0}
+.privacy-copy p {margin:4px 0;font-size:13px;line-height:1.65;color:#eee8f0}
+.privacy-copy .privacy-draft {margin-top:14px;padding-top:8px;border-top:1px solid #e7d4fa28;font-size:12px}
+@media(max-width:700px){.legal-dialog {max-height:min(77dvh,650px)}}
+</style>
+
+<style id="tone-down">
+/* --- de-AI pass: same design, less ornament --- */
+/* no glow on UI chrome (the room keeps its own light) */
+.eq b{box-shadow:none}
+.hs::before{display:none}
+.monitor-mark{box-shadow:none}
+#bub{box-shadow:none}
+.ideas button[aria-pressed=true]{box-shadow:none;border-color:#ffe4aa}
+/* no glassmorphism: solid ink surfaces instead of blur */
+#bub{backdrop-filter:none;background:rgba(15,12,40,.95)}
+.pn{backdrop-filter:none;background:#0f0b24f7}
+#p1{background:#241c2ef7}
+.community{backdrop-filter:none;background:#130d23ef}
+.ideas button{backdrop-filter:none;background:#241b2ee8}
+button.release-tag{background:#1d1626f0}
+.sound-display{background:#17131d}
+#tl{background:rgba(11,9,32,.95)}
+/* calmer corner scale (no full pills) */
+.sw2,.joinb,.ideas button,#music-transport,#tl button,.community{border-radius:8px}
+#p1{border-radius:12px}
+.pn{border-radius:12px}
+#bub{border-radius:10px 10px 10px 2px}
+#uyi-film-dialog,.legal-dialog{border-radius:10px}
+/* drawn icons instead of text glyphs */
+.gist{font-size:0;display:inline-grid;place-items:center;width:15px;height:15px}
+.gist svg{width:15px;height:15px}
+/* type hierarchy: JP proportional kerning for headings, calmer line rhythm */
+.pn h2,.legal-dialog h2,.privacy-copy h3,#hero h1{font-feature-settings:"palt"}
+.pn p,.later{line-height:1.8}
+#hero .lede{line-height:1.7}
+.sound-line,#music-transport{letter-spacing:.03em}
+@media(max-width:700px){
+  .ideas .gist{width:13px;height:13px}
+  .ideas .gist svg{width:13px;height:13px}
+  .pn{border-radius:12px 12px 0 0}
+  #p1{border-radius:12px}
+}
+</style>
+<style>
+#tl .legal-nav{display:flex;align-items:center;flex:none;gap:10px;margin-inline-start:auto;padding-inline:4px}
+.legal-nav a,.signup-legal-links a{color:#e9ddeb;text-decoration:underline;text-underline-offset:3px;font-size:12px}
+#p5 .tf-signup{display:grid;gap:7px;margin-block:10px}
+#p5 .tf-open{display:block;padding:9px 12px;border-radius:8px;color:#281c29;background:var(--lamp);font-weight:550;text-decoration:none;text-align:center}
+#p5 .signup-legal-links{display:flex;flex-wrap:wrap;gap:4px 13px;margin:0}
+</style>
+</head>
+<body>
+<div id="stage">
+  <picture id="room-pic"><source type="image/avif" sizes="(min-width:701px) 1672px, 100vw" srcset="/assets/img/room-640.avif 640w, /assets/img/room-960.avif 960w, /assets/img/room-1280.avif 1280w, /assets/img/room-1672.avif 1672w"><source type="image/webp" sizes="(min-width:701px) 1672px, 100vw" srcset="/assets/img/room-640.webp 640w, /assets/img/room-960.webp 960w, /assets/img/room-1280.webp 1280w, /assets/img/room-1672.webp 1672w"><img id="room" src="/assets/img/room-1672.jpg" alt="UYI concept art: a purple-haired character at home above a night city" width="1672" height="941" fetchpriority="high" decoding="async"></picture>
+  <canvas id="moon-disc" class="ab" width="80" height="80" aria-hidden="true" data-b="1546,210,43,43"></canvas>
+  <div class="ab mg" data-b="1492,155,150,150"></div>
+  <div class="ab lg" data-b="-40,260,260,260"></div>
+  <div class="ab eq" data-b="285,320,150,92"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
+  <div class="ab" id="npw" data-b="300,172,230,30"><div id="np" style="height:100%"><span id="npt"></span></div></div>
+  <div id="bub" data-p="760,70" role="status" aria-live="polite"><video id="uyi-reaction" preload="none" muted playsinline disablepictureinpicture aria-hidden="true"></video><j id="bj"></j><e id="be"></e></div>
+  <div id="shade"></div><div id="dim"></div>
+  <button class="monitor-hit" type="button" id="monitor-spot" data-t="1" data-b="249,295,204,190" aria-controls="p1" aria-expanded="false"><i class="monitor-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 9v2m3-5v8m4-12v16m4-13v10m3-7v4"/></svg></i><span class="monitor-label"><j>一緒に聴く</j><e>Listen together</e></span></button>
+  <button class="hs" id="hello-spot" type="button" data-x="880" data-y="312"><span><j>声をかける</j><e>Say hello</e></span></button>
+  <button type="button" class="hs" id="lamp-spot" aria-pressed="false" data-x="85" data-y="385"><span><j>ランプ</j><e>Lamp</e></span></button>
+  <button class="hs" data-t="4" data-x="1290" data-y="590"><span><j>最初の部屋</j><e>First room</e></span></button>
+  <button class="hs" data-t="5" data-x="260" data-y="605"><span><j>先行案内</j><e>Get updates</e></span></button>
+  <button type="button" class="hs" aria-pressed="false" id="hm" data-x="1567" data-y="235"><span><j>月</j><e>Moon</e></span></button>
+</div>
+
+<div class="bar"><div class="brandline"><span class="logo">UYI</span><nav class="community" aria-label="UYIの公式SNS"><a class="social social-x" href="https://x.com/UYI_jp" aria-label="UYIの日本語公式Xアカウント" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg><span class="handle">@UYI_jp</span></a><a class="social social-discord" href="https://discord.gg/TZZRtj9cY" aria-label="UYIのDiscordコミュニティに参加する" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M40.9051 0C40.2863 1.09866 39.7306 2.2352 39.2255 3.397C34.4268 2.67719 29.5396 2.67719 24.7283 3.397C24.2358 2.2352 23.6675 1.09866 23.0487 0C18.5404 0.770324 14.1458 2.12155 9.97847 4.02841C1.71959 16.2652 -0.51561 28.1863 0.595677 39.9432C5.4323 43.517 10.8498 46.2447 16.6209 47.9874C17.9216 46.2447 19.0708 44.3883 20.0558 42.4562C18.1868 41.7616 16.381 40.8903 14.6509 39.88C15.1055 39.5517 15.5475 39.2107 15.9769 38.8824C26.1174 43.6559 37.8617 43.6559 48.0148 38.8824C48.4441 39.236 48.8861 39.577 49.3407 39.88C47.6107 40.9029 45.8048 41.7616 43.9232 42.4688C44.9082 44.4009 46.0574 46.2573 47.3581 48C53.1292 46.2573 58.5467 43.5422 63.3834 39.9684C64.6967 26.3299 61.1355 14.5099 53.9753 4.04104C49.8206 2.13418 45.426 0.782952 40.9177 0.0252565L40.9051 0ZM21.4702 32.7072C18.351 32.7072 15.7622 29.8785 15.7622 26.3804C15.7622 22.8824 18.25 20.041 21.4576 20.041C24.6651 20.041 27.216 22.895 27.1655 26.3804C27.115 29.8658 24.6525 32.7072 21.4702 32.7072ZM42.5089 32.7072C39.3771 32.7072 36.8135 29.8785 36.8135 26.3804C36.8135 22.8824 39.3013 20.041 42.5089 20.041C45.7164 20.041 48.2547 22.895 48.2042 26.3804C48.1537 29.8658 45.6912 32.7072 42.5089 32.7072Z"/></svg><span>Discord</span></a></nav></div><div class="r"><button class="joinb" data-t="5"><j>先行案内</j><e>Notify me</e></button><div class="sw2" role="group" aria-label="Language"><button id="bj0" data-set="ja">日本語</button><button id="be0" data-set="en">EN</button></div></div></div>
+
+<div id="hero">
+  <button type="button" class="release-tag" data-t="5"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span><span class="release-arrow" aria-hidden="true">↗</span></button>
+  <h1><j>あなたのひらめきに、<br>小さな世界が応える。</j><e>Your idea brings<br>this room to life.</e></h1>
+  <p class="lede"><j>窓の月に触れてみて。月が大きくなったら、彼女はなんて言うかな。</j><e>What would she say if the moon were bigger? Tap the moon and see.</e></p>
+  <div class="ideas"><button type="button" id="wish-moon" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.2 9.9A6 6 0 1 1 6.1 2.8a5 5 0 1 0 7.1 7.1z"/></svg></span><j>月を大きくして</j><e>Make the moon bigger</e></button><button type="button" id="wish-lamp" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.8a4.3 4.3 0 0 1 2.7 7.6c-.5.4-.8 1-.8 1.6H6.1c0-.6-.3-1.2-.8-1.6A4.3 4.3 0 0 1 8 1.8z"/><path d="M6.5 13.4h3"/></svg></span><j>あたたかい灯りにして</j><e>Warm up the light</e></button></div>
+  <p class="cc film-cta"><button type="button" id="uyi-watch-film" aria-haspopup="dialog" aria-controls="uyi-film-dialog"><span class="film-playmark" aria-hidden="true"></span><j>15秒のコンセプト映像</j><e>Watch the concept visualization</e></button></p>
+</div>
+<nav id="tl" aria-label="Room guide">
+  <button data-t="1" aria-controls="p1" aria-expanded="false"><j>一緒に聴く</j><e>Listen together</e></button>
+  <button data-t="2"><j>一緒に過ごす</j><e>Spend time together</e></button>
+  <button data-t="3"><j>クリエイター</j><e>Creators</e> <span class="creator-soon" lang="en">Coming soon</span></button>
+  <button data-t="4"><j>最初の部屋</j><e>First room</e></button>
+  <button data-t="5"><j>先行案内</j><e>Get updates</e></button>
+  <span class="legal-nav"><a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog"><j>プライバシーポリシー</j><e>Privacy Policy</e></a><a href="#terms" data-terms-open aria-controls="terms" aria-haspopup="dialog"><j>利用規約</j><e>Terms of Use</e></a></span></nav>
+
+<section class="pn" id="p1" aria-labelledby="music-title" data-style="lofi" data-sound="stopped" data-answered="false">
+  <button class="x" type="button" aria-label="Close">×</button>
+  <h2 id="music-title"><j>何が聴きたい？</j><e>What would you like to hear?</e></h2>
+  <div class="sound-choices" role="group" aria-labelledby="music-title">
+    <button id="style-lofi" type="button" data-style="lofi" aria-pressed="false"><j>ローファイ</j><e>Lo-fi</e></button>
+    <button id="style-jazz" type="button" data-style="jazz" aria-pressed="false"><j>ジャズ</j><e>Jazz</e></button>
+    <button id="style-ambient" type="button" data-style="ambient" aria-pressed="false"><j>アンビエント</j><e>Ambient</e></button>
+  </div>
+  <div class="sound-display">
+    <div class="sound-line"><span id="music-track">Lo-fi</span><span id="music-state"><j>試聴</j><e>Preview</e></span></div>
+    <svg id="music-wave" viewBox="0 0 330 50" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <defs><clipPath id="music-progress"><rect id="played-width" width="0" height="50"/></clipPath></defs>
+      <path id="sample-shape" fill="none" stroke-linecap="round" stroke-width="1.7"/>
+      <use href="#sample-shape" clip-path="url(#music-progress)" class="played-samples"/>
+    </svg>
+  </div>
+
+  <button type="button" id="music-transport"><i aria-hidden="true"></i><span><j>再生</j><e>Play</e></span></button>
+</section>
+<section class="pn" id="p2" aria-labelledby="company-title"><button type="button" class="x" aria-label="Close">×</button>
+  <h2 id="company-title"><j>ふたりで、ひと休み</j><e>A moment together</e></h2>
+  <div id="company-choices" role="group" aria-labelledby="company-title">
+    <button id="company-read" type="button" aria-pressed="false"><j>読書につきあって</j><e>Read with me</e></button>
+    <button id="company-quiet" type="button" aria-pressed="false"><j>静かに過ごそう</j><e>Sit quietly</e></button>
+  </div>
+</section>
+<section class="pn" id="p3"><button class="x" aria-label="Close">×</button>
+  <span class="creator-soon" lang="en">Coming soon</span><h2><j>あなたの灯りを、この部屋に</j><e>A place for your lamp</e></h2><span class="k"><j>3Dの小物をつくる方へ</j><e>For creators of 3D objects</e></span>
+  <p><j>たとえば、あなたが手がけたデスクランプを、日が暮れたら彼女が灯す。作り手の作品がこの部屋でどう使われるか、そんな場面を思い描いています。</j><e>Imagine her switching on a desk lamp you designed as the daylight fades. We’re exploring how the objects you make could become part of her day.</e></p>
+</section>
+<section class="pn" id="p4"><button class="x" aria-label="Close">×</button>
+  <h2><j>Macで開発中の体験</j><e>Inside the Mac app</e></h2><span class="k"><j>最初の部屋では、こんなやりとりを試しています。</j><e>Here’s the interaction we’re testing in the first room.</e></span>
+  <ol><li><j>やってみたいことを文字で伝える</j><e>You type an idea.</e></li><li><j>彼女が声や表情、しぐさで応える</j><e>She responds with her voice, expression and gestures.</e></li><li><j>彼女の行動で、部屋の中のものが変わる</j><e>She acts on your idea, and something in the room changes.</e></li></ol>
+  <div class="later"><j>クリエイターの作品を部屋に飾る機能は、初回リリース後に検討します。</j><e>After the first release, we’ll explore bringing creators’ work into the room.</e></div>
+</section>
+<section class="pn" id="p5"><button class="x" aria-label="Close">×</button>
+  <div class="release-tag release-note"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span></div>
+  <h2><j>先行体験のご案内</j><e>Hear when early access opens</e></h2>
+  <p id="signup-purpose"><j>ご登録のメールアドレスに、先行体験の募集開始と開発の節目をお知らせします。</j><e>Sign up to receive early access news and occasional UYI development updates by email.</e></p>
+  <div class="tf-signup">
+    <a class="tf-open" href="https://form.typeform.com/to/jvYh36rD" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"><j>Typeformでメール登録 ↗</j><e>Sign up on Typeform ↗</e></a>
+    <p class="signup-legal-links"><a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog"><j>プライバシーポリシー</j><e>Privacy Policy</e></a><a href="#terms" data-terms-open aria-controls="terms" aria-haspopup="dialog"><j>利用規約</j><e>Terms of Use</e></a></p>
+  </div>
+  <nav class="community inside" aria-label="UYIの公式SNS"><a class="social social-x" href="https://x.com/UYI_jp" aria-label="UYIの日本語公式Xアカウント" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg><span class="handle">@UYI_jp</span></a><a class="social social-discord" href="https://discord.gg/TZZRtj9cY" aria-label="UYIのDiscordコミュニティに参加する" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M40.9051 0C40.2863 1.09866 39.7306 2.2352 39.2255 3.397C34.4268 2.67719 29.5396 2.67719 24.7283 3.397C24.2358 2.2352 23.6675 1.09866 23.0487 0C18.5404 0.770324 14.1458 2.12155 9.97847 4.02841C1.71959 16.2652 -0.51561 28.1863 0.595677 39.9432C5.4323 43.517 10.8498 46.2447 16.6209 47.9874C17.9216 46.2447 19.0708 44.3883 20.0558 42.4562C18.1868 41.7616 16.381 40.8903 14.6509 39.88C15.1055 39.5517 15.5475 39.2107 15.9769 38.8824C26.1174 43.6559 37.8617 43.6559 48.0148 38.8824C48.4441 39.236 48.8861 39.577 49.3407 39.88C47.6107 40.9029 45.8048 41.7616 43.9232 42.4688C44.9082 44.4009 46.0574 46.2573 47.3581 48C53.1292 46.2573 58.5467 43.5422 63.3834 39.9684C64.6967 26.3299 61.1355 14.5099 53.9753 4.04104C49.8206 2.13418 45.426 0.782952 40.9177 0.0252565L40.9051 0ZM21.4702 32.7072C18.351 32.7072 15.7622 29.8785 15.7622 26.3804C15.7622 22.8824 18.25 20.041 21.4576 20.041C24.6651 20.041 27.216 22.895 27.1655 26.3804C27.115 29.8658 24.6525 32.7072 21.4702 32.7072ZM42.5089 32.7072C39.3771 32.7072 36.8135 29.8785 36.8135 26.3804C36.8135 22.8824 39.3013 20.041 42.5089 20.041C45.7164 20.041 48.2547 22.895 48.2042 26.3804C48.1537 29.8658 45.6912 32.7072 42.5089 32.7072Z"/></svg><span>Discord</span></a></nav>
+</section>
+
+<script>
+/* Asset URLs (extracted from the original single-file page). */
+window.UyiAssets = {
+  matte: '/assets/img/actor-matte.png',
+  clean: '/assets/img/actor-clean.avif',
+  three: '/assets/js/three.min.js',
+  reaction: '/assets/media/reaction.mp4',
+  filmJa: '/assets/media/film-ja.mp4',
+  filmEn: '/assets/media/film-en-1080.mp4',
+  music: {lofi: '/assets/media/music-lofi.mp3', jazz: '/assets/media/music-jazz.mp3', ambient: '/assets/media/music-ambient.mp3'}
+};
+window.UyiActorMatte = window.UyiAssets.matte;
+window.UyiActorClean = window.UyiAssets.clean;
+window.uyiReactionURL = window.UyiAssets.reaction;
+window.uyiFilmURL = window.UyiAssets.filmJa;
+window.uyiFilmEnURL = window.UyiAssets.filmEn;
+</script>
+<script>
+/* Preview player: decodes short MP3 loops through WebAudio, loaded on demand. */
+(() => {
+  'use strict';
+  const lengths = {"lofi": 24.303812, "jazz": 17.777781, "ambient": 25.945937};
+  const buffers = new Map();
+  let context;
+  let active;
+  let request = 0;
+  let suspension;
+  function interrupted() {
+    return new DOMException('The preview was stopped.', 'AbortError');
+  }
+  function sourceAvailable() {
+    return !document.hidden && !document.getElementById('uyi-film-dialog')?.open;
+  }
+  function dropActive(immediate = false) {
+    if (!active) return;
+    const {source, gain, began} = active;
+    active = null;
+    source.onended = () => { source.disconnect(); gain.disconnect(); };
+    const now = context.currentTime;
+    if (immediate || context.state !== 'running') {
+      source.stop();
+      return;
+    }
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(Math.min(1, Math.max(0, (now - began) / .13)), now);
+    gain.gain.linearRampToValueAtTime(0, now + .1);
+    source.stop(now + .11);
+  }
+  function stop() {
+    ++request;
+    clearTimeout(suspension);
+    dropActive(document.hidden);
+    suspension = setTimeout(() => {
+      if (!active && context?.state === 'running') context.suspend().catch(() => {});
+    }, 160);
+    window.dispatchEvent(new Event('uyi-room-audio-stop'));
+  }
+  function reportInterruption() {
+    if (!active) return;
+    stop();
+    window.dispatchEvent(new Event('uyi-room-audio-error'));
+  }
+  function getContext() {
+    if (context) return context;
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) throw new Error('Audio playback is unavailable.');
+    context = new Audio();
+    context.addEventListener('statechange', () => {
+      if (sourceAvailable() && context.state !== 'running') reportInterruption();
+    });
+    return context;
+  }
+  function decode(style, audio) {
+    if (!buffers.has(style)) {
+      const pending = fetch(window.UyiAssets.music[style])
+        .then(r => { if (!r.ok) throw new Error('Preview unavailable'); return r.arrayBuffer(); })
+        .then(bytes => audio.decodeAudioData(bytes))
+        .catch(error => {
+          buffers.delete(style);
+          throw error;
+        });
+      buffers.set(style, pending);
+    }
+    return buffers.get(style);
+  }
+  function progress() {
+    if (!active) return 0;
+    const elapsed = Math.max(0, context.currentTime - active.began);
+    return (elapsed % active.length) / active.length;
+  }
+  async function play(style) {
+    if (!Object.prototype.hasOwnProperty.call(window.UyiAssets.music, style)) throw new RangeError('Unknown music style.');
+    if (!sourceAvailable()) throw interrupted();
+    if (active?.style === style && context.state === 'running') return;
+    const token = ++request;
+    clearTimeout(suspension);
+    dropActive();
+    const audio = getContext();
+    // Request audio focus within the click, before the asynchronous MP3 decode.
+    const [, buffer] = await Promise.all([audio.resume(), decode(style, audio)]);
+    if (token !== request || !sourceAvailable()) throw interrupted();
+    if (audio.state !== 'running') throw new Error('Audio playback was interrupted.');
+    const source = audio.createBufferSource();
+    const gain = audio.createGain();
+    const began = audio.currentTime;
+    const length = Math.min(lengths[style], buffer.duration);
+    source.buffer = buffer;
+    source.loop = true;
+    source.loopEnd = length;
+    source.connect(gain);
+    gain.connect(audio.destination);
+    gain.gain.setValueAtTime(0, began);
+    gain.gain.linearRampToValueAtTime(1, began + .13);
+    source.onended = reportInterruption;
+    source.start(began);
+    active = {style, source, gain, began, length};
+  }
+  window.UyiRoomAudio = Object.freeze({play, stop, progress});
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
+  window.addEventListener('pagehide', stop);
+  window.addEventListener('uyi-film-open', stop);
+})();
+
+</script>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},S=$('stage'),R=$('room'),W=1672,H=941,cur=0,bt,ni=0,camera='home',cameraX=.42,anim=0,lastUser=0;
+var T={1:["一緒に聴く","Listen together"],2:["一緒に過ごす","Spend time together"],3:["クリエイター","Creators"],4:["最初の部屋","First room"],5:["先行案内","Get updates"]};
+var L=[["見て、この鉢。新しい葉っぱが出てきたよ。","There’s a new leaf on my plant."],["作業、続けてていいよ。わたし、ここにいるから。","Take your time. I’ll be right here."],["今夜は、ここから月がよく見えるね。","The moon is so clear tonight."]];
+var P={1:["ねえ、一緒に音楽でも聴かない？","Want to put some music on?"],2:["隣、空いてるよ。今日はどう過ごそうか。","There’s room beside me. What would you like to do?"],3:["この部屋には、どんなランプが似合うかな。","What kind of lamp would suit this room?"],4:["ここから始めるよ。","This is where we start."],5:["待ってるね。","I’ll be waiting."]};
+function lang(){return document.documentElement.dataset.l}
+function lay(){var w=innerWidth,h=innerHeight,s=Math.max(w/W,h/H),ox=(w-W*s)*cameraX,oy=(h-H*s)*.3;
+ R.style.width=W*s+'px';R.style.height=H*s+'px';R.style.left=ox+'px';R.style.top=oy+'px';
+ document.querySelectorAll('[data-b]').forEach(function(e){var b=e.dataset.b.split(',').map(Number);e.style.left=ox+b[0]*s+'px';e.style.top=oy+b[1]*s+'px';e.style.width=b[2]*s+'px';e.style.height=b[3]*s+'px'});
+ document.querySelectorAll('.hs').forEach(function(e){e.style.left=ox+e.dataset.x*s+'px';e.style.top=oy+e.dataset.y*s+'px'});
+ var p=$('bub');p.style.left=Math.max(8,Math.min(w-p.offsetWidth-8,ox+760*s))+'px';p.style.top=Math.max(w<701?92:70,oy+60*s)+'px';const signupSpot=S.querySelector('.hs[data-t="5"]');const labelBounds=document.querySelector('#hero h1').getBoundingClientRect();const spotBounds=signupSpot.getBoundingClientRect();
+ signupSpot.style.visibility=!cur&&spotBounds.left<labelBounds.right&&spotBounds.right>labelBounds.left&&spotBounds.top<labelBounds.bottom&&spotBounds.bottom>labelBounds.top?'hidden':'';}
+let ideaFrameTimer;
+function cancelIdeaFrame(){clearTimeout(ideaFrameTimer)}
+function frameIdea(where){
+  if(where==='home'||innerWidth>700||motionPreference.matches||!mainActorReady()){aim(where);return}
+  const wasAway=camera!=='home';
+  aim('home');
+  ideaFrameTimer=setTimeout(function(){
+    aim(where);
+    ideaFrameTimer=setTimeout(function(){if(!cur)aim('home')},1750);
+  },wasAway?900:620);
+}
+function aim(where){
+ cancelIdeaFrame();
+ camera=where;var goal={moon:.99,lamp:.015,home:.42}[where];if(innerWidth>700)goal=.42;
+ cancelAnimationFrame(anim);var start=performance.now(),from=cameraX;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){cameraX=goal;lay();return;}
+ function step(now){var t=Math.max(0,Math.min(1,(now-start)/520));cameraX=from+(goal-from)*(1-Math.pow(1-t,3));lay();if(t<1)anim=requestAnimationFrame(step);}
+ anim=requestAnimationFrame(step);
+}
+function paintMoon(){if(!R.complete||!R.naturalWidth)return;var c=$('moon-disc'),ctx=c.getContext('2d');if(ctx)ctx.drawImage(R,1546,210,43,43,0,0,80,80)}
+R.addEventListener('load',paintMoon);paintMoon();
+function say(a){var b=$('bub');b.classList.add('sw');clearTimeout(bt);bt=setTimeout(function(){$('bj').textContent=a[0];$('be').textContent=a[1];b.classList.remove('sw');lay()},220)}
+function np(){var t=cur?T[cur]:["お部屋","Room"];$('npt').textContent=lang()=='ja'?(cur?'0'+cur+' '+t[0]:t[0]):(cur?'0'+cur+' '+t[1]:t[1])}
+function open(n){
+ if(cur===2&&n!==2){
+   resetCompany();
+   if(!n)say(['また隣においでね。','Come sit with me again.']);
+ }
+ S.classList.toggle('company-open',n===2);
+ const leavingMusic=cur===1&&n!==1;
+ if(leavingMusic){
+   stopMusic();
+   if(!n)say(heardMusic?['また一緒に聴こうね。','Let’s listen together again sometime.']:['ここにいるよ。','I’m right here.']);
+   heardMusic=false;
+ }
+ if(n===1&&cur!==1){
+   musicPanel.dataset.answered='false';
+   renderStyle(selectedStyle);
+   window.dispatchEvent(new CustomEvent('uyi-actor-gesture',{detail:'hello'}));
+ }
+ S.classList.toggle('music-open',n===1);
+ document.querySelectorAll('[data-t="1"]').forEach(b=>b.setAttribute('aria-expanded',String(n===1)));
+ cur=n;lastUser=Date.now();if(n||camera!=='home')aim('home');document.querySelectorAll('.pn').forEach(function(p){p.classList.toggle('on',p.id=='p'+n)});
+ document.querySelectorAll('#tl button,.hs').forEach(function(b){b.classList.toggle('cur',+b.dataset.t===n)});
+ S.classList.toggle('focus',!!n);S.classList.toggle('lamp',n===3);np();if(n)say(P[n])}
+function close(){open(0)}
+document.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){var n=+b.dataset.t;open(cur===n?0:n)})});
+document.querySelectorAll('.x').forEach(function(b){b.onclick=close});
+addEventListener('keydown',function(e){if(e.key=='Escape')close()});
+function moon(){lastUser=Date.now();if(cur)close();var on=S.classList.toggle('moon');$('hm').setAttribute('aria-pressed',on);$('wish-moon').setAttribute('aria-pressed',on);frameIdea(on?'moon':'home');say(on?["ほら、さっきより月が大きく見えるね。","Look at the window. The moon is glowing brighter."]:["いつもの月に戻したよ。","There’s our familiar moon again."]);}
+function setWarmLamp(on){
+ S.classList.toggle('lamp-room',on);
+ $('lamp-spot').setAttribute('aria-pressed',on);
+ $('wish-lamp').setAttribute('aria-pressed',on);
+}
+function lamp(){lastUser=Date.now();if(cur)close();var on=!S.classList.contains('lamp-room');setWarmLamp(on);frameIdea(on?'lamp':'home');say(on?["うん、こういう灯りって落ち着くね。","That’s cozy. I like this warm light."]:["元の灯りに戻したよ。","I’ve put the light back the way it was."]);}
+$('hm').onclick=moon;$('wish-moon').onclick=moon;$('lamp-spot').onclick=lamp;$('wish-lamp').onclick=lamp;
+setInterval(function(){if(!cur&&Date.now()-lastUser>12000&&!document.hidden)say(L[ni++%L.length])},16000);
+const musicPanel=$('p1');
+const trackStyles={
+  lofi:{name:'Lo-fi',reply:['うん、ローファイにしよう。このビート、落ち着くね。','Lo-fi it is. I could settle into this beat.']},
+  jazz:{name:'Jazz',reply:['じゃあ、ジャズにしよう。あ、このピアノ、好き。','Jazz it is. Oh, I love this piano part.']},
+  ambient:{name:'Ambient',reply:['いいね。窓の外を眺めながら聴こうか。','Good choice. Shall we listen by the window?']}
+};
+const waveforms={"lofi":[20.9,19.1,17.1,15.5,10.3,8.3,5.4,8.9,18.0,14.7,10.3,9.2,21.2,20.2,17.2,14.9,10.4,11.5,10.5,8.1,14.4,14.1,9.9,7.4,20.5,20.7,17.8,15.8,10.7,8.5,6.1,9.4,16.7,14.0,3.8,1.9,18.8,18.3,16.3,14.9,10.5,7.6,9.7,10.7,15.5,11.5,3.2,3.8,20.5,20.5,17.7,15.8,10.6,8.5,5.3,9.4,19.4,16.2,9.2,7.5,21.4,20.3,17.5,15.3,10.6,11.4,10.6,8.2,15.5,15.2,9.5,6.0,21.4,20.7,17.9,15.5,10.9,8.3,5.8,8.6,17.1,13.9,3.3,1.9,19.7,19.7,17.8,16.3,11.8,7.8,5.9,8.0,14.1,13.3,4.3,3.8],"jazz":[20.4,19.0,13.0,17.7,14.6,9.4,18.4,12.2,18.0,21.1,13.5,12.4,17.3,11.3,15.4,18.4,11.0,9.4,18.9,15.3,14.4,20.1,15.4,10.5,21.2,15.1,10.3,19.5,15.4,11.4,20.3,11.3,16.0,19.9,13.4,8.1,20.9,13.9,15.2,20.5,15.3,9.8,20.4,15.0,12.0,19.8,14.4,9.0,19.1,17.9,15.4,20.7,14.2,10.3,20.3,16.1,18.7,20.0,14.7,8.6,18.7,15.8,14.8,20.6,14.4,8.6,19.4,15.5,12.8,21.3,16.4,11.8,19.9,13.5,8.0,18.6,14.8,11.2,19.3,12.9,14.7,16.9,9.6,8.1,20.0,13.9,13.6,21.4,18.9,14.9,19.6,15.1,9.4,19.4,12.8,9.3],"ambient":[14.0,17.0,19.2,18.5,17.9,18.1,17.7,18.2,17.4,15.8,14.4,13.8,15.3,17.9,21.0,21.4,21.1,20.4,19.8,19.4,17.9,16.6,14.8,15.5,15.9,16.5,18.2,18.3,17.2,16.9,16.4,16.3,15.1,13.4,11.9,11.6,12.6,16.5,16.5,15.0,13.8,14.0,14.4,14.8,14.2,13.0,11.6,11.9,13.0,15.6,17.7,17.5,16.9,16.3,16.6,17.0,16.3,15.6,14.6,14.5,16.2,17.4,19.6,19.9,19.7,20.0,20.1,19.9,18.4,17.0,15.4,14.8,14.8,15.6,16.5,15.9,15.3,16.0,16.4,16.9,16.2,14.8,12.2,11.1,12.2,13.6,15.6,16.6,16.9,16.4,16.4,16.6,15.3,13.8,13.1,12.7]};
+const reduceDisplay=matchMedia('(prefers-reduced-motion: reduce)');
+let selectedStyle='lofi',musicRequest=0,playheadTimer,heardMusic=false;
+function writePair(element,pair){
+  element.querySelector('j').textContent=pair[0];
+  element.querySelector('e').textContent=pair[1];
+}
+function renderStyle(style){
+  selectedStyle=style;
+  musicPanel.dataset.style=style;
+  $('music-track').textContent=trackStyles[style].name;
+  musicPanel.querySelectorAll('button[data-style]').forEach(b=>b.setAttribute('aria-pressed',String(musicPanel.dataset.answered==='true'&&b.dataset.style===style)));
+  const heights=waveforms[style],spacing=330/heights.length;
+  $('sample-shape').setAttribute('d',heights.map((half,i)=>'M'+((i+.5)*spacing).toFixed(2)+' '+(25-half)+'v'+(2*half)).join(' '));
+}
+function drawProgress(){
+  const ratio=window.UyiRoomAudio?.progress()||0;
+  $('played-width').setAttribute('width',Math.max(0,Math.min(1,ratio))*330);
+}
+function setSoundState(state){
+  musicPanel.dataset.sound=state;
+  const active=state==='playing',stoppable=active||state==='loading';
+  S.classList.toggle('music-playing',active);
+  writePair($('music-state'),{stopped:['試聴','Preview'],loading:['準備中','Loading'],playing:['再生中','Playing'],error:['再生できません','Unavailable']}[state]);
+  writePair($('music-transport').querySelector('span'),stoppable?['停止','Stop']:['再生','Play']);
+  clearInterval(playheadTimer);
+  if(active&&!reduceDisplay.matches){drawProgress();playheadTimer=setInterval(drawProgress,120)}
+  else $('played-width').setAttribute('width',0);
+}
+function stopMusic(){
+  ++musicRequest;
+  window.UyiRoomAudio?.stop();
+  setSoundState('stopped');
+
+}
+function reportAudioError(){
+  setSoundState('error');
+  say(['うまく流れなかったみたい。もう一度、再生してみて。','That didn’t start. Shall we try playing it again?']);
+}
+async function listenTo(style){
+  if(cur!==1||document.hidden)return;
+  if(selectedStyle===style&&['loading','playing'].includes(musicPanel.dataset.sound))return;
+  const version=++musicRequest;
+  musicPanel.dataset.answered='true';
+  renderStyle(style);setSoundState('loading');
+  try{
+    await window.UyiRoomAudio.play(style);
+    if(version!==musicRequest||cur!==1)return;
+    heardMusic=true;lastUser=Date.now();
+    setSoundState('playing');say(trackStyles[style].reply);
+    window.dispatchEvent(new CustomEvent('uyi-actor-gesture',{detail:'listen'}));
+  }catch(error){if(version===musicRequest)reportAudioError()}
+}
+musicPanel.querySelectorAll('button[data-style]').forEach(button=>button.addEventListener('click',()=>listenTo(button.dataset.style)));
+$('music-transport').addEventListener('click',()=>{
+  if(['playing','loading'].includes(musicPanel.dataset.sound)){stopMusic();say(['少し静かにしようか。ほかに聴きたいの、ある？','Let’s have a quiet moment. Anything else you’d like to hear?'])}
+  else listenTo(selectedStyle);
+});
+window.addEventListener('uyi-room-audio-error',()=>{if(cur===1&&musicPanel.dataset.sound==='playing')reportAudioError()});
+for(const event of ['pagehide','uyi-film-open'])window.addEventListener(event,stopMusic);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic()});
+reduceDisplay.addEventListener('change',()=>setSoundState(musicPanel.dataset.sound));
+renderStyle(selectedStyle);
+
+function localizeChannels(language){
+  const japanese=language==='ja';
+  document.querySelectorAll('.platform-later').forEach(el=>el.setAttribute('aria-label',japanese?'今後はWindowsなど他のプラットフォームにも対応予定':'Windows and other platforms are planned for later'));
+  document.querySelector('button.release-tag').setAttribute('aria-label',japanese?'Mac版を開発中です。ほかのプラットフォームにも対応予定です。先行案内を受け取る':'Coming soon for Mac, with more platforms planned. Get early access updates.');
+  const handle=japanese?'UYI_jp':'UYI_en';
+  document.querySelectorAll('.community').forEach(function(nav){
+    nav.setAttribute('aria-label',japanese?'UYIの公式SNS':'Official UYI channels');
+    const x=nav.querySelector('.social-x');
+    x.href='https://x.com/'+handle;
+    x.querySelector('.handle').textContent='@'+handle;
+    x.setAttribute('aria-label',japanese?'UYIの日本語公式Xアカウント':'Follow UYI on X in English');
+    nav.querySelector('.social-discord').setAttribute('aria-label',japanese?'UYIのDiscordコミュニティに参加する':'Join the UYI Discord community');
+  });
+  document.querySelectorAll('.pn > .x').forEach(b=>b.setAttribute('aria-label',japanese?'閉じる':'Close'));
+  document.querySelector('.sw2').setAttribute('aria-label',japanese?'表示言語':'Language');
+  document.getElementById('tl').setAttribute('aria-label',japanese?'部屋のガイド':'Room guide');
+  document.getElementById('room').alt=japanese?'夜景の見える部屋で、紫髪のキャラクターがこちらを振り向くUYIのコンセプトアート。':'UYI concept art: a purple-haired character turns toward you in a room overlooking the city at night.';
+}
+function setL(l){localizeChannels(l);$('bj0').setAttribute('aria-pressed',l==='ja');$('be0').setAttribute('aria-pressed',l==='en');document.documentElement.dataset.l=l;document.documentElement.lang=l;
+ $('bj0').style.color=l=='ja'?'#1a1230':'';$('be0').style.color=l=='en'?'#1a1230':'';$('bj0').style.background=l=='ja'?'var(--lamp)':'none';$('be0').style.background=l=='en'?'var(--lamp)':'none';
+ document.title=l=='ja'?'UYI | あなたのひらめきに、小さな世界が応える。':'UYI | Your idea brings this room to life.';try{localStorage.setItem('uyi-l',l)}catch(e){}np();lay()}
+document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function(){setL(b.dataset.set)}});
+var sl;try{sl=localStorage.getItem('uyi-l')}catch(e){}
+setL((document.documentElement.dataset.l==='en'||document.documentElement.dataset.l==='ja')?document.documentElement.dataset.l:(sl==='en'||sl==='ja'?sl:((navigator.language||'').toLowerCase().indexOf('en')===0?'en':'ja')));
+addEventListener('resize',function(){aim(camera)});document.fonts&&document.fonts.ready.then(lay);say(L[0]);
+const reaction=document.getElementById('uyi-reaction');
+const bubble=document.getElementById('bub');
+const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
+let responseVersion=0;
+function stopReaction(){
+  ++responseVersion;
+  reaction.pause();
+  bubble.classList.remove('with-reaction');
+  lay();
+}
+function playReaction(){
+  if(document.hidden||motionPreference.matches||cur)return;
+  const version=++responseVersion;
+  if(!reaction.hasAttribute('src'))reaction.src=window.uyiReactionURL;
+  reaction.currentTime=0;
+  reaction.play().then(()=>{
+    if(version!==responseVersion)return;
+    bubble.classList.add('with-reaction');
+    lay();
+  }).catch(()=>{if(version===responseVersion)stopReaction()});
+}
+const helloSpot=$('hello-spot');
+const mainActorReady=()=>document.querySelector('#uyi-actor-layer[data-ready="true"]')!==null;
+function gesture(name){
+  window.dispatchEvent(new CustomEvent('uyi-actor-gesture',{detail:name}));
+  if(mainActorReady())stopReaction();else playReaction();
+}
+const readButton=$('company-read');
+const quietButton=$('company-quiet');
+let quietTimeout;
+function resetCompany(){
+  clearTimeout(quietTimeout);
+  S.classList.remove('company-still');
+  readButton.setAttribute('aria-pressed','false');
+  quietButton.setAttribute('aria-pressed','false');
+}
+function spendTime(mode){
+  if(cur!==2)return;
+  resetCompany();
+  lastUser=Date.now();
+  if(mode==='read'){
+    readButton.setAttribute('aria-pressed','true');
+    const alreadyWarm=S.classList.contains('lamp-room');
+    setWarmLamp(true);
+    window.dispatchEvent(new CustomEvent('uyi-actor-gesture',{detail:'lamp'}));
+    say(alreadyWarm
+      ?['灯りはこのままにしておくね。ゆっくり読んで。','I’ll leave the lamp on. Take your time.']
+      :['じゃあ、手元を少し明るくするね。ゆっくり読んで。','I’ll turn up the lamp for you. Take your time.']);
+    return;
+  }
+  quietButton.setAttribute('aria-pressed','true');
+  window.dispatchEvent(new CustomEvent('uyi-actor-gesture',{detail:'hello'}));
+  say(['うん。しばらく、こうしていよう。','Mm. Let’s just sit here a while.']);
+  quietTimeout=setTimeout(()=>{if(cur===2)S.classList.add('company-still')},4600);
+}
+readButton.addEventListener('click',()=>spendTime('read'));
+quietButton.addEventListener('click',()=>spendTime('quiet'));
+
+function greet(){
+  if(cur)return;
+  lastUser=Date.now();
+  aim('home');
+  gesture('hello');
+  say(['あ、来てくれたんだ。少し一緒に過ごそうか。','Oh, you’re here. Stay a while?']);
+}
+helloSpot.addEventListener('click',greet);
+['wish-moon','hm','wish-lamp','lamp-spot'].forEach(id=>$(id).addEventListener('click',()=>gesture(id==='hm'||id==='wish-moon'?'moon':'lamp')));
+window.addEventListener('uyi-film-open',cancelIdeaFrame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelIdeaFrame()});
+
+// Give the whole visible figure the same greeting as the keyboard-accessible hotspot.
+let silhouette=null,sampleW=0,sampleH=0;
+const matteImage=new Image();
+matteImage.onload=()=>{
+  const c=document.createElement('canvas');c.width=418;c.height=235;
+  const context=c.getContext('2d',{willReadFrequently:true});if(!context)return;
+  context.drawImage(matteImage,0,0,c.width,c.height);
+  silhouette=context.getImageData(0,0,c.width,c.height).data;sampleW=c.width;sampleH=c.height;
+};
+matteImage.src=window.UyiActorMatte;
+function overCharacter(event){
+  if(!silhouette||cur||event.target.closest('button,a,dialog,form'))return false;
+  const r=R.getBoundingClientRect(),x=Math.floor((event.clientX-r.left)*sampleW/r.width),y=Math.floor((event.clientY-r.top)*sampleH/r.height);
+  return x>=0&&x<sampleW&&y>=0&&y<sampleH&&silhouette[4*(y*sampleW+x)]>140;
+}
+S.addEventListener('click',event=>{if(overCharacter(event))greet()});
+S.addEventListener('pointermove',event=>{S.classList.toggle('over-character',event.pointerType==='mouse'&&overCharacter(event))},{passive:true});
+S.addEventListener('pointerleave',()=>S.classList.remove('over-character'));
+
+document.querySelectorAll('[data-t]').forEach(el=>el.addEventListener('click',stopReaction));
+reaction.addEventListener('ended',stopReaction);
+reaction.addEventListener('error',stopReaction);
+window.addEventListener('uyi-film-open',stopReaction);
+motionPreference.addEventListener('change',e=>{if(e.matches)stopReaction()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopReaction()});
+
+})();
+</script>
+<dialog id="privacy" class="legal-dialog" aria-labelledby="privacy-title">
+<header><h2 id="privacy-title"><j>プライバシーポリシー（案）</j><e>Privacy Policy (draft)</e></h2><button type="button" class="privacy-close legal-close" autofocus><span aria-hidden="true">×</span><span class="privacy-sr"><j>閉じる</j><e>Close</e></span></button></header>
+<div class="privacy-copy legal-copy" tabindex="0">
+<p><j>本ポリシーは、UYIのウェブサイトの閲覧、先行体験の案内メールへの登録、お問い合わせに伴う個人情報の取り扱いを説明します。案内メールはいつでも配信停止を申し込めます。</j><e>This policy explains how we handle information when you explore the UYI website, sign up for early access emails or contact us. You can stop receiving updates at any time.</e></p>
+<h3><j>1. 個人情報を取り扱う事業者</j><e>1. Who is responsible for your information</e></h3>
+<p><j>本サイトを運営し、登録情報の利用目的を定める事業者は、哈尔尼斯（北京）科技有限公司广州分公司です。営業所所在地は广州市海珠区新港东路工美港15号楼、分公司の責任者は段若阳です。個人情報に関する窓口は <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> です。</j><e>The Guangzhou branch of Harness Technology (Beijing) Co., Ltd. (哈尔尼斯（北京）科技有限公司广州分公司) operates this website and is responsible for signup data. Its business address is 广州市海珠区新港东路工美港15号楼. The person in charge of the branch is 段若阳. For privacy requests, write to <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a>.</e></p>
+<h3><j>2. 部屋での操作と外部リンク</j><e>2. Exploring the room and following links</e></h3>
+<p><j>登録しなくても部屋を見て回れます。現在のプレビューでは、キャラクターの反応や音楽の選択、マウス操作はブラウザ内で処理されます。表示言語の設定はブラウザに保存され、本サイトのデータを消去するとリセットされます。XまたはDiscordに移動した後の操作には、各サービスのプライバシーポリシーが適用されます。</j><e>You can explore the room without signing up. In the current preview, character reactions, music choices and mouse interactions run in your browser. Your browser remembers the display language you select. Clearing site data resets this preference. If you follow a link to X or Discord, that platform’s privacy policy applies to what you do there.</e></p>
+<h3><j>3. 登録時とお問い合わせ時に利用する情報</j><e>3. What we use when you sign up or write to us</e></h3>
+<p><j>案内メールへの登録は任意です。フォームで入力する項目はメールアドレスのみです。ご登録のアドレスにUYIの先行体験の募集案内や開発の近況を不定期でお届けします。お問い合わせの際には、返信や手続きのためにメールアドレスとご相談内容を利用します。ご相談に関係のない身分証明書や機微な情報は送らないでください。</j><e>Signing up is optional. The only field you fill in is your email address. By submitting it, you ask to receive UYI early access announcements and occasional development updates. If you write to us, we use your return address and message to respond or handle your request. Please leave out identity documents or sensitive details unrelated to your request.</e></p>
+<h3><j>4. Typeformを通じた登録情報の取り扱い</j><e>4. How Typeform handles a signup</e></h3>
+<p><j>登録ボタンを押すと、Typeformが提供するフォームが開きます。Typeform（TYPEFORM SL）は運営者の委託を受けて回答を受け付け、保存します。運営者はUYIのTypeformアカウントで回答を確認できます。入力したアドレスのほか、Typeformが回答の開始・送信時刻を記録し、重複した回答を見分けるためにIPアドレスからネットワーク識別子を生成する場合があります。</j><e>The signup button opens a form hosted by Typeform. TYPEFORM SL receives and stores responses on our behalf. We can view them in UYI’s Typeform account. Alongside your email, Typeform may record when you start and submit the form and generate a network identifier from your IP address to help identify duplicate submissions.</e></p>
+<p><a href="https://www.typeform.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer"><j>Typeformのプライバシーポリシー</j><e>Typeform Privacy Policy</e></a></p>
+<h3><j>5. 情報へのアクセス、開示、国外での取り扱い</j><e>5. Access, disclosure and processing across borders</e></h3>
+<p><j>中国・広州の運営者は、登録の管理とメール配信のために登録情報を確認します。Typeformは回答データの保存先として米国のほか、対象の顧客向けにEU域内を公表しています。お住まいの国・地域以外で登録情報が取り扱われる場合があります。個人情報の利用・開示は、登録の管理、ご依頼への対応、法令上の義務を果たすために必要な範囲に限ります。国外での取り扱いについては窓口にお問い合わせください。</j><e>The operator in Guangzhou, China, accesses the list to manage signups and send emails. Typeform lists the United States as a hosting location for responses and offers EU hosting to eligible customers. Your signup may therefore be processed outside your country of residence. We limit use and disclosure to what is needed to manage signups, handle requests or comply with legal obligations. Contact us about the arrangements that apply to your signup.</e></p>
+<p><a href="https://help.typeform.com/hc/en-us/articles/360029617191-What-other-companies-do-we-share-data-with" target="_blank" rel="noopener noreferrer"><j>Typeformの委託先と保存地域</j><e>Typeform hosting providers and regions</e></a></p>
+<h3><j>6. 保存期間と安全管理</j><e>6. How long we keep information and how we protect it</e></h3>
+<p><j>登録情報の保存期間は検討中です。現在の案では登録日から最長12か月とし、先行案内と開発情報の配信がそれより早く終了した場合は、その時点で削除します。対象はTypeformの回答、書き出した配信リスト、保存した通知メールです。登録情報を扱うのは募集、メール配信、個人情報に関する手続きの担当者に限ります。お問い合わせの記録は、法令上保存が必要な場合を除き、対応に必要な期間に限って保存します。</j><e>We have yet to adopt a retention period for signup records. We propose deleting them within 12 months of signup, or sooner if these announcements end. This would cover Typeform responses, exported lists and any saved notification emails. We limit access to people handling recruitment, email updates and privacy requests. We keep correspondence only as long as we need it to handle the matter, unless the law requires longer retention.</e></p>
+<h3><j>7. 配信停止と個人情報に関する請求</j><e>7. How to unsubscribe or exercise your rights</e></h3>
+<p><j><a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> 宛てに、登録したアドレスとご希望の手続きをお知らせください。配信の停止や同意の撤回のほか、個人情報の開示、写しの交付、訂正、削除を申し込めます。配信停止後は、募集や開発情報に関するメールをお送りしません。保存済みの登録記録の削除も請求できます。本人確認が必要な場合は、アドレスの確認に必要な情報だけをお願いします。法令上ご希望に沿えない場合は、その理由をご説明します。</j><e>Email <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> with the address you used and the action you want us to take. You may unsubscribe, withdraw consent to updates, or ask to access, copy, correct or delete your information. Unsubscribing stops recruitment and development emails. You may also ask us to erase the signup record. If verification is needed, we will ask only for information necessary to check the address. We will explain any legal limits on fulfilling your request.</e></p>
+<h3><j>8. 未成年の方の情報とポリシーの改定</j><e>8. Children’s privacy and changes to this policy</e></h3>
+<p><j>法令により保護者の同意が必要な場合は、同意を得てからご登録ください。お子さまのアドレスが誤って、または必要な同意なく登録された場合は、保護者からも配信停止・削除を申し込めます。改定時には本サイトに日付を明示します。利用目的や提供先を大きく変更する場合は事前にお知らせし、法令により必要な場合は改めて同意をお願いします。</j><e>Where applicable law requires a guardian’s consent, please obtain it before signing up. Guardians may contact us to stop emails and delete a child’s address registered by mistake or without the required consent. We will date revisions posted on this website. Before making a material change to our purposes or recipients, we will explain the change and seek fresh consent where the law requires it.</e></p>
+<p class="privacy-draft"><j>草案の更新日：2026年11月13日</j><e>Draft updated 13 November 2026.</e></p>
+</div></dialog>
+<dialog id="terms" class="legal-dialog" aria-labelledby="terms-title">
+<header><h2 id="terms-title"><j>利用規約（案）</j><e>Terms of Use (draft)</e></h2><button type="button" class="privacy-close legal-close" autofocus><span aria-hidden="true">×</span><span class="privacy-sr"><j>閉じる</j><e>Close</e></span></button></header>
+<div class="privacy-copy legal-copy" tabindex="0">
+<p><j>UYIのウェブサイトでは、キャラクターが暮らす部屋を訪れ、コンセプト映像を楽しむことができます。先行体験の案内をメールで受け取ることもできます。本規約は、こうしたウェブサイトの利用に適用されます。</j><e>On the UYI website, you can explore the room where the character lives, watch concept films and choose to hear about early access. These terms cover those website experiences.</e></p>
+<h3><j>1. 運営者</j><e>1. Who operates the website</e></h3>
+<p><j>本サイトの運営者は哈尔尼斯（北京）科技有限公司广州分公司です。営業所所在地は广州市海珠区新港东路工美港15号楼、分公司の責任者は段若阳です。本サイト、先行体験の案内登録、本規約に関するお問い合わせは <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> までお寄せください。</j><e>This website is operated by the Guangzhou branch of Harness Technology (Beijing) Co., Ltd. (哈尔尼斯（北京）科技有限公司广州分公司). Its business address is 广州市海珠区新港东路工美港15号楼, China. The person in charge of the branch is 段若阳. You can contact us at <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> about the website, early access registration or these terms.</e></p>
+<h3><j>2. キャラクターとの交流と製品プレビュー</j><e>2. Room interactions and product previews</e></h3>
+<p><j>ブラウザで部屋を探索し、キャラクターに聴きたい音楽を聞かれたら、曲調を選んで部屋の音の変化を楽しめます。コンセプト映像は開発中の体験を紹介するものです。製品版の機能、対応プラットフォーム、提供時期は、今後のUYIの発表をご確認ください。</j><e>You can explore the room in your browser. When the character asks what you would like to hear, choose a music style to change what plays in the room. The concept films show a product in development. Please refer to UYI’s release announcements for final features, supported platforms and availability.</e></p>
+<h3><j>3. 先行体験のメール案内</j><e>3. Signing up for early access news</e></h3>
+<p><j>メールの登録は任意です。Typeformの登録フォームには、ご自身が使う権限のあるメールアドレスを入力してください。先行体験の募集や開発の近況をメールでお知らせします。参加条件、募集人数、日程は各回の募集案内でご確認ください。配信停止はいつでもお申し出いただけます。メールアドレスの取り扱いや開示・削除の手続きは、<a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog">UYIのウェブサイトのプライバシーポリシー</a>をご覧ください。</j><e>Joining the email list is optional. Enter an address you are authorised to use on our Typeform signup form. We use it to send early access announcements and occasional development updates. Each call for participants will set out eligibility, places and timing. You can unsubscribe at any time. Our <a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog">website Privacy Policy</a> explains how we handle your address and how to request access or deletion.</e></p>
+<h3><j>4. 利用にあたってのお願い</j><e>4. Using the website responsibly</e></h3>
+<p><j>他の方のプライバシーを尊重し、サイトを利用する妨げとなる行為はお控えください。他人になりすまして登録すること、迷惑な送信を繰り返すこと、登録者リストへの不正アクセスを試みること、サイトやフォームの動作を妨げることを禁止します。こうした行為には、該当する送信の除外やアクセスの制限を行う場合があります。通常の利用が制限された場合は、再確認をお申し出ください。</j><e>Respect other visitors’ privacy and their ability to use the site. Do not impersonate someone to register an address, submit spam, try to access the signup list without authorisation or disrupt the site or form. We may filter abusive submissions or restrict access causing the disruption. Contact us for a review if a restriction affects your legitimate use.</e></p>
+<h3><j>5. キャラクター・音楽・映像の利用</j><e>5. Using the characters, music and films</e></h3>
+<p><j>本サイトの機能を使ってキャラクター、イラスト、楽曲、コンセプト映像を楽しんだり、本サイトのリンクを共有したりできます。各作品の権利はそれぞれの権利者に帰属します。転載、翻案、配布、商用利用の際は、作品ごとの利用条件と適用法令に従ってください。許諾については、作品名、掲載先、利用目的を添えてメールでご相談ください。</j><e>You may enjoy the characters, illustrations, music and concept films using the features provided and share a link to the website. Each work belongs to its respective rights holder. If you wish to republish, adapt, distribute or commercially use a work, follow its licence terms and applicable law. For permission inquiries, identify the work, where it will appear and how you intend to use it.</e></p>
+<h3><j>6. 外部フォームとコミュニティ</j><e>6. External forms and communities</e></h3>
+<p><j>登録ボタンを押すとTypeformが、ソーシャルリンクを開くとUYIのXアカウントまたはDiscordコミュニティが開きます。各サービスを利用する際は、その利用規約、プライバシーに関する説明、該当するコミュニティのルールをご確認ください。UYIが登録情報をどのように利用するかは、<a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog">本サイトのプライバシーポリシー</a>でご案内しています。個別の登録内容については、メールでお問い合わせください。</j><e>The signup link opens Typeform. Our social links open UYI’s X accounts or Discord community. When you use those platforms, consult their terms, privacy notices and any relevant community rules. UYI’s <a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog">website Privacy Policy</a> explains how we use the signup information we receive. Please email us privately about your own registration.</e></p>
+<h3><j>7. サイトの変更と規約の改定</j><e>7. Changes to the site and these terms</e></h3>
+<p><j>開発の進捗に応じてデモの内容を変更したり、保守のため一部の機能を一時停止したりすることがあります。本規約を改定する際は、改定後の内容と適用開始日を本サイトに掲載します。利用者の権利や義務に関わる重要な変更は事前に本サイトでお知らせし、法令で必要とされる場合は改めて同意を得ます。</j><e>As development progresses, we may update the demo or pause some interactions for maintenance. If we revise these terms, we will publish the new version and its effective date on the website. We will highlight material changes affecting visitors’ rights or obligations before they take effect and obtain consent where the law requires it.</e></p>
+<h3><j>8. 苦情・紛争と法律上の権利</j><e>8. Complaints, disputes and statutory rights</e></h3>
+<p><j>利用上の問題や権利侵害のお申し出は、該当ページ、問題の内容、ご希望の対応を添えて <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> までお送りください。内容を確認し、ご連絡します。適用法令に基づき、所管当局への申立てや管轄裁判所への提訴もできます。本規約は、法律上放棄できない利用者の権利を制限したり、法令上免れることのできない当社の責任を除外したりするものではありません。</j><e>To report a problem or a rights concern, email <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> with the page, a description and the action you are requesting so we can investigate and respond. You may also contact a competent authority or seek relief in a court with jurisdiction. These terms preserve rights you cannot waive under applicable law and all liability the operator is legally required to bear.</e></p>
+<p class="privacy-draft"><j>草案の更新日：2026年11月13日</j><e>Draft updated 13 November 2026.</e></p>
+</div></dialog>
+
+<script>
+(()=>{
+  const dialogs=[...document.querySelectorAll('dialog.legal-dialog')];
+  const links=[...document.querySelectorAll('a[data-privacy-open],a[data-terms-open]')];
+  const dialogFor=hash=>dialogs.find(dialog=>'#'+dialog.id===hash);
+  let active=null,opener=null;
+  function openDialog(dialog,link){
+    if(active===dialog&&dialog.open)return;
+    if(!active)opener=link||document.querySelector('#tl a[href="#'+dialog.id+'"]');
+    if(active?.open)active.close();
+    active=dialog;
+    dialog.showModal();
+    dialog.querySelector('.legal-copy').scrollTop=0;
+  }
+  for(const link of links){
+    link.addEventListener('click',event=>{
+      if(event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
+      const dialog=dialogFor(link.hash);
+      if(!dialog)return;
+      event.preventDefault();
+      if(dialogFor(location.hash)&&link.hash!==location.hash){
+        try{history.replaceState(history.state,'',link.hash)}catch{}
+      }
+      openDialog(dialog,link);
+    });
+  }
+  function finishClose(dialog){
+    if(active!==dialog||dialog.open)return;
+    active=null;
+    if(location.hash==='#'+dialog.id){
+      try{history.replaceState(history.state,'','#')}catch{location.replace('#')}
+    }
+    if(opener?.isConnected)opener.focus({preventScroll:true});
+    opener=null;
+  }
+  function dismiss(dialog){
+    dialog.close();
+    finishClose(dialog);
+  }
+  for(const dialog of dialogs){
+    dialog.querySelector('.legal-close').addEventListener('click',()=>dismiss(dialog));
+    dialog.addEventListener('keydown',event=>{if(event.key==='Escape')event.stopPropagation()});
+    dialog.addEventListener('cancel',event=>{event.preventDefault();dismiss(dialog)});
+    dialog.addEventListener('close',()=>finishClose(dialog));
+  }
+  function followHash(){
+    const dialog=dialogFor(location.hash);
+    if(dialog)openDialog(dialog);
+    else if(active?.open)active.close();
+  }
+  addEventListener('hashchange',followHash);
+  followHash();
+})();
+
+</script>
+<dialog id="uyi-film-dialog" aria-labelledby="uyi-film-title">
+  <header class="film-head"><h2 id="uyi-film-title"><j>UYI コンセプト映像</j><e>UYI concept visualization</e></h2><button type="button" autofocus id="uyi-film-close" aria-label="閉じる">×</button></header>
+  <video id="uyi-film-player" controls playsinline preload="none" aria-labelledby="uyi-film-title"></video>
+  <p class="film-error" id="uyi-film-error" role="status" hidden><j>このブラウザで再生できない場合は、</j><e>If your browser can’t play the film, </e><a download="UYI-concept-ja.mp4"><j>映像を保存してご覧ください。</j><e>download it to watch.</e></a></p>
+</dialog>
+<script>
+(function(){
+  const trigger=document.getElementById('uyi-watch-film');
+  const dialog=document.getElementById('uyi-film-dialog');
+  const player=document.getElementById('uyi-film-player');
+  const closeButton=document.getElementById('uyi-film-close');
+  const error=document.getElementById('uyi-film-error');
+  function chooseFilm(){
+    const language=document.documentElement.lang==='en'?'en':'ja';
+    closeButton.setAttribute('aria-label',language==='en'?'Close film':'映像を閉じる');
+    if(player.dataset.language===language&&player.hasAttribute('src')&&!player.error)return;
+    player.pause();
+    const source=language==='en'?window.uyiFilmEnURL:window.uyiFilmURL;
+    const link=error.querySelector('a');
+    link.href=source;
+    link.download='UYI-concept-'+language+'.mp4';
+    error.hidden=true;
+    player.dataset.language=language;
+    player.poster=document.getElementById('room').currentSrc;
+    player.src=source;
+  }
+  function playCurrent(){
+    player.play().catch(()=>{if(dialog.open&&player.error)error.hidden=false});
+  }
+  trigger.addEventListener('click',()=>{
+    if(dialog.open)return;
+    chooseFilm();
+    window.dispatchEvent(new Event('uyi-film-open'));
+    dialog.showModal();
+    playCurrent();
+  });
+  const languageObserver=new MutationObserver(()=>{
+    if(dialog.open&&player.dataset.language!==document.documentElement.lang){chooseFilm();playCurrent()}
+  });
+  languageObserver.observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  player.addEventListener('error',()=>{if(dialog.open&&player.error)error.hidden=false});
+  closeButton.addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('click',event=>{
+    if(event.target!==dialog)return;
+    const box=dialog.getBoundingClientRect();
+    if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();
+  });
+  dialog.addEventListener('keydown',e=>{if(e.key==='Escape')e.stopPropagation()});
+  dialog.addEventListener('close',()=>{
+    player.pause();
+    if(player.readyState>0)player.currentTime=0;
+    trigger.focus({preventScroll:true});
+    window.dispatchEvent(new Event('uyi-film-close'));
+  });
+})();
+</script>
+<script>
+(function installRoomLightEffects() {
+  const room = document.getElementById('room');
+  const curtain = document.getElementById('shade');
+  if (!room || !curtain) return;
+
+  // lay() repositions every data-b element on resize and during the mobile pan.
+  // The initial bounds also allow this enhancement to load after lay() has run.
+  const rect = room.getBoundingClientRect();
+  const stage = curtain.parentElement.getBoundingClientRect();
+  const makeEffect = (className, bounds) => {
+    const layer = document.createElement('div');
+    layer.className = 'ab ' + className;
+    layer.setAttribute('aria-hidden', 'true');
+    layer.dataset.b = bounds.join(',');
+    if (rect.width && rect.height) {
+      const [x, y, width, height] = bounds;
+      Object.assign(layer.style, {
+        left: (rect.left - stage.left + x * rect.width / 1672) + 'px',
+        top: (rect.top - stage.top + y * rect.height / 941) + 'px',
+        width: (width * rect.width / 1672) + 'px',
+        height: (height * rect.height / 941) + 'px',
+      });
+    }
+    curtain.before(layer);
+  };
+  makeEffect('uyi-moon-bloom', [1487.5,151.5,160,160]);
+  makeEffect('uyi-lamp-spill', [-25,545,605,340]);
+})();
+
+</script>
+
+<script>
+/* Front-view character rig over the concept art. Three.js loads only when the
+   rig will actually run: a pointer-fine viewport at desktop width, motion allowed. */
+(() => {
+  'use strict';
+  const gate = matchMedia('(min-width:701px)');
+  const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  function capable(){return gate.matches && fine.matches && !reduce.matches}
+  let started=false, loading=false;
+  function runRig(){
+
+  'use strict';
+  const T = window.THREE;
+  const room = document.getElementById('room');
+  const stage = document.getElementById('stage');
+  if (!T || !room || !stage || !window.UyiActorMatte || !window.UyiActorClean) return;
+  const W=1672, H=941, clamp=T.MathUtils.clamp;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+  const layer=document.createElement('div');
+  layer.id='uyi-actor-layer';layer.hidden=true;layer.setAttribute('aria-hidden','true');
+  const sheet=document.createElement('style');
+  sheet.textContent='#uyi-actor-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;transition:filter .6s}#uyi-actor-layer[hidden]{display:none}#uyi-actor-layer canvas{position:absolute;inset:0;width:100%;height:100%;display:block}#stage.lamp-room #uyi-actor-layer{filter:brightness(1.07) sepia(.11) saturate(1.09)}';
+  const backdrop=new Image();
+  backdrop.src=window.UyiActorClean;
+
+  function load(src){const image=new Image();image.src=src;return image.decode().then(()=>image);}
+  function smooth(a,b,n){const t=clamp((n-a)/(b-a),0,1);return t*t*(3-2*t);}
+  const gaussian=(n)=>Math.exp(-.5*n*n);
+  const ellipsoid=(x,y,cx,cy,rx,ry)=>Math.sqrt(Math.max(0,1-((x-cx)/rx)**2-((y-cy)/ry)**2));
+  const V=(x,y,z=0)=>new T.Vector3(x-W/2,H/2-y,z);
+  // Rounded forms behind the front projection give yaw and nod a depth-dependent silhouette.
+  function depth(x,y){
+    const head=30+95*ellipsoid(x,y,709,196,164,163)
+      +22*gaussian((x-756)/22)*gaussian((y-241)/20);
+    const torso=22+69*ellipsoid(x,y,740,523,195,243);
+    const frontLeg=18+42*ellipsoid(x,y,916,800,218,140);
+    return T.MathUtils.lerp(torso,head,1-smooth(311,394,y))+
+      smooth(652,750,y)*(frontLeg-torso);
+  }
+  function makeRig(mask){
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(mask,0,0,W,H);
+    const rgba=g.getImageData(0,0,W,H).data;
+    const content=(x,y)=>rgba[4*(clamp(y,0,H-1)*W+clamp(x,0,W-1))]>5;
+    const bones=[],named={},joints={};
+    function joint(name,parent,x,y,z){
+      const b=new T.Bone();b.name=name;const p=V(x,y,z);
+      b.position.copy(p);if(parent){b.position.sub(joints[parent]);named[parent].add(b);}
+      joints[name]=p;named[name]=b;bones.push(b);return bones.length-1;
+    }
+    const root=joint('pelvis',null,786,688,33);
+    const spine=joint('spine','pelvis',772,626,37);
+    const chest=joint('chest','spine',744,517,45);
+    const neck=joint('neck','chest',748,351,41);
+    const head=joint('head','neck',734,311,38);
+    const hairL=joint('hairLeft','head',602,255,37);
+    const hairR=joint('hairRight','head',801,236,48);
+    const shoulder=joint('shoulder','chest',659,373,40);
+    const collar=joint('collar','chest',846,396,42);
+    const pos=[],uv=[],indices=[],skinIndex=[],skinWeight=[];
+    const step=7,nx=Math.ceil(W/step)+1,ny=Math.ceil(H/step)+1;
+    const used=new Int32Array(nx*ny);used.fill(-1);
+    function vertex(i,j){
+      const key=i+j*nx;if(used[key]>=0)return used[key];
+      const x=Math.min(i*step,W),y=Math.min(j*step,H);
+      const id=pos.length/3;used[key]=id;pos.push(x-W/2,H/2-y,depth(x,y));uv.push(x/W,1-y/H);
+      const w=new Float32Array(bones.length);w[root]=1;
+      function mix(index,strength){const f=clamp(strength,0,1);for(let k=0;k<w.length;k++)w[k]*=(1-f);w[index]+=f;}
+      // Table hand, lap, legs and chair-facing sleeve stay supported in world space.
+      const anchoredArm= Math.max((1-smooth(429,613,x))*smooth(484,604,y),
+        smooth(862,1026,x)*smooth(511,666,y));
+      const body=1-anchoredArm;
+      mix(spine,(1-smooth(570,782,y))*body);
+      mix(chest,(1-smooth(409,644,y))*body);
+      mix(shoulder,gaussian((x-640)/74)*gaussian((y-413)/100)*.85);
+      mix(collar,gaussian((x-846)/64)*gaussian((y-427)/84)*.82);
+      mix(neck,(1-smooth(312,391,y))*body);
+      const longL=(1-smooth(607,682,x))*(1-smooth(360,463,y))*smooth(260,315,y);
+      const longR=smooth(773,841,x)*(1-smooth(339,431,y))*smooth(242,322,y);
+      mix(head,Math.max(1-smooth(315,354,y),longL,longR));
+      mix(hairL,longL);mix(hairR,longR);
+      const ids=Array.from(w.keys()).sort((a,b)=>w[b]-w[a]).slice(0,4);
+      const sum=ids.reduce((v,q)=>v+w[q],0);
+      skinIndex.push(...ids);skinWeight.push(...ids.map(q=>w[q]/sum));
+      return id;
+    }
+    for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){
+      const x=i*step,y=j*step;
+      if(!(content(x,y)||content(x+step,y)||content(x,y+step)||content(x+step,y+step)||content(x+3,y+3)))continue;
+      const a=vertex(i,j),b=vertex(i+1,j),c=vertex(i,j+1),d=vertex(i+1,j+1);
+      indices.push(a,c,b,b,c,d);
+    }
+    const geo=new T.BufferGeometry();
+    geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+    geo.setAttribute('skinIndex',new T.Uint16BufferAttribute(skinIndex,4));
+    geo.setAttribute('skinWeight',new T.Float32BufferAttribute(skinWeight,4));geo.setIndex(indices);geo.computeBoundingSphere();
+    return {geo,bones,named};
+  }
+
+  // Eye coordinates follow the original oblique lid lines. A changing aperture
+  // folds a skin strip over the iris and keeps the lashes at the leading edge.
+  const eyeFunctions=`
+    uniform float actorBlink;
+    uniform vec2 actorGaze;
+    float lidCurve(vec4 y,float t){float u=1.0-t;return u*u*u*y.x+3.0*u*u*t*y.y+3.0*u*t*t*y.z+t*t*t*y.w;}
+    vec2 eyeUV(vec2 p){return vec2(p.x/1672.0,1.0-p.y/941.0);}
+    vec4 eyeSurface(vec4 base,vec2 p,float x0,float x1,vec4 topY,vec4 bottomY){
+      if(p.x<x0-1.0||p.x>x1+1.0)return base;
+      float t=clamp((p.x-x0)/(x1-x0),0.0,1.0);
+      float top=lidCurve(topY,t),bottom=lidCurve(bottomY,t),span=bottom-top;
+      if(span<1.0||p.y<top-2.0||p.y>bottom+1.0)return base;
+      float aperture=1.0-.95*actorBlink;
+      float newTop=top+span*.8*(1.0-aperture),newBottom=bottom-span*.2*(1.0-aperture);
+      vec2 irisPoint=vec2(p.x,p.y);
+      irisPoint.y=top+(p.y-newTop)/max(aperture,.05);
+      float irisWeight=smoothstep(0.0,4.0,p.x-x0)*smoothstep(0.0,4.0,x1-p.x)
+        *smoothstep(top+2.0,top+5.0,irisPoint.y)*(1.0-smoothstep(bottom-4.0,bottom,irisPoint.y));
+      irisPoint-=actorGaze*irisWeight;
+      vec4 iris=texture2D(map,eyeUV(irisPoint));
+      vec4 skin=texture2D(map,eyeUV(vec2(p.x,bottom+2.5)));
+      float inside=smoothstep(newTop-.7,newTop+.7,p.y)*(1.0-smoothstep(newBottom-.5,newBottom+.8,p.y));
+      vec4 shut=mix(skin,iris,inside);
+      float lashWidth=mix(.45,1.35,sin(3.14159*t));
+      float lash=1.0-smoothstep(.1,lashWidth+1.0,abs(p.y-newTop));
+      shut.rgb=mix(shut.rgb,texture2D(map,eyeUV(vec2(p.x,top+.6))).rgb,lash);
+      float edge=smoothstep(top-2.0,top,p.y)*(1.0-smoothstep(bottom,bottom+1.0,p.y))
+        *smoothstep(x0-1.0,x0+2.0,p.x)*(1.0-smoothstep(x1-2.0,x1+1.0,p.x));
+      vec4 openEye=texture2D(map,eyeUV(p-actorGaze*irisWeight));
+      return mix(base,mix(openEye,shut,smoothstep(0.0,.24,actorBlink)),edge);
+    }
+  `;
+  let current=null,starting=false,disabled=false,mounted=false;
+  function stop(){if(current){current.dispose();current=null;}layer.hidden=true;layer.dataset.ready='false';}
+  let generation=0;
+  async function start(){
+    if(!mounted||disabled||reduce.matches||current||starting)return;
+    const ticket=generation;starting=true;
+    let renderer,material,mainTex,alphaTex,rig,skeleton,backgroundTex,backgroundMesh;
+    function release(){rig?.geo.dispose();material?.dispose();mainTex?.dispose();alphaTex?.dispose();skeleton?.dispose();
+      backgroundMesh?.geometry.dispose();backgroundMesh?.material.dispose();backgroundTex?.dispose();
+      if(renderer){renderer.dispose();renderer.domElement.remove();}}
+    try{
+      const [art,mask]=await Promise.all([load(room.currentSrc||room.src),load(window.UyiActorMatte),backdrop.decode()]);
+      if(ticket!==generation||reduce.matches)return;
+      if(art.naturalWidth!==W||art.naturalHeight!==H||mask.naturalWidth!==W||mask.naturalHeight!==H||backdrop.naturalWidth!==W||backdrop.naturalHeight!==H)throw Error('Character layers do not match');
+      renderer=new T.WebGLRenderer({alpha:true,antialias:false,powerPreference:'low-power',premultipliedAlpha:true});
+      renderer.setClearColor(0,0);renderer.outputEncoding=T.sRGBEncoding;
+      renderer.domElement.setAttribute('aria-hidden','true');
+      renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();disabled=true;stop();layer.dataset.motion='static';},{once:true});
+      renderer.debug.onShaderError=()=>{throw Error('Character surface shader unavailable')};
+      mainTex=new T.Texture(art);mainTex.encoding=T.sRGBEncoding;mainTex.needsUpdate=true;
+      alphaTex=new T.Texture(mask);alphaTex.needsUpdate=true;
+      const blink={value:0},gaze={value:new T.Vector2()};
+      material=new T.MeshBasicMaterial({map:mainTex,alphaMap:alphaTex,transparent:true,alphaTest:.012,depthWrite:true,side:T.DoubleSide});
+      material.onBeforeCompile=shader=>{
+        shader.uniforms.actorBlink=blink;shader.uniforms.actorGaze=gaze;
+        shader.fragmentShader=shader.fragmentShader.replace('void main() {',eyeFunctions+'\nvoid main() {')
+          .replace('#include <map_fragment>',`vec4 rigColor=texture2D(map,vUv);
+            vec2 pixel=vec2(vUv.x*1672.0,(1.0-vUv.y)*941.0);
+            if(pixel.x>670.0&&pixel.x<803.0&&pixel.y>184.0&&pixel.y<250.0){
+              rigColor=eyeSurface(rigColor,pixel,673.6,723.1,vec4(243.4,222.0,209.1,222.0),vec4(243.4,254.0,241.6,222.0));
+              rigColor=eyeSurface(rigColor,pixel,763.3,798.7,vec4(207.8,190.1,181.1,198.0),vec4(207.8,230.5,219.0,198.0));
+            }diffuseColor*=rigColor;`);
+      };
+      rig=makeRig(mask);
+      const actor=new T.SkinnedMesh(rig.geo,material);actor.add(rig.bones[0]);
+      skeleton=new T.Skeleton(rig.bones);actor.bind(skeleton);actor.frustumCulled=false;
+      const scene=new T.Scene();scene.add(actor);
+      const camera=new T.OrthographicCamera(-W/2,W/2,H/2,-H/2,.1,4000);
+      camera.position.z=1800;camera.updateMatrixWorld();
+      // Check the actual draw before replacing the static artwork. A driver may
+      // accept a program yet silently fail to upload a skin or portrait texture.
+      const sample=new T.WebGLRenderTarget(4,4);
+      const cheek=V(743,254);
+      const probe=new T.OrthographicCamera(cheek.x-2,cheek.x+2,cheek.y+2,cheek.y-2,.1,4000);
+      probe.position.z=1800;
+      const rgba=new Uint8Array(4);
+      try{
+        renderer.setRenderTarget(sample);renderer.render(scene,probe);
+        renderer.readRenderTargetPixels(sample,2,2,1,1,rgba);
+      }finally{renderer.setRenderTarget(null);sample.dispose();}
+      if(rgba[3]<180||rgba[0]<45)throw Error('Character render verification failed');
+      // Compositing in one surface keeps the original character visible whenever
+      // the browser omits a WebGL layer in a snapshot or loses its context.
+      backgroundTex=new T.Texture(backdrop);backgroundTex.encoding=T.sRGBEncoding;backgroundTex.needsUpdate=true;
+      backgroundMesh=new T.Mesh(new T.PlaneGeometry(W,H),new T.MeshBasicMaterial({map:backgroundTex,depthWrite:false}));
+      backgroundMesh.position.z=-140;backgroundMesh.renderOrder=-1;scene.add(backgroundMesh);
+      const B=rig.named,localY=B.chest.position.y;
+      const frameInterval=1000/18;
+      const gestures={
+        hello:  {x:.12, y:-.07, hold:.93},
+        moon:   {x:.88, y:-.62, hold:1.7},
+        lamp:   {x:-.85, y:.47, hold:1.6},
+        listen: {x:-.59, y:.16, hold:1.3}
+      };
+      let raf=0, dead=false, dirty=true, visible=true, layoutKey='';
+      let playingFilm=!!document.querySelector('#uyi-film-dialog[open]');
+      let nextFrame=0, lastFrame=0, age=0;
+      let pose='idle', poseStart=0;
+      let pendingPoint=null, fixedPoint={x:0,y:0}, attentionAt=-10;
+      let gazeX=0, gazeY=0, yaw=0, pitch=0, roll=0, hairTrail=0;
+      let nextBlink=2.6+Math.random()*2, nextBreath=0, breathLength=5.2;
+      function onResize(){dirty=true;wake();}
+      function layout(){
+        const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+        const sx=parseFloat(room.style.width)/W||1,sy=parseFloat(room.style.height)/H||1;
+        const left=parseFloat(room.style.left)||0,top=parseFloat(room.style.top)||0;
+        const key=w+','+h+','+Math.min(window.devicePixelRatio||1,1.6);
+        if(key!==layoutKey){renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));renderer.setSize(w,h,false);layoutKey=key;}
+        camera.left=-left/sx-W/2;camera.right=(w-left)/sx-W/2;
+        camera.top=H/2+top/sy;camera.bottom=H/2-(h-top)/sy;camera.updateProjectionMatrix();dirty=false;
+      }
+      function gesture(event){
+        const name=event.detail;
+        if(!Object.hasOwn(gestures,name))return;
+        // A second press within a single nod should not rewind her neck.
+        if(pose===name && age-poseStart<.8)return;
+        pose=name;poseStart=age;layer.dataset.gesture=name;wake();
+      }
+      function move(event){
+        if(event.pointerType==='touch'||playingFilm)return;
+        const bounds=room.getBoundingClientRect();
+        if(!bounds.width)return;
+        const x=clamp(((event.clientX-bounds.left)/bounds.width*W-720)/520,-1,1);
+        const y=clamp(((event.clientY-bounds.top)/bounds.height*H-220)/480,-1,1);
+        // Moving through the room does not demand a new pose at every pixel.
+        if(pendingPoint && Math.hypot(x-pendingPoint.x,y-pendingPoint.y)<.14)return;
+        pendingPoint={x,y,at:age,seen:false};
+      }
+      function leave(){pendingPoint=null;attentionAt=-10;}
+      function frame(now){
+        raf=0;
+        if(dead||document.hidden||playingFilm||!visible)return;
+        if(now+.01<nextFrame){wake();return;}
+        // Keep the drawing cadence independent of 60/90/120 Hz display refresh.
+        // Drop missed drawings on a slow device and advance along the same motion.
+        if(!nextFrame)nextFrame=now;
+        nextFrame+=(Math.floor((Math.max(now,nextFrame)-nextFrame)/frameInterval)+1)*frameInterval;
+        const dt=lastFrame?Math.max(0,(now-lastFrame)/1000):0;
+        lastFrame=now;age+=dt;
+        if(dirty)layout();
+
+        if(pendingPoint && !pendingPoint.seen && age-pendingPoint.at>.18){
+          fixedPoint={x:pendingPoint.x,y:pendingPoint.y};
+          attentionAt=age;pendingPoint.seen=true;
+        }
+        const attentionAge=age-attentionAt;
+        const interest=1-smooth(1.8,3.2,attentionAge);
+        const eyeLead=smooth(0,.13,attentionAge)*interest;
+        const headFollow=smooth(.15,.68,attentionAge)*interest;
+        const elapsed=age-poseStart;
+        const cue=gestures[pose];
+        let eyeX=fixedPoint.x*.55*eyeLead, eyeY=fixedPoint.y*.38*eyeLead;
+        let faceX=fixedPoint.x*.62*headFollow, faceY=fixedPoint.y*.36*headFollow;
+        let nod=0, tilt=0;
+        if(cue){
+          const release=1-smooth(cue.hold,cue.hold+.9,elapsed);
+          const eyes=smooth(.04,.22,elapsed)*release;
+          const head=smooth(.19,.76,elapsed)*release;
+          eyeX=T.MathUtils.lerp(eyeX,cue.x,eyes);
+          eyeY=T.MathUtils.lerp(eyeY,cue.y,eyes);
+          faceX=T.MathUtils.lerp(faceX,cue.x,head);
+          faceY=T.MathUtils.lerp(faceY,cue.y,head);
+          if(pose==='hello'){
+            nod=.064*smooth(.20,.58,elapsed)*(1-smooth(.60,1.32,elapsed));
+            tilt=-.025*head;
+          }
+          if(elapsed>cue.hold+1.15){pose='idle';layer.dataset.gesture='idle';}
+        }
+        const eyeEase=1-Math.exp(-dt*19), headEase=1-Math.exp(-dt*7);
+        gazeX+=(eyeX-gazeX)*eyeEase;
+        gazeY+=(eyeY-gazeY)*eyeEase;
+        yaw+=(faceX*.106-yaw)*headEase;
+        pitch+=(faceY*.071+nod-pitch)*headEase;
+        roll+=(tilt-roll)*headEase;
+
+        // Each breath has an easy rise, a longer exhale, then a quiet rest.
+        if(age-nextBreath>=breathLength){
+          nextBreath=age;breathLength=4.7+Math.random()*1.3;
+        }
+        const phase=(age-nextBreath)/breathLength;
+        const breath=smooth(0,.37,phase)*(1-smooth(.37,.89,phase));
+        B.spine.rotation.x=.0028*breath;
+        B.chest.position.y=localY+.95*breath;
+        B.chest.rotation.y=yaw*.10;
+        B.shoulder.rotation.z=.0033*breath;B.collar.rotation.z=-.0025*breath;
+        B.neck.rotation.y=yaw*.32;B.neck.rotation.x=pitch*.27;B.neck.rotation.z=roll*.30;
+        B.head.rotation.order='YXZ';B.head.rotation.y=yaw*.68;B.head.rotation.x=pitch*.73;B.head.rotation.z=roll*.70;
+        const hairTurn=yaw+.35*roll;
+        hairTrail+=(hairTurn-hairTrail)*(1-Math.exp(-dt*3.5));
+        B.hairLeft.rotation.z=(hairTurn-hairTrail)*.23;
+        B.hairRight.rotation.z=(hairTurn-hairTrail)*.15;
+
+        // A short closure and slower opening give the lids a readable 4–5-frame blink.
+        if(age-nextBlink>.31)nextBlink=age+3.6+Math.random()*3.7;
+        const blinking=age-nextBlink;
+        blink.value=smooth(0,.085,blinking)*(1-smooth(.105,.275,blinking));
+        gaze.value.set(gazeX*2.3,gazeY*1.4);
+        renderer.render(scene,camera);wake();
+      }
+      function wake(){if(!raf&&!dead&&!document.hidden&&!playingFilm&&visible)raf=requestAnimationFrame(frame);}
+      function visibility(){if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{lastFrame=0;nextFrame=0;wake();}}
+      function movieOpen(){playingFilm=true;cancelAnimationFrame(raf);raf=0;}
+      function movieClose(){playingFilm=false;lastFrame=0;nextFrame=0;wake();}
+      layout();renderer.render(scene,camera);
+      // r149 reports compile/link errors through program diagnostics in WebGL 1.
+      if(renderer.info.programs?.some(p=>p.diagnostics?.runnable===false))throw Error('Character shader failed to link');
+      const mo=new MutationObserver(onResize);mo.observe(room,{attributes:true,attributeFilter:['style']});
+      const ro=new ResizeObserver(onResize);ro.observe(stage);
+      const io=new IntersectionObserver(entries=>{
+        const shown=entries[0].isIntersecting;
+        if(shown && !visible){lastFrame=0;nextFrame=0;}
+        visible=shown;
+        if(visible)wake();else{cancelAnimationFrame(raf);raf=0;}
+      });io.observe(stage);
+      window.addEventListener('pointermove',move,{passive:true});document.documentElement.addEventListener('pointerleave',leave);
+      window.addEventListener('uyi-actor-gesture',gesture);window.addEventListener('uyi-film-open',movieOpen);window.addEventListener('uyi-film-close',movieClose);
+      document.addEventListener('visibilitychange',visibility);
+      layer.append(renderer.domElement);layer.dataset.ready='true';layer.dataset.motion='skinned';layer.dataset.gesture='idle';layer.hidden=false;
+      current={dispose(){dead=true;cancelAnimationFrame(raf);mo.disconnect();ro.disconnect();io.disconnect();
+        window.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',leave);
+        window.removeEventListener('uyi-actor-gesture',gesture);window.removeEventListener('uyi-film-open',movieOpen);window.removeEventListener('uyi-film-close',movieClose);
+        document.removeEventListener('visibilitychange',visibility);release();
+      }};
+      wake();
+    }catch(e){release();layer.hidden=true;layer.dataset.ready='false';layer.dataset.motion='static';console.warn('Character animation fallback:',e.message);}
+    finally{
+      starting=false;
+      if(mounted&&ticket!==generation&&!reduce.matches&&!disabled&&!current)start();
+    }
+  }
+  function preference(){++generation;if(reduce.matches){stop();layer.dataset.motion='reduced';}else{start();}}
+  function mount(){
+    if(mounted)return;
+    mounted=true;disabled=false;
+    room.after(layer);document.head.append(sheet);
+    reduce.addEventListener('change',preference);preference();
+  }
+  function unmount(){
+    if(!mounted)return;
+    mounted=false;++generation;reduce.removeEventListener('change',preference);
+    stop();layer.remove();sheet.remove();
+  }
+  window.UyiActorScene=Object.freeze({mount,unmount});
+  mount();
+  }
+  function ensure(){
+    if(!capable()||loading)return;
+    if(window.UyiActorScene){window.UyiActorScene.mount();return}
+    if(window.THREE){started=true;runRig();return}
+    loading=true;
+    const s=document.createElement('script');
+    s.src=window.UyiAssets.three;
+    s.onload=()=>{loading=false;started=true;runRig()};
+    s.onerror=()=>{loading=false;console.warn('Character animation unavailable.')};
+    document.head.appendChild(s);
+  }
+  function watch(){ if(capable())ensure(); else if(window.UyiActorScene)window.UyiActorScene.unmount(); }
+  gate.addEventListener('change',watch);
+  fine.addEventListener('change',watch);
+  reduce.addEventListener('change',watch);
+  ensure();
+})();
+
+</script>
+</body>
+</html>

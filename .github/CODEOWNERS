@@ -1,0 +1,8 @@
+# Changes to these need the owner's approval before they can merge.
+# Everything else (the page itself, images, media) can be merged by the team.
+/.github/        @neeboo
+/functions/      @neeboo
+/test/           @neeboo
+/wrangler.toml   @neeboo
+/package.json    @neeboo
+/MAINTAINERS.md  @neeboo
