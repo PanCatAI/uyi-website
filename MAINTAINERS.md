@@ -13,7 +13,9 @@ Everything the original inlined as base64 lives in `public/assets/` and loads on
 - Character rig: Three.js r149 (`public/assets/js/three.min.js`), the clean plate and the matte load only on pointer-fine desktop viewports with motion allowed; otherwise the static artwork shows. Music previews are MP3s fetched on play; the concept films load when the dialog opens.
 - `/assets/*` is served with a one-year immutable cache (`public/_headers`).
 
-The email signup is a link to Typeform (`https://form.typeform.com/to/jvYh36rD`, "先行案内" panel; no form data passes through this site). The privacy policy and terms of use are in-page dialogs (`#privacy`, `#terms`, both drafts dated 2026-11-13); the top bar and the signup panel link to both. Source: `UYI-Typeform-20261113.html`.
+Email signup uses the in-page `#p5` dialog and `POST /api/subscribe`, implemented in `functions/api/subscribe.js`. The server validates the submission and writes it to Feishu Bitable before returning success. Configure `FEISHU_APP_ID`, `FEISHU_APP_SECRET`, `FEISHU_APP_TOKEN` (the Bitable app token) and `FEISHU_TABLE_ID` in the `uyi-space` Pages runtime environment. Keep the app secret in Pages secrets. The target table needs fields named `邮箱` (text), `登记时间` (date/time), `语言` (text), `来源` (text), `请求编号` (text) and `状态` (text). The app needs record lookup and creation permissions plus access to this table. Tests use fixture credentials and mocked Feishu responses. Live submission and digest email delivery require separate verification after configuration.
+
+The privacy policy and terms of use are in-page dialogs (`#privacy`, `#terms`, both drafts dated 2026-11-18); the top bar and signup dialog link to both. They describe Feishu and Cloudflare processing. The proposed signup retention period remains a draft.
 
 DNS for `uyi.live` is on Cloudflare: `uyi.live` and `www` are proxied CNAMEs to `uyi-space.pages.dev`; a zone redirect rule sends `www` to the apex.
 
