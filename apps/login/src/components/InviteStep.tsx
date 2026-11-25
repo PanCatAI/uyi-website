@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { RegistrationMode } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
+import { normalizeInviteInput } from '@/lib/invite'
 
 interface InviteStepProps {
   email?: string
@@ -45,7 +46,7 @@ export function InviteStep({
     onSubmit: async ({ value }) => {
       if (!value.consent) return
       await onSubmitInvite({
-        invite: needsInvite ? value.invite.trim() : '',
+        invite: needsInvite ? normalizeInviteInput(value.invite) : '',
         consent: true,
       })
     },

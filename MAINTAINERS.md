@@ -88,6 +88,7 @@ It reuses the landing page's self-hosted fonts (`UYI Geometry` / `UYI MPlus`) an
 Routes and Pages Functions:
 
 - `functions/login/[[path]].js` serves `/login/assets/*` directly from `env.ASSETS` and falls back `/login`, `/login/continue`, and `/login/invite` to `public/login/index.html` with `Cache-Control: no-store`.
+- `functions/i/[[path]].js` falls back `/i` and `/i/:code` invite landing links to `public/login/index.html` with `Cache-Control: no-store`. Valid 8-character Crockford Base32 codes are normalized to `XXXX-XXXX` and stored in `localStorage('uyi-invite')` for 7 days; `/login` prefers query `?invite=` over `localStorage` and forwards `invite` to `POST /api/auth/web/start`.
 - `functions/api/auth/[[path]].js` proxies only the whitelisted JSON/OAuth endpoints (`/api/auth/web/start`, `/web/email/request-code`, `/web/email/verify`, `/web/google/start`, `/web/google/callback`, `/web/state`, `/web/invite`) to `${UYI_API_ORIGIN}/v1/auth/*`. It preserves method, body, query string, `Cookie`, `Set-Cookie`, and 303 `Location` redirects without following redirects, strips client-supplied proxy headers, and injects `X-UYI-Web-Proxy` (`UYI_WEB_PROXY_SECRET`) and `X-UYI-Client-IP` (`CF-Connecting-IP`).
 
 Pages runtime configuration on project `uyi-space`:

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { onRequest as onAuthRequest } from '../functions/api/auth/[[path]].js';
+import { onRequest as onInviteSpaRequest } from '../functions/i/[[path]].js';
 import { onRequest as onLoginSpaRequest } from '../functions/login/[[path]].js';
 
 const env = {
@@ -232,4 +233,46 @@ test('login SPA fallback serves /login/index.html for routes and passes through 
   });
   assert.equal(methodRes.status, 405);
   assert.ok(fetchedUrls.includes('https://uyi.live/login/index.html'));
+});
+
+test('invite SPA fallback serves /login/index.html for /i and /i/* routes', async () => {
+  const fetchedUrls = [];
+  const fakeAssets = {
+    async fetch(req) {
+      const target = typeof req === 'string' ? req : req.url;
+      fetchedUrls.push(target);
+      if (target.endsWith('/login/index.html')) {
+        return new Response('<!doctype html><div id="root"></div>', {
+          status: 200,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        });
+      }
+      return new Response('Not Found', { status: 404 });
+    },
+  };
+
+  for (const route of ['/i', '/i/', '/i/AB23-CD45', '/i/ab23cd45?l=zh-CN', '/i/invalid/extra']) {
+    const res = await onInviteSpaRequest({
+      request: new Request(`https://uyi.live${route}`, { method: 'GET' }),
+      env: { ASSETS: fakeAssets },
+    });
+    assert.equal(res.status, 200, `GET ${route} should return 200`);
+    assert.equal(res.headers.get('Cache-Control'), 'no-store');
+    assert.match(await res.text(), /id="root"/);
+  }
+
+  const headRes = await onInviteSpaRequest({
+    request: new Request('https://uyi.live/i/AB23-CD45', { method: 'HEAD' }),
+    env: { ASSETS: fakeAssets },
+  });
+  assert.equal(headRes.status, 200);
+  assert.equal(headRes.headers.get('Cache-Control'), 'no-store');
+
+  const postRes = await onInviteSpaRequest({
+    request: new Request('https://uyi.live/i/AB23-CD45', { method: 'POST' }),
+    env: { ASSETS: fakeAssets },
+  });
+  assert.equal(postRes.status, 405);
+  assert.equal(postRes.headers.get('Allow'), 'GET, HEAD');
+  assert.ok(fetchedUrls.every(u => u === 'https://uyi.live/login/index.html'));
 });

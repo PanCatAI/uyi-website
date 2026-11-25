@@ -61,12 +61,27 @@ function serveSharedPublicAssets(): Plugin {
   return {
     name: 'uyi-shared-public-assets',
     configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const rawUrl = req.url ?? ''
+        const [pathname, query = ''] = rawUrl.split('?')
+        if (pathname === '/i' || pathname.startsWith('/i/') || pathname === '/login') {
+          req.url = `/login/${query ? `?${query}` : ''}`
+        }
+        next()
+      })
       server.middlewares.use(middleware)
     },
     configurePreviewServer(server) {
       server.middlewares.use((req, _res, next) => {
-        if (req.url && (req.url === '/login' || req.url.startsWith('/login?'))) {
-          req.url = `/login/${req.url.slice('/login'.length)}`
+        const rawUrl = req.url ?? ''
+        const [pathname, query = ''] = rawUrl.split('?')
+        const isStaticAsset =
+          pathname.startsWith('/login/assets/') ||
+          pathname.startsWith('/assets/') ||
+          /\.(?:js|mjs|css|map|woff2?|png|jpe?g|webp|avif|svg|ico|json|txt)$/i.test(pathname)
+
+        if (!isStaticAsset && (pathname === '/i' || pathname.startsWith('/i/') || pathname === '/login' || pathname.startsWith('/login/'))) {
+          req.url = `/login/index.html${query ? `?${query}` : ''}`
         }
         next()
       })

@@ -9,86 +9,154 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ContinueRouteImport } from './routes/continue'
-import { Route as InviteRouteImport } from './routes/invite'
+import { Route as IIndexRouteImport } from './routes/i/index'
+import { Route as ISplatRouteImport } from './routes/i/$'
+import { Route as ICodeRouteImport } from './routes/i/$code'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as LoginContinueRouteImport } from './routes/login/continue'
+import { Route as LoginInviteRouteImport } from './routes/login/invite'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const IIndexRoute = IIndexRouteImport.update({
+  id: '/i/',
+  path: '/i/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContinueRoute = ContinueRouteImport.update({
-  id: '/continue',
-  path: '/continue',
+const ISplatRoute = ISplatRouteImport.update({
+  id: '/i/$',
+  path: '/i/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InviteRoute = InviteRouteImport.update({
-  id: '/invite',
-  path: '/invite',
+const ICodeRoute = ICodeRouteImport.update({
+  id: '/i/$code',
+  path: '/i/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginContinueRoute = LoginContinueRouteImport.update({
+  id: '/login/continue',
+  path: '/login/continue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginInviteRoute = LoginInviteRouteImport.update({
+  id: '/login/invite',
+  path: '/login/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/continue': typeof ContinueRoute
-  '/invite': typeof InviteRoute
+  '/i/$': typeof ISplatRoute
+  '/i/$code': typeof ICodeRoute
+  '/login/continue': typeof LoginContinueRoute
+  '/login/invite': typeof LoginInviteRoute
+  '/i/': typeof IIndexRoute
+  '/login/': typeof LoginIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/continue': typeof ContinueRoute
-  '/invite': typeof InviteRoute
+  '/i/$': typeof ISplatRoute
+  '/i/$code': typeof ICodeRoute
+  '/login/continue': typeof LoginContinueRoute
+  '/login/invite': typeof LoginInviteRoute
+  '/i': typeof IIndexRoute
+  '/login': typeof LoginIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/continue': typeof ContinueRoute
-  '/invite': typeof InviteRoute
+  '/i/$': typeof ISplatRoute
+  '/i/$code': typeof ICodeRoute
+  '/login/continue': typeof LoginContinueRoute
+  '/login/invite': typeof LoginInviteRoute
+  '/i/': typeof IIndexRoute
+  '/login/': typeof LoginIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/continue' | '/invite'
+  fullPaths:
+    | '/i/$'
+    | '/i/$code'
+    | '/login/continue'
+    | '/login/invite'
+    | '/i/'
+    | '/login/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/continue' | '/invite'
-  id: '__root__' | '/' | '/continue' | '/invite'
+  to:
+    '/i/$' | '/i/$code' | '/login/continue' | '/login/invite' | '/i' | '/login'
+  id:
+    | '__root__'
+    | '/i/$'
+    | '/i/$code'
+    | '/login/continue'
+    | '/login/invite'
+    | '/i/'
+    | '/login/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ContinueRoute: typeof ContinueRoute
-  InviteRoute: typeof InviteRoute
+  ISplatRoute: typeof ISplatRoute
+  ICodeRoute: typeof ICodeRoute
+  LoginContinueRoute: typeof LoginContinueRoute
+  LoginInviteRoute: typeof LoginInviteRoute
+  IIndexRoute: typeof IIndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/i/': {
+      id: '/i/'
+      path: '/i'
+      fullPath: '/i/'
+      preLoaderRoute: typeof IIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/continue': {
-      id: '/continue'
-      path: '/continue'
-      fullPath: '/continue'
-      preLoaderRoute: typeof ContinueRouteImport
+    '/i/$': {
+      id: '/i/$'
+      path: '/i/$'
+      fullPath: '/i/$'
+      preLoaderRoute: typeof ISplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/invite': {
-      id: '/invite'
-      path: '/invite'
-      fullPath: '/invite'
-      preLoaderRoute: typeof InviteRouteImport
+    '/i/$code': {
+      id: '/i/$code'
+      path: '/i/$code'
+      fullPath: '/i/$code'
+      preLoaderRoute: typeof ICodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login/'
+      preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/continue': {
+      id: '/login/continue'
+      path: '/login/continue'
+      fullPath: '/login/continue'
+      preLoaderRoute: typeof LoginContinueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/invite': {
+      id: '/login/invite'
+      path: '/login/invite'
+      fullPath: '/login/invite'
+      preLoaderRoute: typeof LoginInviteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ContinueRoute: ContinueRoute,
-  InviteRoute: InviteRoute,
+  ISplatRoute: ISplatRoute,
+  ICodeRoute: ICodeRoute,
+  LoginContinueRoute: LoginContinueRoute,
+  LoginInviteRoute: LoginInviteRoute,
+  IIndexRoute: IIndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -13,9 +13,11 @@ import {
   requestEmailCode,
   startWebLogin,
   verifyEmailCode,
+  type LoginStartParams,
   type StateResponse,
 } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
+import { normalizeInviteInput, readStoredInvite, resolveInviteCode } from '@/lib/invite'
 import { navigation } from '@/lib/navigation'
 import {
   patchLoginSession,
@@ -24,7 +26,7 @@ import {
   type LoginSession,
 } from '@/lib/session'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/login/')({
   component: LoginIndexPage,
 })
 
@@ -38,7 +40,11 @@ const RESEND_COOLDOWN_MS = 60_000
 function mergeStateIntoSession(
   base: LoginSession | null,
   state: StateResponse,
+  overrideInvite?: string,
 ): LoginSession {
+  const prefillInvite =
+    overrideInvite ?? base?.prefillInvite ?? readStoredInvite() ?? undefined
+
   return {
     stateKey: base?.stateKey,
     csrf: state.csrf || base?.csrf || '',
@@ -48,7 +54,7 @@ function mergeStateIntoSession(
     privacyUrl: state.privacyUrl || base?.privacyUrl || '/privacy',
     policyVersion: state.policyVersion || base?.policyVersion || '',
     email: state.email || base?.email,
-    prefillInvite: base?.prefillInvite,
+    prefillInvite,
     step: base?.step,
     resendAvailableAt: base?.resendAvailableAt,
   }
@@ -86,10 +92,13 @@ function LoginIndexPage() {
       const existing = readLoginSession()
 
       if (startParams) {
+        const queryInvite = normalizeInviteInput(startParams.invite) || undefined
+        const resolvedInvite = resolveInviteCode(startParams.invite)
+
         if (existing?.stateKey === startParams.state && existing.csrf) {
           try {
             const state = await getWebLoginState()
-            const merged = mergeStateIntoSession(existing, state)
+            const merged = mergeStateIntoSession(existing, state, queryInvite)
             writeLoginSession(merged)
             return { session: merged, serverState: state }
           } catch {
@@ -97,7 +106,10 @@ function LoginIndexPage() {
           }
         }
 
-        const started = await startWebLogin(startParams)
+        const effectiveStartParams: LoginStartParams = resolvedInvite
+          ? { ...startParams, invite: resolvedInvite }
+          : startParams
+        const started = await startWebLogin(effectiveStartParams)
         const session: LoginSession = {
           stateKey: startParams.state,
           csrf: started.csrf,
@@ -106,15 +118,17 @@ function LoginIndexPage() {
           termsUrl: started.termsUrl,
           privacyUrl: started.privacyUrl,
           policyVersion: started.policyVersion,
-          prefillInvite: startParams.invite,
+          prefillInvite: resolvedInvite,
           step: 'choose',
         }
         writeLoginSession(session)
         return { session, serverState: { status: 'pending' } }
       }
 
+      const queryInvite =
+        normalizeInviteInput(new URLSearchParams(searchStr).get('invite')) || undefined
       const state = await getWebLoginState()
-      const merged = mergeStateIntoSession(existing, state)
+      const merged = mergeStateIntoSession(existing, state, queryInvite)
       writeLoginSession(merged)
       return { session: merged, serverState: state }
     },
@@ -129,7 +143,7 @@ function LoginIndexPage() {
       return
     }
     if (result.serverState.status === 'invite_required') {
-      void navigate({ to: '/invite', replace: true })
+      void navigate({ to: '/login/invite', replace: true })
       return
     }
 
@@ -220,7 +234,7 @@ function LoginIndexPage() {
         return
       }
       patchLoginSession({ email, step: 'invite' })
-      void navigate({ to: '/invite' })
+      void navigate({ to: '/login/invite' })
     } catch (error) {
       setActionError(error instanceof ApiError ? error.code : 'invalid')
     }

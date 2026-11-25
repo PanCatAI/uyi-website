@@ -19,7 +19,6 @@ export function createLoginQueryClient() {
 export function createLoginRouter(history?: RouterHistory) {
   return createRouter({
     routeTree,
-    basepath: '/login',
     defaultPreload: false,
     ...(history ? { history } : {}),
   })

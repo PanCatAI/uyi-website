@@ -6,7 +6,7 @@ import { LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
 import { ApiError, getWebLoginState, type StateResponse } from '@/lib/api'
 import { patchLoginSession } from '@/lib/session'
 
-export const Route = createFileRoute('/continue')({
+export const Route = createFileRoute('/login/continue')({
   component: LoginContinuePage,
 })
 
@@ -43,14 +43,14 @@ function LoginContinuePage() {
 
     if (data.status === 'invite_required') {
       patchLoginSession({ step: 'invite' })
-      void navigate({ to: '/invite', replace: true })
+      void navigate({ to: '/login/invite', replace: true })
       return
     }
 
     if (data.status === 'pending') {
       patchLoginSession({ step: 'choose' })
       void navigate({
-        to: '/',
+        to: '/login',
         replace: true,
         search: queryError ? { error: queryError } : undefined,
       })

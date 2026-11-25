@@ -58,6 +58,25 @@ export interface Messages {
   completeSubtitle: string
   openUyiButton: string
   closeTabHint: string
+  // Invite landing (/i/:code)
+  inviteLandingPageTitle: string
+  inviteLandingBadge: string
+  inviteLandingTitle: string
+  inviteLandingIntro: string
+  inviteLandingCodeLabel: string
+  inviteLandingCopy: string
+  inviteLandingCopied: string
+  inviteLandingCopiedToast: string
+  inviteLandingCopyFailedToast: string
+  inviteLandingSavedHint: string
+  inviteLandingDownloadButton: string
+  inviteLandingComingSoon: string
+  inviteLandingDownloadHint: string
+  inviteLandingExploreLink: string
+  inviteInvalidBadge: string
+  inviteInvalidTitle: string
+  inviteInvalidDescription: string
+  inviteInvalidHomeButton: string
   // Session / Error fallback
   sessionRequiredTitle: string
   sessionRequiredSubtitle: string
@@ -119,6 +138,25 @@ const MESSAGES: Record<Locale, Messages> = {
     completeSubtitle: '登录已完成，正在唤醒 UYi 桌面端。如果浏览器没有自动跳转，请点击下方按钮。',
     openUyiButton: '打开 UYi',
     closeTabHint: '返回 UYi 后，你可以安全关闭此页面。',
+    inviteLandingPageTitle: '你收到了 UYi 邀请 · UYi',
+    inviteLandingBadge: '专属邀请',
+    inviteLandingTitle: '你收到了 UYi 邀请',
+    inviteLandingIntro: '一间常驻桌面的 3D 小房间，与住在这里的 AI 伙伴一起生活与创造。',
+    inviteLandingCodeLabel: '你的邀请码',
+    inviteLandingCopy: '复制',
+    inviteLandingCopied: '已复制',
+    inviteLandingCopiedToast: '邀请码已复制到剪贴板。',
+    inviteLandingCopyFailedToast: '复制失败，请手动选中邀请码复制。',
+    inviteLandingSavedHint: '已自动保存 7 天，登录 UYi 时将自动填入。',
+    inviteLandingDownloadButton: '下载 UYi',
+    inviteLandingComingSoon: '即将推出',
+    inviteLandingDownloadHint: '桌面端安装包即将开放下载，邀请码已为你保存。',
+    inviteLandingExploreLink: '了解 UYi',
+    inviteInvalidBadge: '邀请无效',
+    inviteInvalidTitle: '邀请码格式无效',
+    inviteInvalidDescription:
+      '该邀请链接中的邀请码格式不正确（应为 8 位字符，例如 ABCD-2345）。请核对链接是否完整，或向邀请你的朋友重新获取。',
+    inviteInvalidHomeButton: '返回 UYi 官网',
     sessionRequiredTitle: '登录会话已失效',
     sessionRequiredSubtitle: '请返回 UYi 桌面端重新发起登录请求。',
     retryButton: '重试',
@@ -193,6 +231,27 @@ const MESSAGES: Record<Locale, Messages> = {
     completeSubtitle: 'You are signed in. If UYi does not open automatically, click the button below.',
     openUyiButton: 'Open UYi',
     closeTabHint: 'You can close this tab once UYi opens.',
+    inviteLandingPageTitle: "You're invited to UYi · UYi",
+    inviteLandingBadge: 'Personal Invitation',
+    inviteLandingTitle: "You're invited to UYi",
+    inviteLandingIntro: 'A desktop 3D room where an AI character lives and creates with you.',
+    inviteLandingCodeLabel: 'Your invitation code',
+    inviteLandingCopy: 'Copy',
+    inviteLandingCopied: 'Copied',
+    inviteLandingCopiedToast: 'Invitation code copied to clipboard.',
+    inviteLandingCopyFailedToast: 'Could not copy automatically. Please select and copy the code.',
+    inviteLandingSavedHint:
+      "Saved for 7 days — we'll auto-fill this code when you sign in to UYi.",
+    inviteLandingDownloadButton: 'Download UYi',
+    inviteLandingComingSoon: 'Coming soon',
+    inviteLandingDownloadHint:
+      'Desktop downloads are coming soon. Your code is already saved in this browser.',
+    inviteLandingExploreLink: 'Explore UYi',
+    inviteInvalidBadge: 'Invalid Invite',
+    inviteInvalidTitle: 'Invalid invitation code',
+    inviteInvalidDescription:
+      'This invitation code looks incomplete or malformed (expected an 8-character code such as ABCD-2345). Please double-check the link or ask your friend for a valid one.',
+    inviteInvalidHomeButton: 'Visit UYi homepage',
     sessionRequiredTitle: 'Sign-in session expired',
     sessionRequiredSubtitle: 'Return to the UYi desktop app and start signing in again.',
     retryButton: 'Try again',
@@ -267,6 +326,28 @@ const MESSAGES: Record<Locale, Messages> = {
     completeSubtitle: 'サインインが完了しました。自動でアプリが開かない場合は下のボタンを押してください。',
     openUyiButton: 'UYi を開く',
     closeTabHint: 'UYi が開いたら、このタブは閉じて構いません。',
+    inviteLandingPageTitle: 'UYi への招待 · UYi',
+    inviteLandingBadge: '招待リンク',
+    inviteLandingTitle: 'UYi への招待が届いています',
+    inviteLandingIntro:
+      'AI キャラクターと過ごし、一緒にものづくりを楽しむ、デスクトップの小さな 3D 空間。',
+    inviteLandingCodeLabel: 'あなたの招待コード',
+    inviteLandingCopy: 'コピー',
+    inviteLandingCopied: 'コピー済み',
+    inviteLandingCopiedToast: '招待コードをクリップボードにコピーしました。',
+    inviteLandingCopyFailedToast: '自動コピーに失敗しました。コードを手動でコピーしてください。',
+    inviteLandingSavedHint:
+      '7 日間保存されました。UYi にサインインするとき自動で入力されます。',
+    inviteLandingDownloadButton: 'UYi をダウンロード',
+    inviteLandingComingSoon: '近日公開',
+    inviteLandingDownloadHint:
+      'デスクトップ版は近日公開予定です。招待コードはこのブラウザに保存されています。',
+    inviteLandingExploreLink: 'UYi について見る',
+    inviteInvalidBadge: '無効な招待',
+    inviteInvalidTitle: '招待コードの形式が正しくありません',
+    inviteInvalidDescription:
+      'この招待リンクのコードは不完全か形式が正しくありません（例：ABCD-2345 のような 8 文字のコード）。リンクをご確認のうえ、招待してくれた方にもう一度ご確認ください。',
+    inviteInvalidHomeButton: 'UYi トップページへ',
     sessionRequiredTitle: 'サインインセッションが無効です',
     sessionRequiredSubtitle: 'UYi デスクトップアプリに戻り、もう一度サインインを開始してください。',
     retryButton: '再試行',

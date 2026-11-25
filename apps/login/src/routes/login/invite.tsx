@@ -1,18 +1,20 @@
 import * as React from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { CompleteStep } from '@/components/CompleteStep'
 import { InviteStep } from '@/components/InviteStep'
 import { LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
 import { ApiError, getWebLoginState, submitInvite, type StateResponse } from '@/lib/api'
+import { normalizeInviteInput, readStoredInvite } from '@/lib/invite'
 import { patchLoginSession, readLoginSession } from '@/lib/session'
 
-export const Route = createFileRoute('/invite')({
+export const Route = createFileRoute('/login/invite')({
   component: LoginInvitePage,
 })
 
 function LoginInvitePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [completeRedirect, setCompleteRedirect] = React.useState<string | null>(null)
   const [actionError, setActionError] = React.useState<string | null>(null)
 
@@ -38,7 +40,7 @@ function LoginInvitePage() {
       return
     }
     if (data.status === 'pending') {
-      void navigate({ to: '/', replace: true })
+      void navigate({ to: '/login', replace: true })
       return
     }
     patchLoginSession({
@@ -83,7 +85,12 @@ function LoginInvitePage() {
   const termsUrl = state.termsUrl || cached?.termsUrl || '/terms'
   const privacyUrl = state.privacyUrl || cached?.privacyUrl || '/privacy'
   const policyVersion = state.policyVersion || cached?.policyVersion || ''
-  const initialInvite = cached?.prefillInvite ?? ''
+  const queryInvite = new URLSearchParams(location.searchStr ?? '').get('invite')
+  const initialInvite =
+    normalizeInviteInput(queryInvite) ||
+    (cached?.prefillInvite ? normalizeInviteInput(cached.prefillInvite) : '') ||
+    readStoredInvite() ||
+    ''
 
   const handleSubmitInvite = async ({ invite, consent }: { invite: string; consent: true }) => {
     setActionError(null)
