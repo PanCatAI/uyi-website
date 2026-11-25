@@ -1,11 +1,4 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner"
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  TriangleAlertIcon,
-  OctagonXIcon,
-  Loader2Icon,
-} from "lucide-react"
 
 const Toaster = ({ theme = "dark", ...props }: ToasterProps) => {
   return (
@@ -13,23 +6,23 @@ const Toaster = ({ theme = "dark", ...props }: ToasterProps) => {
       theme={theme}
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4 text-uyi-lamp" />,
-        info: <InfoIcon className="size-4 text-uyi-violet" />,
-        warning: <TriangleAlertIcon className="size-4 text-uyi-lamp" />,
-        error: <OctagonXIcon className="size-4 text-destructive" />,
-        loading: <Loader2Icon className="size-4 animate-spin text-uyi-lamp" />,
+        success: null,
+        info: null,
+        warning: null,
+        error: null,
+        loading: null,
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--normal-bg": "var(--ink)",
+          "--normal-text": "var(--text)",
+          "--normal-border": "var(--line)",
+          "--border-radius": "6px",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
+          toast: "cn-toast text-[13px] shadow-none",
         },
       }}
       {...props}

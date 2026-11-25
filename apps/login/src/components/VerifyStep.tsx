@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import { REGEXP_ONLY_DIGITS } from 'input-otp'
-import { AlertCircle, ArrowLeft, Loader2, RefreshCw } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   InputOTP,
   InputOTPGroup,
@@ -66,36 +64,29 @@ export function VerifyStep({
   })
 
   return (
-    <Card className="uyi-step-enter border border-border bg-card/85 py-6 shadow-[0_24px_80px_rgba(4,2,18,0.68),inset_0_1px_0_rgba(242,239,252,0.08)] ring-0 backdrop-blur-2xl rounded-2xl">
-      <CardHeader className="px-6 pb-2">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={isVerifying}
-          className="mb-2 inline-flex w-fit cursor-pointer items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
-        >
-          <ArrowLeft className="size-3.5" />
-          <span>{t.changeEmail}</span>
-        </button>
-        <CardTitle className="text-2xl font-medium tracking-tight text-foreground">
-          {t.verifyTitle}
-        </CardTitle>
-        <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-          {t.verifySubtitle(email)}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-5 px-6 pt-2">
-        {errorCode && (
-          <Alert
-            variant="destructive"
-            className="border-destructive/35 bg-destructive/10 text-destructive"
+    <section className="uyi-step-enter space-y-8">
+      <header className="space-y-3">
+        <div>
+          <Button
+            type="button"
+            variant="link"
+            onClick={onBack}
+            disabled={isVerifying}
+            className="text-[13px]"
           >
-            <AlertCircle className="size-4" />
-            <AlertTitle>{t.errorHeading}</AlertTitle>
-            <AlertDescription className="text-destructive/95">
-              {formatError(errorCode)}
-            </AlertDescription>
+            ← {t.changeEmail}
+          </Button>
+        </div>
+        <h1 className="text-balance font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.025em] text-uyi-text lg:text-[2.625rem] lg:leading-[1.1]">
+          {t.verifyTitle}
+        </h1>
+        <p className="text-[15px] leading-[1.6] text-uyi-mute">{t.verifySubtitle(email)}</p>
+      </header>
+
+      <div className="space-y-6">
+        {errorCode && (
+          <Alert variant="destructive">
+            <AlertDescription>{formatError(errorCode)}</AlertDescription>
           </Alert>
         )}
 
@@ -106,7 +97,7 @@ export function VerifyStep({
             event.stopPropagation()
             void form.handleSubmit()
           }}
-          className="space-y-5"
+          className="space-y-6"
         >
           <form.Field
             name="code"
@@ -121,10 +112,13 @@ export function VerifyStep({
               const fieldError = field.state.meta.errors[0]
               return (
                 <div className="space-y-2.5">
-                  <Label htmlFor="login-otp" className="text-xs font-medium text-foreground/90">
+                  <Label
+                    htmlFor="login-otp"
+                    className="block text-[13px] font-normal text-uyi-mute"
+                  >
                     {t.codeLabel}
                   </Label>
-                  <div className="flex justify-center pt-1">
+                  <div className="pt-0.5">
                     <InputOTP
                       id="login-otp"
                       maxLength={6}
@@ -142,28 +136,20 @@ export function VerifyStep({
                     >
                       <InputOTPGroup>
                         {[0, 1, 2].map(index => (
-                          <InputOTPSlot
-                            key={index}
-                            index={index}
-                            className="h-12 w-11 border-input bg-uyi-ink/65 text-lg font-medium text-foreground first:rounded-l-xl last:rounded-r-xl data-[active=true]:border-uyi-lamp data-[active=true]:ring-uyi-lamp/35 sm:w-12"
-                          />
+                          <InputOTPSlot key={index} index={index} />
                         ))}
                       </InputOTPGroup>
-                      <InputOTPSeparator className="text-muted-foreground/60" />
+                      <InputOTPSeparator />
                       <InputOTPGroup>
                         {[3, 4, 5].map(index => (
-                          <InputOTPSlot
-                            key={index}
-                            index={index}
-                            className="h-12 w-11 border-input bg-uyi-ink/65 text-lg font-medium text-foreground first:rounded-l-xl last:rounded-r-xl data-[active=true]:border-uyi-lamp data-[active=true]:ring-uyi-lamp/35 sm:w-12"
-                          />
+                          <InputOTPSlot key={index} index={index} />
                         ))}
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
-                  <p className="text-center text-xs text-muted-foreground/85">{t.codeHint}</p>
+                  <p className="text-[13px] text-uyi-mute">{t.codeHint}</p>
                   {fieldError && (
-                    <p role="alert" className="text-center text-xs text-destructive">
+                    <p role="alert" className="text-[13px] text-destructive">
                       {String(fieldError)}
                     </p>
                   )}
@@ -172,39 +158,23 @@ export function VerifyStep({
             }}
           </form.Field>
 
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isVerifying}
-            className="h-11 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(255,226,168,0.2)] transition-all hover:bg-primary/90"
-          >
-            {isVerifying ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>{t.verifying}</span>
-              </>
-            ) : (
-              <span>{t.verifyButton}</span>
-            )}
+          <Button type="submit" size="lg" disabled={isVerifying} className="w-full">
+            {isVerifying ? t.verifying : t.verifyButton}
           </Button>
         </form>
 
-        <div className="flex items-center justify-center pt-1">
+        <div>
           <Button
             type="button"
-            variant="ghost"
-            size="sm"
+            variant="link"
             disabled={countdown > 0 || isResending || isVerifying}
             onClick={() => void onResend()}
-            className="cursor-pointer gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            className="text-[13px]"
           >
-            <RefreshCw className={`size-3.5 ${isResending ? 'animate-spin' : ''}`} />
-            <span>
-              {countdown > 0 ? t.resendCountdown(countdown) : t.resendCode}
-            </span>
+            {countdown > 0 ? t.resendCountdown(countdown) : t.resendCode}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }

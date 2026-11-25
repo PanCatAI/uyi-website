@@ -143,7 +143,7 @@ describe('/i/$code invite landing page', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders trilingual invite landing card, saves normalized code to localStorage, and copies code', async () => {
+  it('renders trilingual invite landing page, saves normalized code to localStorage, and copies code', async () => {
     const user = userEvent.setup()
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {
@@ -155,12 +155,13 @@ describe('/i/$code invite landing page', () => {
 
     expect(await screen.findByText('你收到了 UYi 邀请')).toBeInTheDocument()
     expect(screen.getByTestId('invite-code')).toHaveTextContent('AB23-CD45')
-    expect(
-      screen.getByText('一间常驻桌面的 3D 小房间，与住在这里的 AI 伙伴一起生活与创造。'),
-    ).toBeInTheDocument()
 
-    const downloadBtn = screen.getByRole('button', { name: /下载 UYi.*即将推出/ })
-    expect(downloadBtn).toBeDisabled()
+    const waitlistLink = screen.getByRole('link', { name: '即将推出 · 加入候补' })
+    expect(waitlistLink).toHaveAttribute('href', 'https://uyi.live/#p5')
+    expect(screen.getByRole('link', { name: '已经安装？打开 UYi' })).toHaveAttribute(
+      'href',
+      'uyi://',
+    )
 
     await waitFor(() => {
       expect(readStoredInvite()).toBe('AB23-CD45')
@@ -173,37 +174,43 @@ describe('/i/$code invite landing page', () => {
     // Switch to English
     await user.click(screen.getByRole('button', { name: 'EN' }))
     expect(screen.getByText("You're invited to UYi")).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Download UYi.*Coming soon/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: 'Coming soon · Join waitlist' })).toHaveAttribute(
+      'href',
+      'https://uyi.live/#p5',
+    )
 
     // Switch to Japanese
-    await user.click(screen.getByRole('button', { name: '日本語' }))
+    await user.click(screen.getByRole('button', { name: '日' }))
     expect(screen.getByText('UYi への招待が届いています')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /UYi をダウンロード.*近日公開/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: '近日公開 · 先行案内に登録' })).toHaveAttribute(
+      'href',
+      'https://uyi.live/#p5',
+    )
   })
 
-  it('renders an active download link when downloadUrl is configured', () => {
+  it('renders an active macOS download link when downloadUrl is configured', () => {
     render(
       <I18nProvider initialLocale="zh-CN">
         <InviteLandingCard rawCode="AB23-CD45" downloadUrl="https://downloads.uyi.live/UYi.dmg" />
       </I18nProvider>,
     )
 
-    const link = screen.getByRole('link', { name: '下载 UYi' })
+    const link = screen.getByRole('link', { name: '下载 UYi（macOS）' })
     expect(link).toHaveAttribute('href', 'https://downloads.uyi.live/UYi.dmg')
-    expect(screen.queryByText('即将推出')).not.toBeInTheDocument()
+    expect(screen.queryByText(/即将推出/)).not.toBeInTheDocument()
   })
 
   it('shows a friendly error for invalid invite codes without overwriting saved valid invite', async () => {
     writeStoredInvite('AB23-CD45')
 
     const { unmount } = renderAt('/i/IIII-OOOO', 'zh-CN')
-    expect(await screen.findByText('邀请码格式无效')).toBeInTheDocument()
+    expect(await screen.findByText('邀请码无效')).toBeInTheDocument()
     expect(screen.queryByTestId('invite-code')).not.toBeInTheDocument()
     expect(readStoredInvite()).toBe('AB23-CD45')
     unmount()
 
     renderAt('/i/', 'en')
-    expect(await screen.findByText('Invalid invitation code')).toBeInTheDocument()
+    expect(await screen.findByText('Invalid invite code')).toBeInTheDocument()
     expect(readStoredInvite()).toBe('AB23-CD45')
   })
 })
@@ -263,19 +270,19 @@ describe('login prefill priority and /start invite forwarding', () => {
     expect(await screen.findByText('登录 UYi')).toBeInTheDocument()
     expect(startBody).toMatchObject({ invite: 'AB23-CD45' })
 
-    await user.type(screen.getByLabelText('电子邮箱'), 'friend@example.com')
+    await user.type(screen.getByLabelText('邮箱'), 'friend@example.com')
     await user.click(screen.getByRole('button', { name: '发送验证码' }))
-    expect(await screen.findByText('输入 6 位验证码')).toBeInTheDocument()
+    expect(await screen.findByText('输入验证码')).toBeInTheDocument()
 
     await user.type(screen.getByRole('textbox'), '123456')
     await user.click(screen.getByRole('button', { name: '验证并继续' }))
 
-    expect(await screen.findByText('输入邀请码以激活账号')).toBeInTheDocument()
+    expect(await screen.findByText('输入邀请码')).toBeInTheDocument()
     expect(screen.getByLabelText('邀请码')).toHaveValue('AB23-CD45')
 
     await user.click(screen.getByRole('checkbox'))
-    await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
-    expect(await screen.findByText('正在返回 UYi…')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '完成并进入 UYi' }))
+    expect(await screen.findByText('正在返回 UYi')).toBeInTheDocument()
   })
 
   it('prioritizes query invite over localStorage in both /start and InviteStep prefill', async () => {
@@ -301,15 +308,15 @@ describe('login prefill priority and /start invite forwarding', () => {
     expect(await screen.findByText('Sign in to UYi')).toBeInTheDocument()
     expect(startBody).toMatchObject({ invite: 'QR98-TW23' })
 
-    await user.type(screen.getByLabelText(/Email address/i), 'priority@example.com')
-    await user.click(screen.getByRole('button', { name: /Send verification code/i }))
-    expect(await screen.findByText('Check your email')).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/^Email$/i), 'priority@example.com')
+    await user.click(screen.getByRole('button', { name: /Send code/i }))
+    expect(await screen.findByText('Enter the code')).toBeInTheDocument()
 
     await user.type(screen.getByRole('textbox'), '123456')
-    await user.click(screen.getByRole('button', { name: /Verify and continue/i }))
+    await user.click(screen.getByRole('button', { name: /^Verify$/i }))
 
-    expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Invitation code/i)).toHaveValue('QR98-TW23')
+    expect(await screen.findByText('Enter your invite code')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Invite code/i)).toHaveValue('QR98-TW23')
   })
 
   it('ignores expired localStorage invite in /start and leaves InviteStep input empty', async () => {
@@ -344,8 +351,8 @@ describe('login prefill priority and /start invite forwarding', () => {
     first.unmount()
 
     renderAt('/login/invite', 'en')
-    expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Invitation code/i)).toHaveValue('')
+    expect(await screen.findByText('Enter your invite code')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Invite code/i)).toHaveValue('')
   })
 
   it('prefills /login/invite directly from localStorage or query when sessionStorage lacks prefillInvite', async () => {
@@ -370,13 +377,13 @@ describe('login prefill priority and /start invite forwarding', () => {
     })
 
     const first = renderAt('/login/invite', 'en')
-    expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Invitation code/i)).toHaveValue('AB23-CD45')
+    expect(await screen.findByText('Enter your invite code')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Invite code/i)).toHaveValue('AB23-CD45')
     first.unmount()
 
     renderAt('/login/invite?invite=zz992345', 'en')
-    expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Invitation code/i)).toHaveValue('ZZ99-2345')
+    expect(await screen.findByText('Enter your invite code')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Invite code/i)).toHaveValue('ZZ99-2345')
   })
 
   it('formats InviteStep input on typing and pasting with XXXX-XXXX placeholder', async () => {
@@ -411,7 +418,7 @@ describe('login prefill priority and /start invite forwarding', () => {
     })
 
     renderAt('/login/invite', 'zh-CN')
-    expect(await screen.findByText('输入邀请码以激活账号')).toBeInTheDocument()
+    expect(await screen.findByText('输入邀请码')).toBeInTheDocument()
 
     const input = screen.getByLabelText('邀请码')
     expect(input).toHaveAttribute('placeholder', 'XXXX-XXXX')
@@ -431,9 +438,9 @@ describe('login prefill priority and /start invite forwarding', () => {
     expect(input).toHaveValue('QR98-TW23')
 
     await user.click(screen.getByRole('checkbox'))
-    await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
+    await user.click(screen.getByRole('button', { name: '完成并进入 UYi' }))
 
-    expect(await screen.findByText('正在返回 UYi…')).toBeInTheDocument()
+    expect(await screen.findByText('正在返回 UYi')).toBeInTheDocument()
     expect(submittedInvite).toBe('QR98-TW23')
   })
 })

@@ -13,7 +13,7 @@ function RootLayout() {
       <LoginShell>
         <Outlet />
       </LoginShell>
-      <Toaster position="bottom-center" offset={52} />
+      <Toaster position="bottom-right" offset={{ bottom: 64, right: 28 }} />
     </I18nProvider>
   )
 }

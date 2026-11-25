@@ -3,6 +3,9 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createLoginQueryClient, createLoginRouter, LoginApp } from '@/App'
+import { LaunchFromAppCard } from '@/components/SessionErrorView'
+import { I18nProvider } from '@/lib/i18n'
+import { writeStoredInvite } from '@/lib/invite'
 import { navigation } from '@/lib/navigation'
 import { writeLoginSession } from '@/lib/session'
 
@@ -97,17 +100,17 @@ describe('UYi login web flow', () => {
     expect(await screen.findByText('Sign in to UYi')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Continue with Google/i })).toBeInTheDocument()
 
-    await user.type(screen.getByLabelText(/Email address/i), '  Alice@Example.com ')
-    await user.click(screen.getByRole('button', { name: /Send verification code/i }))
+    await user.type(screen.getByLabelText(/^Email$/i), '  Alice@Example.com ')
+    await user.click(screen.getByRole('button', { name: /Send code/i }))
 
-    expect(await screen.findByText('Check your email')).toBeInTheDocument()
+    expect(await screen.findByText('Enter the code')).toBeInTheDocument()
     expect(screen.getByText(/alice@example\.com/i)).toBeInTheDocument()
 
     const otpInput = screen.getByRole('textbox')
     await user.type(otpInput, '123456')
-    await user.click(screen.getByRole('button', { name: /Verify and continue/i }))
+    await user.click(screen.getByRole('button', { name: /^Verify$/i }))
 
-    expect(await screen.findByText('Returning to UYi…')).toBeInTheDocument()
+    expect(await screen.findByText('Returning to UYi')).toBeInTheDocument()
     const openLink = screen.getByRole('link', { name: /Open UYi/i })
     expect(openLink).toHaveAttribute(
       'href',
@@ -150,16 +153,16 @@ describe('UYi login web flow', () => {
     renderAt(`/login?${BASE_QUERY}`, 'zh-CN')
 
     expect(await screen.findByText('登录 UYi')).toBeInTheDocument()
-    await user.type(screen.getByLabelText('电子邮箱'), 'new@example.com')
+    await user.type(screen.getByLabelText('邮箱'), 'new@example.com')
     await user.click(screen.getByRole('button', { name: '发送验证码' }))
 
-    expect(await screen.findByText('输入 6 位验证码')).toBeInTheDocument()
+    expect(await screen.findByText('输入验证码')).toBeInTheDocument()
     await user.type(screen.getByRole('textbox'), '654321')
     await user.click(screen.getByRole('button', { name: '验证并继续' }))
 
-    expect(await screen.findByText('输入邀请码以激活账号')).toBeInTheDocument()
+    expect(await screen.findByText('输入邀请码')).toBeInTheDocument()
     const main = within(screen.getByRole('main'))
-    expect(main.getByText(/条款版本：2026-11-18/)).toBeInTheDocument()
+    expect(main.getByText(/条款版本 2026-11-18/)).toBeInTheDocument()
     expect(main.getByRole('link', { name: '使用条款' })).toHaveAttribute(
       'href',
       'https://uyi.live/terms',
@@ -175,7 +178,7 @@ describe('UYi login web flow', () => {
     await user.type(inviteInput, 'bad2cd45')
     expect(inviteInput).toHaveValue('BAD2-CD45')
     await user.click(screen.getByRole('checkbox'))
-    await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
+    await user.click(screen.getByRole('button', { name: '完成并进入 UYi' }))
 
     expect(
       await screen.findByText('邀请码无效、已过期或已被使用，请核对后重试。'),
@@ -184,9 +187,9 @@ describe('UYi login web flow', () => {
     await user.clear(inviteInput)
     await user.type(inviteInput, 'ab23cd45')
     expect(inviteInput).toHaveValue('AB23-CD45')
-    await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
+    await user.click(screen.getByRole('button', { name: '完成并进入 UYi' }))
 
-    expect(await screen.findByText('正在返回 UYi…')).toBeInTheDocument()
+    expect(await screen.findByText('正在返回 UYi')).toBeInTheDocument()
     expect(redirectSpy).toHaveBeenCalledWith(
       'http://127.0.0.1:4242/callback?code=new-code&state=state-1234567890abcdef',
     )
@@ -226,13 +229,13 @@ describe('UYi login web flow', () => {
 
     renderAt('/login/invite', 'en')
 
-    expect(await screen.findByText('Review terms to continue')).toBeInTheDocument()
-    expect(screen.queryByLabelText(/Invitation code/i)).not.toBeInTheDocument()
+    expect(await screen.findByText('Review the terms')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Invite code/i)).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('checkbox'))
-    await user.click(screen.getByRole('button', { name: /Finish setup & open UYi/i }))
+    await user.click(screen.getByRole('button', { name: /Finish & open UYi/i }))
 
-    expect(await screen.findByText('Returning to UYi…')).toBeInTheDocument()
+    expect(await screen.findByText('Returning to UYi')).toBeInTheDocument()
   })
 
   it('triggers Google sign-in navigation and restores complete state on /login/continue', async () => {
@@ -262,11 +265,11 @@ describe('UYi login web flow', () => {
     })
 
     renderAt('/login/continue', 'ja')
-    expect(await screen.findByText('UYi に戻っています…')).toBeInTheDocument()
+    expect(await screen.findByText('UYi に戻っています')).toBeInTheDocument()
     expect(redirectSpy).toHaveBeenCalledWith('uyi://auth/callback?code=google-merged&state=s1')
   })
 
-  it('restores invite_required state after /login/continue and handles rate_limited / expired errors', async () => {
+  it('restores invite_required state after /login/continue', async () => {
     writeLoginSession({
       csrf: 'csrf-google-2',
       google: true,
@@ -286,14 +289,14 @@ describe('UYi login web flow', () => {
 
     const { history } = renderAt('/login/continue', 'en')
 
-    expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
+    expect(await screen.findByText('Enter your invite code')).toBeInTheDocument()
     expect(screen.getByText(/google-new@example\.com/i)).toBeInTheDocument()
     await waitFor(() => {
       expect(history.location.pathname).toBe('/login/invite')
     })
   })
 
-  it('shows localized error message when session expires or rate limit hits', async () => {
+  it('shows localized error message when rate limit hits and updates on language switch', async () => {
     const user = userEvent.setup()
 
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
@@ -308,16 +311,16 @@ describe('UYi login web flow', () => {
     renderAt(`/login?${BASE_QUERY}`, 'en')
     expect(await screen.findByText('Sign in to UYi')).toBeInTheDocument()
 
-    await user.type(screen.getByLabelText(/Email address/i), 'rate@example.com')
-    await user.click(screen.getByRole('button', { name: /Send verification code/i }))
+    await user.type(screen.getByLabelText(/^Email$/i), 'rate@example.com')
+    await user.click(screen.getByRole('button', { name: /Send code/i }))
 
     expect(
-      await screen.findByText('Too many attempts. Please wait a moment and try again.'),
+      await screen.findByText('Too many attempts. Wait a moment and try again.'),
     ).toBeInTheDocument()
 
     // Switch language to zh-CN and verify error copy updates live
-    await user.click(screen.getByRole('button', { name: '中文' }))
-    expect(screen.getByText('操作过于频繁，请稍等片刻后再试。')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '中' }))
+    expect(screen.getByText('操作太频繁了，请稍等片刻再试。')).toBeInTheDocument()
   })
 
   it('restores verify step on page reload using /api/auth/web/state', async () => {
@@ -344,12 +347,12 @@ describe('UYi login web flow', () => {
 
     renderAt(`/login?${BASE_QUERY}`, 'en')
 
-    expect(await screen.findByText('Check your email')).toBeInTheDocument()
+    expect(await screen.findByText('Enter the code')).toBeInTheDocument()
     expect(screen.getByText(/resume@example\.com/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Resend in/i })).toBeDisabled()
   })
 
-  it('shows friendly launch-from-app card (no red error alert) when opened directly without PKCE params', async () => {
+  it('shows desktop download guidance (no red alert, no jargon) when opened directly without app params', async () => {
     const user = userEvent.setup()
 
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
@@ -362,42 +365,77 @@ describe('UYi login web flow', () => {
 
     renderAt('/login', 'zh-CN')
 
-    expect(await screen.findByText('请从 UYi 应用中登录')).toBeInTheDocument()
-    expect(
-      screen.getByText('打开 UYi → 设置 → UYi 账号 → 登录 UYi，会自动打开本页继续。'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('登录需要 UYi 桌面客户端')).toBeInTheDocument()
+    expect(screen.getByText('在 UYi 里点「登录 UYi」会自动打开这一页。')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-    expect(screen.queryByText(/登录会话已失效/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/会话|参数|PKCE/)).not.toBeInTheDocument()
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
+    expect(screen.queryByTestId('saved-invite-notice')).not.toBeInTheDocument()
 
-    const downloadBtn = screen.getByRole('button', { name: /下载 UYi/ })
-    expect(downloadBtn).toBeDisabled()
-    expect(within(downloadBtn).getByText('即将推出')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /了解 UYi/ })).toHaveAttribute('href', '/')
+    // Without VITE_UYI_DOWNLOAD_URL, primary CTA links to waitlist form on landing page
+    expect(screen.getByRole('link', { name: '即将推出 · 加入候补' })).toHaveAttribute(
+      'href',
+      'https://uyi.live/#p5',
+    )
+    expect(screen.getByRole('link', { name: '已经安装？打开 UYi' })).toHaveAttribute(
+      'href',
+      'uyi://',
+    )
 
     // Switch to English & Japanese and verify trilingual guidance
     await user.click(screen.getByRole('button', { name: 'EN' }))
-    expect(screen.getByText('Sign in from the UYi app')).toBeInTheDocument()
+    expect(screen.getByText('Sign in requires the UYi desktop app')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'Open UYi → Settings → UYi Account → Sign in to UYi, and this page will open automatically to continue.',
-      ),
+      screen.getByText('Click “Sign in to UYi” in UYi and this page opens automatically.'),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Download UYi/ })).toBeDisabled()
-    expect(screen.getByRole('link', { name: /Explore UYi/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Coming soon · Join waitlist' })).toHaveAttribute(
+      'href',
+      'https://uyi.live/#p5',
+    )
+    expect(screen.getByRole('link', { name: 'Already installed? Open UYi' })).toHaveAttribute(
+      'href',
+      'uyi://',
+    )
 
-    await user.click(screen.getByRole('button', { name: '日本語' }))
-    expect(screen.getByText('UYi アプリからサインイン')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '日' }))
+    expect(screen.getByText('ログインには UYi デスクトップアプリが必要です')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        'UYi → 設定 → UYi アカウント → UYi にサインイン を開くと、このページが自動で開いて続行できます。',
-      ),
+      screen.getByText('UYi で「UYi にサインイン」を押すと、このページが自動で開きます。'),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /UYi をダウンロード/ })).toBeDisabled()
-    expect(screen.getByRole('link', { name: /UYi について見る/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: '近日公開 · 先行案内に登録' })).toHaveAttribute(
+      'href',
+      'https://uyi.live/#p5',
+    )
+    expect(screen.getByRole('link', { name: 'インストール済みですか？UYi を開く' })).toHaveAttribute(
+      'href',
+      'uyi://',
+    )
   })
 
-  it('shows friendly launch-from-app card when PKCE params are incomplete or /state returns no_session', async () => {
+  it('shows macOS download link when downloadUrl is configured and displays stored invite hint', () => {
+    writeStoredInvite('AB23-CD45')
+
+    render(
+      <I18nProvider initialLocale="zh-CN">
+        <LaunchFromAppCard downloadUrl="https://downloads.uyi.live/UYi-macOS.dmg" />
+      </I18nProvider>,
+    )
+
+    expect(screen.getByRole('link', { name: '下载 UYi（macOS）' })).toHaveAttribute(
+      'href',
+      'https://downloads.uyi.live/UYi-macOS.dmg',
+    )
+    expect(screen.getByRole('link', { name: '已经安装？打开 UYi' })).toHaveAttribute(
+      'href',
+      'uyi://',
+    )
+    expect(screen.getByTestId('saved-invite-notice')).toHaveTextContent(
+      '你的邀请码 AB23-CD45 已保存，安装后登录时会自动填入。',
+    )
+  })
+
+  it('shows desktop download guidance when params are incomplete or /state returns no_session', async () => {
+    writeStoredInvite('QR98-TW23')
     fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = String(input)
       if (url === '/api/auth/web/state') {
@@ -408,8 +446,11 @@ describe('UYi login web flow', () => {
 
     renderAt('/login?client_id=uyi-desktop', 'zh-CN')
 
-    expect(await screen.findByText('请从 UYi 应用中登录')).toBeInTheDocument()
+    expect(await screen.findByText('登录需要 UYi 桌面客户端')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByTestId('saved-invite-notice')).toHaveTextContent(
+      '你的邀请码 QR98-TW23 已保存，安装后登录时会自动填入。',
+    )
   })
 
   it('shows session-expired prompt for real expiration and state_mismatch without OTP fallback copy', async () => {
@@ -423,8 +464,8 @@ describe('UYi login web flow', () => {
     })
 
     const first = renderAt('/login', 'zh-CN')
-    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
-    expect(screen.getByText('登录会话已失效，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(await screen.findByText('这次登录已过期')).toBeInTheDocument()
+    expect(screen.getByText('这次登录已过期，请回到 UYi 重新发起。')).toBeInTheDocument()
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
     first.unmount()
 
@@ -438,8 +479,8 @@ describe('UYi login web flow', () => {
     })
 
     const second = renderAt('/login/continue', 'zh-CN')
-    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
-    expect(screen.getByText('登录状态不匹配，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(await screen.findByText('这次登录已过期')).toBeInTheDocument()
+    expect(screen.getByText('登录状态已变更，请回到 UYi 重新发起。')).toBeInTheDocument()
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
     second.unmount()
 
@@ -463,8 +504,8 @@ describe('UYi login web flow', () => {
     })
 
     const third = renderAt('/login', 'zh-CN')
-    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
-    expect(screen.getByText('登录会话已失效，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(await screen.findByText('这次登录已过期')).toBeInTheDocument()
+    expect(screen.getByText('这次登录已过期，请回到 UYi 重新发起。')).toBeInTheDocument()
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
     third.unmount()
   })
@@ -480,7 +521,7 @@ describe('UYi login web flow', () => {
 
     renderAt(`/login?${BASE_QUERY}`, 'zh-CN')
 
-    expect(await screen.findByText('请求参数无效，请检查后重试。')).toBeInTheDocument()
+    expect(await screen.findByText('这次请求无效，请检查后重试。')).toBeInTheDocument()
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
   })
 })

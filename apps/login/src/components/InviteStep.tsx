@@ -1,8 +1,6 @@
 import { useForm } from '@tanstack/react-form'
-import { AlertCircle, KeyRound, Loader2, MailCheck } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -53,33 +51,23 @@ export function InviteStep({
   })
 
   return (
-    <Card className="uyi-step-enter border border-border bg-card/85 py-6 shadow-[0_24px_80px_rgba(4,2,18,0.68),inset_0_1px_0_rgba(242,239,252,0.08)] ring-0 backdrop-blur-2xl rounded-2xl">
-      <CardHeader className="px-6 pb-2">
+    <section className="uyi-step-enter space-y-8">
+      <header className="space-y-3">
         {email && (
-          <div className="mb-1.5 inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border border-uyi-violet/25 bg-uyi-violet/10 px-2.5 py-1 text-xs text-uyi-violet">
-            <MailCheck className="size-3.5 shrink-0 text-uyi-lamp" aria-hidden="true" />
-            <span className="truncate">{t.verifiedAs(email)}</span>
-          </div>
+          <p className="truncate text-[13px] text-uyi-mute">{t.verifiedAs(email)}</p>
         )}
-        <CardTitle className="text-2xl font-medium tracking-tight text-foreground">
+        <h1 className="text-balance font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.025em] text-uyi-text lg:text-[2.625rem] lg:leading-[1.1]">
           {needsInvite ? t.inviteTitle : t.inviteOpenTitle}
-        </CardTitle>
-        <CardDescription className="text-sm leading-relaxed text-muted-foreground">
+        </h1>
+        <p className="text-[15px] leading-[1.6] text-uyi-mute">
           {needsInvite ? t.inviteSubtitle : t.inviteOpenSubtitle}
-        </CardDescription>
-      </CardHeader>
+        </p>
+      </header>
 
-      <CardContent className="space-y-5 px-6 pt-2">
+      <div className="space-y-6">
         {errorCode && (
-          <Alert
-            variant="destructive"
-            className="border-destructive/35 bg-destructive/10 text-destructive"
-          >
-            <AlertCircle className="size-4" />
-            <AlertTitle>{t.errorHeading}</AlertTitle>
-            <AlertDescription className="text-destructive/95">
-              {formatError(errorCode)}
-            </AlertDescription>
+          <Alert variant="destructive">
+            <AlertDescription>{formatError(errorCode)}</AlertDescription>
           </Alert>
         )}
 
@@ -90,7 +78,7 @@ export function InviteStep({
             event.stopPropagation()
             void form.handleSubmit()
           }}
-          className="space-y-5"
+          className="space-y-6"
         >
           {needsInvite && (
             <form.Field
@@ -105,42 +93,36 @@ export function InviteStep({
               {field => {
                 const fieldError = field.state.meta.errors[0]
                 return (
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <Label
                       htmlFor="login-invite"
-                      className="text-xs font-medium text-foreground/90"
+                      className="block text-[13px] font-normal text-uyi-mute"
                     >
                       {t.inviteLabel}
                     </Label>
-                    <div className="relative">
-                      <KeyRound
-                        className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                      <Input
-                        id="login-invite"
-                        name="invite"
-                        type="text"
-                        autoComplete="off"
-                        autoCapitalize="characters"
-                        spellCheck={false}
-                        maxLength={256}
-                        placeholder={t.invitePlaceholder}
-                        value={field.state.value}
-                        aria-invalid={Boolean(fieldError)}
-                        disabled={isSubmitting}
-                        onBlur={field.handleBlur}
-                        onChange={event => {
-                          if (errorCode) onClearError()
-                          field.handleChange(
-                            formatInviteInput(event.target.value, field.state.value),
-                          )
-                        }}
-                        className="h-11 rounded-xl border-input bg-uyi-ink/60 pl-10 pr-3.5 font-mono text-sm tracking-wider text-foreground placeholder:font-mono placeholder:tracking-wider placeholder:text-muted-foreground/55 focus-visible:border-uyi-lamp focus-visible:ring-uyi-lamp/30"
-                      />
-                    </div>
+                    <Input
+                      id="login-invite"
+                      name="invite"
+                      type="text"
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      maxLength={64}
+                      placeholder={t.invitePlaceholder}
+                      value={field.state.value}
+                      aria-invalid={Boolean(fieldError)}
+                      disabled={isSubmitting}
+                      onBlur={field.handleBlur}
+                      onChange={event => {
+                        if (errorCode) onClearError()
+                        field.handleChange(
+                          formatInviteInput(event.target.value, field.state.value),
+                        )
+                      }}
+                      className="font-mono text-[17px] tracking-[0.14em] placeholder:font-mono placeholder:tracking-[0.14em]"
+                    />
                     {fieldError && (
-                      <p role="alert" className="text-xs text-destructive">
+                      <p role="alert" className="pt-1 text-[13px] text-destructive">
                         {String(fieldError)}
                       </p>
                     )}
@@ -163,7 +145,7 @@ export function InviteStep({
               const fieldError = field.state.meta.errors[0]
               return (
                 <div className="space-y-2">
-                  <div className="flex items-start gap-3 rounded-xl border border-border/80 bg-uyi-ink/45 p-3.5">
+                  <div className="flex items-start gap-3">
                     <Checkbox
                       id="login-consent"
                       checked={field.state.value}
@@ -173,19 +155,19 @@ export function InviteStep({
                         if (errorCode) onClearError()
                         field.handleChange(Boolean(checked))
                       }}
-                      className="mt-0.5 cursor-pointer border-uyi-violet/45 data-checked:border-uyi-lamp data-checked:bg-uyi-lamp data-checked:text-primary-foreground"
+                      className="mt-1"
                     />
-                    <div className="space-y-1 text-xs leading-relaxed text-muted-foreground">
+                    <div className="space-y-1">
                       <Label
                         htmlFor="login-consent"
-                        className="block cursor-pointer text-xs leading-relaxed font-normal text-foreground/90"
+                        className="block cursor-pointer text-[14px] leading-[1.55] font-normal text-uyi-text"
                       >
                         {t.consentPrefix}
                         <a
                           href={termsUrl || '/terms'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-uyi-lamp underline decoration-uyi-lamp/45 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
+                          className="text-uyi-lamp underline decoration-uyi-lamp/50 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
                         >
                           {t.termsLinkText}
                         </a>
@@ -194,21 +176,21 @@ export function InviteStep({
                           href={privacyUrl || '/privacy'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-uyi-lamp underline decoration-uyi-lamp/45 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
+                          className="text-uyi-lamp underline decoration-uyi-lamp/50 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
                         >
                           {t.privacyLinkText}
                         </a>
                         {t.consentSuffix}
                       </Label>
                       {policyVersion && (
-                        <p className="text-[11px] text-muted-foreground/80">
+                        <p className="text-[13px] text-uyi-mute">
                           {t.policyVersionLabel(policyVersion)}
                         </p>
                       )}
                     </div>
                   </div>
                   {fieldError && (
-                    <p role="alert" className="text-xs text-destructive">
+                    <p role="alert" className="text-[13px] text-destructive">
                       {String(fieldError)}
                     </p>
                   )}
@@ -217,23 +199,11 @@ export function InviteStep({
             }}
           </form.Field>
 
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isSubmitting}
-            className="h-11 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(255,226,168,0.2)] transition-all hover:bg-primary/90"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>{t.completingRegistration}</span>
-              </>
-            ) : (
-              <span>{t.completeRegistrationButton}</span>
-            )}
+          <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? t.completingRegistration : t.completeRegistrationButton}
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }
