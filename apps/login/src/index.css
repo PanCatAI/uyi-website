@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "UYI Geometry";
+  src: url("/assets/fonts/geometry.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UYI MPlus";
+  src: url("/assets/fonts/mplus.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+20-7E, U+B7, U+D7, U+2013, U+2019, U+2026, U+3000-301F, U+3030-3035,
+    U+303B-3094, U+3099-30FD, U+4E00-9FFF, U+FF01-FF60;
+}
+
+@theme inline {
+  --font-heading: "UYI Geometry", "UYI MPlus", "PingFang SC", "Hiragino Sans",
+    "Noto Sans SC", "Noto Sans JP", system-ui, sans-serif;
+  --font-sans: "UYI Geometry", "UYI MPlus", "PingFang SC", "Hiragino Sans",
+    "Noto Sans SC", "Noto Sans JP", system-ui, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-uyi-ink: var(--uyi-ink);
+  --color-uyi-violet: var(--uyi-violet);
+  --color-uyi-lamp: var(--uyi-lamp);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.75);
+}
+
+:root,
+.dark {
+  --uyi-ink: #0b0920;
+  --uyi-ink2: #171433;
+  --uyi-line: #33305f;
+  --uyi-violet: #d2adf7;
+  --uyi-lamp: #ffe2a8;
+
+  --background: #0b0920;
+  --foreground: #f2effc;
+  --card: #141130;
+  --card-foreground: #f2effc;
+  --popover: #171436;
+  --popover-foreground: #f2effc;
+  --primary: #ffe2a8;
+  --primary-foreground: #1a1230;
+  --secondary: #201c46;
+  --secondary-foreground: #f2effc;
+  --muted: #1b173c;
+  --muted-foreground: #b0acd0;
+  --accent: #272254;
+  --accent-foreground: #f2effc;
+  --destructive: #ff8b8b;
+  --border: rgba(210, 173, 247, 0.18);
+  --input: rgba(210, 173, 247, 0.24);
+  --ring: #ffe2a8;
+  --radius: 0.75rem;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100%;
+  }
+}
+
+@keyframes uyi-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.uyi-step-enter {
+  animation: uyi-step-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uyi-step-enter {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "build": "npm --prefix apps/login ci && npm --prefix apps/login run build",
+    "test": "node --test test/*.test.mjs && npm --prefix apps/login test"
   }
 }
