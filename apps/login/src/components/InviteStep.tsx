@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { RegistrationMode } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
-import { normalizeInviteInput } from '@/lib/invite'
+import { formatInviteInput, normalizeInviteInput } from '@/lib/invite'
 
 interface InviteStepProps {
   email?: string
@@ -40,7 +40,7 @@ export function InviteStep({
 
   const form = useForm({
     defaultValues: {
-      invite: initialInvite,
+      invite: initialInvite ? formatInviteInput(initialInvite) : '',
       consent: false,
     },
     onSubmit: async ({ value }) => {
@@ -122,6 +122,7 @@ export function InviteStep({
                         name="invite"
                         type="text"
                         autoComplete="off"
+                        autoCapitalize="characters"
                         spellCheck={false}
                         maxLength={256}
                         placeholder={t.invitePlaceholder}
@@ -131,9 +132,11 @@ export function InviteStep({
                         onBlur={field.handleBlur}
                         onChange={event => {
                           if (errorCode) onClearError()
-                          field.handleChange(event.target.value)
+                          field.handleChange(
+                            formatInviteInput(event.target.value, field.state.value),
+                          )
                         }}
-                        className="h-11 rounded-xl border-input bg-uyi-ink/60 pl-10 pr-3.5 font-mono text-sm tracking-wider text-foreground placeholder:font-sans placeholder:tracking-normal placeholder:text-muted-foreground/65 focus-visible:border-uyi-lamp focus-visible:ring-uyi-lamp/30"
+                        className="h-11 rounded-xl border-input bg-uyi-ink/60 pl-10 pr-3.5 font-mono text-sm tracking-wider text-foreground placeholder:font-mono placeholder:tracking-wider placeholder:text-muted-foreground/55 focus-visible:border-uyi-lamp focus-visible:ring-uyi-lamp/30"
                       />
                     </div>
                     {fieldError && (

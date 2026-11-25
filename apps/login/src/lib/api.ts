@@ -29,7 +29,7 @@ export type VerifyResponse =
   | { status: 'invite_required' }
 
 export interface StateResponse {
-  status: 'pending' | 'invite_required' | 'complete'
+  status: 'pending' | 'invite_required' | 'complete' | 'none' | 'no_session'
   redirect?: string
   email?: string
   csrf?: string
@@ -78,7 +78,16 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     data = await response.json()
   } catch {
     if (!response.ok) {
-      throw new ApiError(response.status === 429 ? 'rate_limited' : 'unavailable', response.status)
+      throw new ApiError(
+        response.status === 429
+          ? 'rate_limited'
+          : response.status === 401
+            ? 'unauthorized'
+            : response.status === 404
+              ? 'not_found'
+              : 'unavailable',
+        response.status,
+      )
     }
     throw new ApiError('unavailable', response.status)
   }
@@ -93,9 +102,13 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
         ? (data as { error: string }).error.trim()
         : response.status === 429
           ? 'rate_limited'
-          : response.status >= 500
-            ? 'unavailable'
-            : 'invalid'
+          : response.status === 401
+            ? 'unauthorized'
+            : response.status === 404
+              ? 'not_found'
+              : response.status >= 500
+                ? 'unavailable'
+                : 'invalid_request'
     throw new ApiError(errorCode, response.status)
   }
 
@@ -175,4 +188,60 @@ export function extractStartParams(search: string): LoginStartParams | null {
     platform: values.platform,
     ...(invite ? { invite } : {}),
   }
+}
+
+export const EXPIRED_SESSION_ERROR_CODES = new Set([
+  'expired',
+  'session_expired',
+  'state_mismatch',
+  'invalid_state',
+  'csrf_invalid',
+])
+
+export const CONNECTION_ERROR_CODES = new Set(['network_error', 'unavailable', 'rate_limited'])
+
+const NO_SESSION_ERROR_CODES = new Set([
+  'no_session',
+  'missing_session',
+  'session_not_found',
+  'unauthorized',
+  'not_found',
+  'invalid',
+  'invalid_request',
+])
+
+export function isActiveStateResponse(state: StateResponse | null | undefined): boolean {
+  return (
+    state?.status === 'pending' ||
+    state?.status === 'invite_required' ||
+    state?.status === 'complete'
+  )
+}
+
+export function classifyStateError(
+  error: ApiError,
+  options: { hadSession: boolean; queryError?: string | null },
+): { kind: 'launch_from_app' } | { kind: 'error'; errorCode: string } {
+  const code = error.code
+
+  if (CONNECTION_ERROR_CODES.has(code)) {
+    return { kind: 'error', errorCode: code }
+  }
+
+  if (EXPIRED_SESSION_ERROR_CODES.has(code)) {
+    return { kind: 'error', errorCode: code }
+  }
+
+  if (options.queryError) {
+    return { kind: 'error', errorCode: options.queryError }
+  }
+
+  if (NO_SESSION_ERROR_CODES.has(code) || error.status === 401 || error.status === 404) {
+    if (options.hadSession) {
+      return { kind: 'error', errorCode: 'expired' }
+    }
+    return { kind: 'launch_from_app' }
+  }
+
+  return { kind: 'error', errorCode: code }
 }

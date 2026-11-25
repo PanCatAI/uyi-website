@@ -131,12 +131,12 @@ describe('UYi login web flow', () => {
       }
       if (url === '/api/auth/web/invite') {
         const body = JSON.parse(String(init?.body))
-        if (body.invite === 'BAD-CODE') {
+        if (body.invite === 'BAD2-CD45') {
           return jsonResponse({ error: 'invite_invalid' }, 400)
         }
         expect(body).toEqual({
           csrf: 'csrf-token-1',
-          invite: 'UYI-2026',
+          invite: 'AB23-CD45',
           consent: true,
         })
         return jsonResponse({
@@ -169,7 +169,11 @@ describe('UYi login web flow', () => {
       'https://uyi.live/privacy',
     )
 
-    await user.type(screen.getByLabelText('邀请码'), 'BAD-CODE')
+    const inviteInput = screen.getByLabelText('邀请码')
+    expect(inviteInput).toHaveAttribute('placeholder', 'XXXX-XXXX')
+
+    await user.type(inviteInput, 'bad2cd45')
+    expect(inviteInput).toHaveValue('BAD2-CD45')
     await user.click(screen.getByRole('checkbox'))
     await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
 
@@ -177,8 +181,9 @@ describe('UYi login web flow', () => {
       await screen.findByText('邀请码无效、已过期或已被使用，请核对后重试。'),
     ).toBeInTheDocument()
 
-    await user.clear(screen.getByLabelText('邀请码'))
-    await user.type(screen.getByLabelText('邀请码'), 'UYI-2026')
+    await user.clear(inviteInput)
+    await user.type(inviteInput, 'ab23cd45')
+    expect(inviteInput).toHaveValue('AB23-CD45')
     await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
 
     expect(await screen.findByText('正在返回 UYi…')).toBeInTheDocument()
@@ -342,5 +347,140 @@ describe('UYi login web flow', () => {
     expect(await screen.findByText('Check your email')).toBeInTheDocument()
     expect(screen.getByText(/resume@example\.com/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Resend in/i })).toBeDisabled()
+  })
+
+  it('shows friendly launch-from-app card (no red error alert) when opened directly without PKCE params', async () => {
+    const user = userEvent.setup()
+
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ error: 'invalid' }, 400)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    renderAt('/login', 'zh-CN')
+
+    expect(await screen.findByText('请从 UYi 应用中登录')).toBeInTheDocument()
+    expect(
+      screen.getByText('打开 UYi → 设置 → UYi 账号 → 登录 UYi，会自动打开本页继续。'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.queryByText(/登录会话已失效/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
+
+    const downloadBtn = screen.getByRole('button', { name: /下载 UYi/ })
+    expect(downloadBtn).toBeDisabled()
+    expect(within(downloadBtn).getByText('即将推出')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /了解 UYi/ })).toHaveAttribute('href', '/')
+
+    // Switch to English & Japanese and verify trilingual guidance
+    await user.click(screen.getByRole('button', { name: 'EN' }))
+    expect(screen.getByText('Sign in from the UYi app')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Open UYi → Settings → UYi Account → Sign in to UYi, and this page will open automatically to continue.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Download UYi/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: /Explore UYi/ })).toHaveAttribute('href', '/')
+
+    await user.click(screen.getByRole('button', { name: '日本語' }))
+    expect(screen.getByText('UYi アプリからサインイン')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'UYi → 設定 → UYi アカウント → UYi にサインイン を開くと、このページが自動で開いて続行できます。',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /UYi をダウンロード/ })).toBeDisabled()
+    expect(screen.getByRole('link', { name: /UYi について見る/ })).toHaveAttribute('href', '/')
+  })
+
+  it('shows friendly launch-from-app card when PKCE params are incomplete or /state returns no_session', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ status: 'no_session' }, 200)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    renderAt('/login?client_id=uyi-desktop', 'zh-CN')
+
+    expect(await screen.findByText('请从 UYi 应用中登录')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('shows session-expired prompt for real expiration and state_mismatch without OTP fallback copy', async () => {
+    // 1. Server explicitly reports expired session
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ error: 'expired' }, 401)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    const first = renderAt('/login', 'zh-CN')
+    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
+    expect(screen.getByText('登录会话已失效，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
+    first.unmount()
+
+    // 2. Server reports state_mismatch
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ error: 'state_mismatch' }, 400)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    const second = renderAt('/login/continue', 'zh-CN')
+    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
+    expect(screen.getByText('登录状态不匹配，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
+    second.unmount()
+
+    // 3. Previously active tab session evicted on server (401 invalid) -> treated as expired
+    writeLoginSession({
+      stateKey: 'state-old',
+      csrf: 'csrf-old',
+      google: true,
+      registrationMode: 'invite_only',
+      termsUrl: '/terms',
+      privacyUrl: '/privacy',
+      policyVersion: '2026-11-18',
+      step: 'verify',
+    })
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ error: 'invalid' }, 401)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    const third = renderAt('/login', 'zh-CN')
+    expect(await screen.findByText('登录会话已失效')).toBeInTheDocument()
+    expect(screen.getByText('登录会话已失效，请返回 UYi 重新发起。')).toBeInTheDocument()
+    expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
+    third.unmount()
+  })
+
+  it('keeps generic invalid error distinct from invalid_code (verification code) copy', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/auth/web/start') {
+        return jsonResponse({ error: 'invalid' }, 400)
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    renderAt(`/login?${BASE_QUERY}`, 'zh-CN')
+
+    expect(await screen.findByText('请求参数无效，请检查后重试。')).toBeInTheDocument()
+    expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
   })
 })

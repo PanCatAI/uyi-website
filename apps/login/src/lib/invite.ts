@@ -33,6 +33,33 @@ export function normalizeInviteInput(raw: string | null | undefined): string {
   return normalizeShortInviteCode(trimmed) ?? trimmed
 }
 
+/**
+ * Formats live user input (typing or pasting) in the invite code input:
+ * - Uppercases characters
+ * - For short invite codes (up to 8 alphanumeric chars), removes spaces/hyphens
+ *   and inserts a hyphen after the 4th character (`XXXX-XXXX`)
+ * - Preserves longer legacy codes (> 8 alphanumeric chars) as uppercase without whitespace
+ */
+export function formatInviteInput(raw: string, previousValue = ''): string {
+  const upper = raw.toUpperCase()
+  const compact = upper.replace(/[^0-9A-Z]/g, '')
+
+  if (compact.length > 8) {
+    return upper.replace(/\s+/g, '')
+  }
+
+  if (compact.length > 4) {
+    return `${compact.slice(0, 4)}-${compact.slice(4)}`
+  }
+
+  const isDeleting = raw.length < previousValue.length
+  if (compact.length === 4 && upper.trimEnd().endsWith('-') && !isDeleting) {
+    return `${compact}-`
+  }
+
+  return compact
+}
+
 export function clearStoredInvite(): void {
   try {
     window.localStorage.removeItem(INVITE_STORAGE_KEY)

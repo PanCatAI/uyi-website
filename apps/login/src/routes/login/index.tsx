@@ -4,12 +4,14 @@ import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-route
 import { toast } from 'sonner'
 import { CompleteStep } from '@/components/CompleteStep'
 import { EmailStep } from '@/components/EmailStep'
-import { LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
+import { LaunchFromAppCard, LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
 import { VerifyStep } from '@/components/VerifyStep'
 import {
   ApiError,
+  classifyStateError,
   extractStartParams,
   getWebLoginState,
+  isActiveStateResponse,
   requestEmailCode,
   startWebLogin,
   verifyEmailCode,
@@ -30,10 +32,15 @@ export const Route = createFileRoute('/login/')({
   component: LoginIndexPage,
 })
 
-interface BootstrapResult {
-  session: LoginSession
-  serverState: StateResponse
-}
+type BootstrapResult =
+  | {
+      kind: 'ready'
+      session: LoginSession
+      serverState: StateResponse
+    }
+  | {
+      kind: 'launch_from_app'
+    }
 
 const RESEND_COOLDOWN_MS = 60_000
 
@@ -98,9 +105,11 @@ function LoginIndexPage() {
         if (existing?.stateKey === startParams.state && existing.csrf) {
           try {
             const state = await getWebLoginState()
-            const merged = mergeStateIntoSession(existing, state, queryInvite)
-            writeLoginSession(merged)
-            return { session: merged, serverState: state }
+            if (isActiveStateResponse(state)) {
+              const merged = mergeStateIntoSession(existing, state, queryInvite)
+              writeLoginSession(merged)
+              return { kind: 'ready', session: merged, serverState: state }
+            }
           } catch {
             // Session cookie expired or invalid; start a fresh login session below.
           }
@@ -122,21 +131,43 @@ function LoginIndexPage() {
           step: 'choose',
         }
         writeLoginSession(session)
-        return { session, serverState: { status: 'pending' } }
+        return { kind: 'ready', session, serverState: { status: 'pending' } }
       }
 
       const queryInvite =
         normalizeInviteInput(new URLSearchParams(searchStr).get('invite')) || undefined
-      const state = await getWebLoginState()
-      const merged = mergeStateIntoSession(existing, state, queryInvite)
-      writeLoginSession(merged)
-      return { session: merged, serverState: state }
+
+      try {
+        const state = await getWebLoginState()
+        if (!isActiveStateResponse(state)) {
+          if (existing) {
+            throw new ApiError('expired', 401)
+          }
+          if (queryError) {
+            throw new ApiError(queryError, 400)
+          }
+          return { kind: 'launch_from_app' }
+        }
+        const merged = mergeStateIntoSession(existing, state, queryInvite)
+        writeLoginSession(merged)
+        return { kind: 'ready', session: merged, serverState: state }
+      } catch (error) {
+        const apiError = error instanceof ApiError ? error : new ApiError('unavailable', 0)
+        const resolution = classifyStateError(apiError, {
+          hadSession: Boolean(existing),
+          queryError,
+        })
+        if (resolution.kind === 'launch_from_app') {
+          return { kind: 'launch_from_app' }
+        }
+        throw new ApiError(resolution.errorCode, apiError.status)
+      }
     },
   })
 
   React.useEffect(() => {
     const result = bootstrapQuery.data
-    if (!result) return
+    if (!result || result.kind !== 'ready') return
 
     if (result.serverState.status === 'complete' && result.serverState.redirect) {
       setCompleteRedirect(result.serverState.redirect)
@@ -179,7 +210,7 @@ function LoginIndexPage() {
   }
 
   if (bootstrapQuery.isError) {
-    const code = bootstrapQuery.error instanceof ApiError ? bootstrapQuery.error.code : 'invalid'
+    const code = bootstrapQuery.error instanceof ApiError ? bootstrapQuery.error.code : 'unavailable'
     return (
       <SessionErrorCard
         errorCode={code}
@@ -187,6 +218,10 @@ function LoginIndexPage() {
         onRetry={() => void bootstrapQuery.refetch()}
       />
     )
+  }
+
+  if (bootstrapQuery.data.kind === 'launch_from_app') {
+    return <LaunchFromAppCard />
   }
 
   const session = bootstrapQuery.data.session
@@ -236,7 +271,7 @@ function LoginIndexPage() {
       patchLoginSession({ email, step: 'invite' })
       void navigate({ to: '/login/invite' })
     } catch (error) {
-      setActionError(error instanceof ApiError ? error.code : 'invalid')
+      setActionError(error instanceof ApiError ? error.code : 'unavailable')
     }
   }
 

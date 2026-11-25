@@ -6,6 +6,7 @@ import { createLoginQueryClient, createLoginRouter, LoginApp } from '@/App'
 import { InviteLandingCard } from '@/components/InviteLandingCard'
 import { I18nProvider } from '@/lib/i18n'
 import {
+  formatInviteInput,
   INVITE_STORAGE_KEY,
   INVITE_TTL_MS,
   normalizeInviteInput,
@@ -71,6 +72,19 @@ describe('invite code normalization and localStorage persistence', () => {
     expect(normalizeInviteInput(' ab23 cd45 ')).toBe('AB23-CD45')
     expect(normalizeInviteInput('  UYI-2026  ')).toBe('UYI-2026')
     expect(normalizeInviteInput('   ')).toBe('')
+  })
+
+  it('formats live invite input to uppercase with automatic hyphen after the 4th character', () => {
+    expect(formatInviteInput('a')).toBe('A')
+    expect(formatInviteInput('ab23')).toBe('AB23')
+    expect(formatInviteInput('ab23c')).toBe('AB23-C')
+    expect(formatInviteInput('ab23cd45')).toBe('AB23-CD45')
+    expect(formatInviteInput('  ab23 - cd45  ')).toBe('AB23-CD45')
+    expect(formatInviteInput('ab23-', 'AB23')).toBe('AB23-')
+    // Backspacing across the auto-hyphen does not trap the cursor
+    expect(formatInviteInput('AB23-', 'AB23-C')).toBe('AB23')
+    // Longer legacy codes remain uppercase without breaking hyphens
+    expect(formatInviteInput('uyi-legacy-2026')).toBe('UYI-LEGACY-2026')
   })
 
   it('stores normalized code with 7-day TTL and expires cleanly', () => {
@@ -363,5 +377,63 @@ describe('login prefill priority and /start invite forwarding', () => {
     renderAt('/login/invite?invite=zz992345', 'en')
     expect(await screen.findByText('Enter your invitation code')).toBeInTheDocument()
     expect(screen.getByLabelText(/Invitation code/i)).toHaveValue('ZZ99-2345')
+  })
+
+  it('formats InviteStep input on typing and pasting with XXXX-XXXX placeholder', async () => {
+    const user = userEvent.setup()
+    let submittedInvite: string | null = null
+
+    writeLoginSession({
+      csrf: 'csrf-format-1',
+      google: true,
+      registrationMode: 'invite_only',
+      termsUrl: '/terms',
+      privacyUrl: '/privacy',
+      policyVersion: '2026-11-18',
+      email: 'format@example.com',
+      step: 'invite',
+    })
+
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url === '/api/auth/web/state') {
+        return jsonResponse({ status: 'invite_required', email: 'format@example.com' })
+      }
+      if (url === '/api/auth/web/invite') {
+        const body = JSON.parse(String(init?.body)) as { invite: string }
+        submittedInvite = body.invite
+        return jsonResponse({
+          status: 'complete',
+          redirect: 'uyi://auth/callback?code=formatted&state=s',
+        })
+      }
+      throw new Error(`Unexpected fetch: ${url}`)
+    })
+
+    renderAt('/login/invite', 'zh-CN')
+    expect(await screen.findByText('输入邀请码以激活账号')).toBeInTheDocument()
+
+    const input = screen.getByLabelText('邀请码')
+    expect(input).toHaveAttribute('placeholder', 'XXXX-XXXX')
+
+    // Typing lowercase auto-uppercases and inserts hyphen after 4th char
+    await user.type(input, 'ab23c')
+    expect(input).toHaveValue('AB23-C')
+
+    // Backspace deletes past hyphen smoothly
+    await user.keyboard('{Backspace}')
+    expect(input).toHaveValue('AB23')
+
+    // Clearing and pasting compact lowercase code formats to XXXX-XXXX
+    await user.clear(input)
+    await user.click(input)
+    await user.paste('  qr98 tw23 ')
+    expect(input).toHaveValue('QR98-TW23')
+
+    await user.click(screen.getByRole('checkbox'))
+    await user.click(screen.getByRole('button', { name: '完成创建并进入 UYi' }))
+
+    expect(await screen.findByText('正在返回 UYi…')).toBeInTheDocument()
+    expect(submittedInvite).toBe('QR98-TW23')
   })
 })

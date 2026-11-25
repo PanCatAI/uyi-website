@@ -3,8 +3,15 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { CompleteStep } from '@/components/CompleteStep'
 import { InviteStep } from '@/components/InviteStep'
-import { LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
-import { ApiError, getWebLoginState, submitInvite, type StateResponse } from '@/lib/api'
+import { LaunchFromAppCard, LoadingCard, SessionErrorCard } from '@/components/SessionErrorView'
+import {
+  ApiError,
+  classifyStateError,
+  getWebLoginState,
+  isActiveStateResponse,
+  submitInvite,
+  type StateResponse,
+} from '@/lib/api'
 import { normalizeInviteInput, readStoredInvite } from '@/lib/invite'
 import { patchLoginSession, readLoginSession } from '@/lib/session'
 
@@ -33,7 +40,7 @@ function LoginInvitePage() {
 
   React.useEffect(() => {
     const data = stateQuery.data
-    if (!data) return
+    if (!data || !isActiveStateResponse(data)) return
 
     if (data.status === 'complete' && data.redirect) {
       setCompleteRedirect(data.redirect)
@@ -63,17 +70,32 @@ function LoginInvitePage() {
   }
 
   if (stateQuery.isError) {
-    const code = stateQuery.error instanceof ApiError ? stateQuery.error.code : 'expired'
+    const apiError =
+      stateQuery.error instanceof ApiError ? stateQuery.error : new ApiError('unavailable', 0)
+    const resolution = classifyStateError(apiError, {
+      hadSession: Boolean(readLoginSession()),
+    })
+    if (resolution.kind === 'launch_from_app') {
+      return <LaunchFromAppCard />
+    }
     return (
       <SessionErrorCard
-        errorCode={code}
-        canRetry={code === 'network_error' || code === 'unavailable'}
+        errorCode={resolution.errorCode}
+        canRetry={
+          resolution.errorCode === 'network_error' || resolution.errorCode === 'unavailable'
+        }
         onRetry={() => void stateQuery.refetch()}
       />
     )
   }
 
   const state = stateQuery.data
+  if (!isActiveStateResponse(state)) {
+    if (readLoginSession()) {
+      return <SessionErrorCard errorCode="expired" />
+    }
+    return <LaunchFromAppCard />
+  }
   if (state.status !== 'invite_required') {
     return <LoadingCard />
   }
@@ -98,7 +120,7 @@ function LoginInvitePage() {
       const result = await inviteMutation.mutateAsync({ csrf, invite, consent })
       setCompleteRedirect(result.redirect)
     } catch (error) {
-      setActionError(error instanceof ApiError ? error.code : 'invalid')
+      setActionError(error instanceof ApiError ? error.code : 'unavailable')
     }
   }
 
