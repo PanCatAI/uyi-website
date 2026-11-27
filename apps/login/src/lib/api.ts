@@ -26,10 +26,10 @@ export interface RequestCodeResponse {
 
 export type VerifyResponse =
   | { status: 'complete'; redirect: string }
-  | { status: 'invite_required' }
+  | { status: 'invite_required' | 'consent_required' }
 
 export interface StateResponse {
-  status: 'pending' | 'invite_required' | 'complete' | 'none' | 'no_session'
+  status: 'pending' | 'invite_required' | 'consent_required' | 'complete' | 'none' | 'no_session'
   redirect?: string
   email?: string
   csrf?: string
@@ -152,6 +152,7 @@ export function submitInvite(body: {
   csrf: string
   invite: string
   consent: true
+  policyVersion: string
 }): Promise<CompleteResponse> {
   return requestJson<CompleteResponse>('/api/auth/web/invite', {
     method: 'POST',
@@ -214,6 +215,7 @@ export function isActiveStateResponse(state: StateResponse | null | undefined): 
   return (
     state?.status === 'pending' ||
     state?.status === 'invite_required' ||
+    state?.status === 'consent_required' ||
     state?.status === 'complete'
   )
 }

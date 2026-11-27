@@ -254,6 +254,7 @@ describe('login prefill priority and /start invite forwarding', () => {
           csrf: 'csrf-invite-1',
           invite: 'AB23-CD45',
           consent: true,
+          policyVersion: '2026-11-18',
         })
         return jsonResponse({
           status: 'complete',

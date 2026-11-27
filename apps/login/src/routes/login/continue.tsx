@@ -47,7 +47,7 @@ function LoginContinuePage() {
       ...(data.policyVersion ? { policyVersion: data.policyVersion } : {}),
     })
 
-    if (data.status === 'invite_required') {
+    if (data.status === 'invite_required' || data.status === 'consent_required') {
       patchLoginSession({ step: 'invite' })
       void navigate({ to: '/login/invite', replace: true })
       return

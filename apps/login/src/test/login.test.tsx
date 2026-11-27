@@ -56,6 +56,83 @@ describe('UYi login web flow', () => {
     vi.restoreAllMocks()
   })
 
+  it.each([
+    ['en', 'Terms of Use', 'Privacy Policy', '/en'],
+    ['ja', '利用規約', 'プライバシーポリシー', ''],
+    ['zh-CN', '使用条款', '隐私政策', '/zh-CN'],
+  ])('localizes registration policies in %s and keeps server version', async (locale, terms, privacy, prefix) => {
+    fetchMock.mockResolvedValue(jsonResponse({
+      ...START_RESPONSE, status: 'invite_required', policyVersion: '2026-11-27',
+    }))
+    renderAt('/login/invite', locale)
+    const checkbox = await screen.findByRole('checkbox')
+    expect(checkbox).not.toBeChecked()
+    const main = within(screen.getByRole('main'))
+    expect(main.getByRole('link', { name: terms })).toHaveAttribute('href', `${prefix}/terms`)
+    expect(main.getByRole('link', { name: privacy })).toHaveAttribute('href', `${prefix}/privacy`)
+    expect(main.getByText(/2026-11-27/)).toBeInTheDocument()
+  })
+
+  it('requires a fresh confirmation when the server rejects an outdated policy version', async () => {
+    const user = userEvent.setup()
+    let version = '2026-11-15'
+    const attempts: unknown[] = []
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === '/api/auth/web/state') {
+        return jsonResponse({ ...START_RESPONSE, status: 'invite_required', policyVersion: version })
+      }
+      if (String(input) === '/api/auth/web/invite') {
+        const body = JSON.parse(String(init?.body))
+        attempts.push(body)
+        if (body.policyVersion !== '2026-11-27') {
+          version = '2026-11-27'
+          return jsonResponse({ error: 'policy_version_mismatch' }, 409)
+        }
+        return jsonResponse({ status: 'complete', redirect: 'uyi://auth/callback?code=test' })
+      }
+      throw new Error(`Unexpected fetch: ${input}`)
+    })
+    renderAt('/login/invite', 'en')
+    await user.type(await screen.findByLabelText('Invite code'), 'AB23-CD45')
+    await user.click(screen.getByRole('checkbox'))
+    await user.click(screen.getByRole('button', { name: 'Finish & open UYi' }))
+    expect(await screen.findByText('The policies have changed. Please read them again and confirm.')).toBeInTheDocument()
+    expect(screen.getByText('Version 2026-11-27')).toBeInTheDocument()
+    expect(screen.getByLabelText('Invite code')).toHaveValue('AB23-CD45')
+    expect(screen.getByRole('checkbox')).not.toBeChecked()
+    expect(attempts).toEqual([{ csrf: 'csrf-token-1', invite: 'AB23-CD45', consent: true, policyVersion: '2026-11-15' }])
+    await user.click(screen.getByRole('button', { name: 'Finish & open UYi' }))
+    expect(attempts).toHaveLength(1)
+    await user.click(screen.getByRole('checkbox'))
+    await user.click(screen.getByRole('button', { name: 'Finish & open UYi' }))
+    expect(await screen.findByText('Returning to UYi')).toBeInTheDocument()
+    expect(attempts[1]).toEqual({ csrf: 'csrf-token-1', invite: 'AB23-CD45', consent: true, policyVersion: '2026-11-27' })
+  })
+
+  it.each(['/login', '/login/continue', '/login/invite'])(
+    'restores a consent-only registration on %s without demanding an invitation', async path => {
+      const user = userEvent.setup()
+      writeLoginSession(START_RESPONSE)
+      fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (String(input) === '/api/auth/web/state') {
+          return jsonResponse({ status: 'consent_required', policyVersion: '2026-11-27', termsUrl: '/terms', privacyUrl: '/privacy' })
+        }
+        if (String(input) === '/api/auth/web/invite') {
+          expect(JSON.parse(String(init?.body))).toEqual({ csrf: START_RESPONSE.csrf, invite: '', consent: true, policyVersion: '2026-11-27' })
+          return jsonResponse({ status: 'complete', redirect: 'uyi://auth/callback?code=consent-test' })
+        }
+        throw new Error(`Unexpected fetch: ${input}`)
+      })
+      renderAt(path, 'en')
+      const checkbox = await screen.findByRole('checkbox')
+      expect(checkbox).not.toBeChecked()
+      expect(screen.queryByLabelText('Invite code')).not.toBeInTheDocument()
+      await user.click(checkbox)
+      await user.click(screen.getByRole('button', { name: 'Finish & open UYi' }))
+      expect(await screen.findByText('Returning to UYi')).toBeInTheDocument()
+    },
+  )
+
   it('completes sign-in for an existing account via email OTP and redirects to UYi', async () => {
     const user = userEvent.setup()
 
@@ -141,6 +218,7 @@ describe('UYi login web flow', () => {
           csrf: 'csrf-token-1',
           invite: 'AB23-CD45',
           consent: true,
+          policyVersion: '2026-11-18',
         })
         return jsonResponse({
           status: 'complete',
@@ -165,11 +243,11 @@ describe('UYi login web flow', () => {
     expect(main.getByText(/条款版本 2026-11-18/)).toBeInTheDocument()
     expect(main.getByRole('link', { name: '使用条款' })).toHaveAttribute(
       'href',
-      'https://uyi.live/terms',
+      '/zh-CN/terms',
     )
     expect(main.getByRole('link', { name: '隐私政策' })).toHaveAttribute(
       'href',
-      'https://uyi.live/privacy',
+      '/zh-CN/privacy',
     )
 
     const inviteInput = screen.getByLabelText('邀请码')
@@ -218,6 +296,7 @@ describe('UYi login web flow', () => {
           csrf: 'csrf-open-1',
           invite: '',
           consent: true,
+          policyVersion: '2026-11-18',
         })
         return jsonResponse({
           status: 'complete',

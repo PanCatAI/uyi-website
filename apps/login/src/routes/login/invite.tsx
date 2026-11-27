@@ -23,6 +23,8 @@ function LoginInvitePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [completeRedirect, setCompleteRedirect] = React.useState<string | null>(null)
+  const [retryInvite, setRetryInvite] = React.useState<string | null>(null)
+  const [consentRevision, setConsentRevision] = React.useState(0)
   const [actionError, setActionError] = React.useState<string | null>(null)
 
   const stateQuery = useQuery<StateResponse, ApiError>({
@@ -96,14 +98,16 @@ function LoginInvitePage() {
     }
     return <LaunchFromAppCard />
   }
-  if (state.status !== 'invite_required') {
+  if (state.status !== 'invite_required' && state.status !== 'consent_required') {
     return <LoadingCard />
   }
 
   const cached = readLoginSession()
   const csrf = state.csrf || cached?.csrf || ''
   const email = state.email || cached?.email
-  const registrationMode = state.registrationMode ?? cached?.registrationMode ?? 'invite_only'
+  const registrationMode = state.status === 'consent_required'
+    ? 'open'
+    : state.registrationMode ?? cached?.registrationMode ?? 'invite_only'
   const termsUrl = state.termsUrl || cached?.termsUrl || '/terms'
   const privacyUrl = state.privacyUrl || cached?.privacyUrl || '/privacy'
   const policyVersion = state.policyVersion || cached?.policyVersion || ''
@@ -117,22 +121,29 @@ function LoginInvitePage() {
   const handleSubmitInvite = async ({ invite, consent }: { invite: string; consent: true }) => {
     setActionError(null)
     try {
-      const result = await inviteMutation.mutateAsync({ csrf, invite, consent })
+      const result = await inviteMutation.mutateAsync({ csrf, invite, consent, policyVersion })
       setCompleteRedirect(result.redirect)
     } catch (error) {
-      setActionError(error instanceof ApiError ? error.code : 'unavailable')
+      const code = error instanceof ApiError ? error.code : 'unavailable'
+      if (code === 'policy_version_mismatch') {
+        setRetryInvite(invite)
+        setConsentRevision(revision => revision + 1)
+        await stateQuery.refetch()
+      }
+      setActionError(code)
     }
   }
 
   return (
     <InviteStep
+      key={`${policyVersion}:${consentRevision}`}
       email={email}
       registrationMode={registrationMode}
-      initialInvite={initialInvite}
+      initialInvite={retryInvite ?? initialInvite}
       termsUrl={termsUrl}
       privacyUrl={privacyUrl}
       policyVersion={policyVersion}
-      isSubmitting={inviteMutation.isPending}
+      isSubmitting={inviteMutation.isPending || stateQuery.isFetching}
       errorCode={actionError}
       onSubmitInvite={handleSubmitInvite}
       onClearError={() => setActionError(null)}
