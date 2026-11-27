@@ -372,7 +372,7 @@ describe('UYi login web flow', () => {
     expect(screen.queryByText(/验证码不正确/)).not.toBeInTheDocument()
     expect(screen.queryByTestId('saved-invite-notice')).not.toBeInTheDocument()
 
-    // Without VITE_UYI_DOWNLOAD_URL, primary CTA links to waitlist form on landing page
+    // Without a stable manifest, primary CTA links to waitlist form on landing page
     expect(screen.getByRole('link', { name: '即将推出 · 加入候补' })).toHaveAttribute(
       'href',
       'https://uyi.live/#p5',
@@ -412,18 +412,22 @@ describe('UYi login web flow', () => {
     )
   })
 
-  it('shows macOS download link when downloadUrl is configured and displays stored invite hint', () => {
+  it('shows macOS download link when a stable manifest is available and displays stored invite hint', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({
+      channel: 'stable', build: 42, version: '1.2.3', size: 123000000,
+      url: 'https://downloads.uyi.live/macos/stable/UYI-42.dmg',
+    })))
     writeStoredInvite('AB23-CD45')
 
     render(
       <I18nProvider initialLocale="zh-CN">
-        <LaunchFromAppCard downloadUrl="https://downloads.uyi.live/UYi-macOS.dmg" />
+        <LaunchFromAppCard />
       </I18nProvider>,
     )
 
-    expect(screen.getByRole('link', { name: '下载 UYi（macOS）' })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: '下载 UYi（macOS） · v1.2.3 · 123.0 MB' })).toHaveAttribute(
       'href',
-      'https://downloads.uyi.live/UYi-macOS.dmg',
+      'https://downloads.uyi.live/macos/stable/UYI-42.dmg',
     )
     expect(screen.getByRole('link', { name: '已经安装？打开 UYi' })).toHaveAttribute(
       'href',

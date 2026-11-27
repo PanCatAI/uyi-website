@@ -4,7 +4,7 @@ Static landing page served by Cloudflare Pages (project `uyi-space`) at https://
 
 Deploy: GitHub Actions (`.github/workflows/deploy.yml`) deploys every push to `main` with `wrangler pages deploy public --project-name uyi-space --branch main`. The Cloudflare token (`CLOUDFLARE_API_TOKEN`, Pages: Edit only) and `CLOUDFLARE_ACCOUNT_ID` are secrets of the `production` environment, which only `main` may use; `main` requires pull requests, and `.github/`, `functions/` and config need the owner's review (`.github/CODEOWNERS`). Moved here from `PanCatAI/uyi-space` `apps/website` on 2026-11-17.
 
-The download buttons say "Coming soon" until a signed production DMG exists. The landing page is the UYI room concept (ported 2026-11-10 from the single-file `UYI.html`, which lives in git history of this change as the reference). It is bilingual ja/en: the choice is saved in `localStorage` (`uyi-l`), `?l=en` / `?l=ja` forces a language, and the default follows the browser with ja as fallback.
+The landing, login and invitation pages read https://downloads.uyi.live/macos/stable/latest.json at runtime. They show the stable DMG version and decimal MB when available and retain the waitlist entry when the manifest is missing or invalid. The landing page is the UYI room concept (ported 2026-11-10 from the single-file `UYI.html`, which lives in git history of this change as the reference). It is bilingual ja/en: the choice is saved in `localStorage` (`uyi-l`), `?l=en` / `?l=ja` forces a language, and the default follows the browser with ja as fallback.
 
 Everything the original inlined as base64 lives in `public/assets/` and loads on demand:
 

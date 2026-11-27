@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { toast } from 'sonner'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { UYI_APP_SCHEME_URL, UYI_DOWNLOAD_URL, UYI_WAITLIST_URL } from '@/lib/config'
+import { UYI_APP_SCHEME_URL } from '@/lib/config'
+import { MacDownloadButton } from './MacDownloadButton'
 import { useI18n } from '@/lib/i18n'
 import { normalizeShortInviteCode, writeStoredInvite } from '@/lib/invite'
 import { cn } from '@/lib/utils'
 
 interface InviteLandingCardProps {
   rawCode?: string
-  downloadUrl?: string
 }
 
 async function copyText(value: string): Promise<boolean> {
@@ -37,15 +37,12 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
-export function InviteLandingCard({ rawCode, downloadUrl }: InviteLandingCardProps) {
+export function InviteLandingCard({ rawCode }: InviteLandingCardProps) {
   const { t } = useI18n()
   const normalizedCode = React.useMemo(() => normalizeShortInviteCode(rawCode), [rawCode])
   const [copied, setCopied] = React.useState(false)
   const copyTimerRef = React.useRef<number | null>(null)
 
-  const effectiveDownloadUrl = (downloadUrl ?? UYI_DOWNLOAD_URL).trim()
-  const primaryHref = effectiveDownloadUrl || UYI_WAITLIST_URL
-  const primaryLabel = effectiveDownloadUrl ? t.downloadMacButton : t.waitlistButton
 
   React.useEffect(() => {
     document.title = t.inviteLandingPageTitle
@@ -139,12 +136,7 @@ export function InviteLandingCard({ rawCode, downloadUrl }: InviteLandingCardPro
       </div>
 
       <div className="space-y-4">
-        <a
-          href={primaryHref}
-          className={cn(buttonVariants({ variant: 'default', size: 'lg' }), 'w-full')}
-        >
-          {primaryLabel}
-        </a>
+        <MacDownloadButton />
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[14px] text-uyi-mute">
           <a

@@ -188,15 +188,19 @@ describe('/i/$code invite landing page', () => {
     )
   })
 
-  it('renders an active macOS download link when downloadUrl is configured', () => {
+  it('renders an active macOS download link when a stable manifest is available', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({
+      channel: 'stable', build: 42, version: '1.2.3', size: 123000000,
+      url: 'https://downloads.uyi.live/macos/stable/UYI-42.dmg',
+    })))
     render(
       <I18nProvider initialLocale="zh-CN">
-        <InviteLandingCard rawCode="AB23-CD45" downloadUrl="https://downloads.uyi.live/UYi.dmg" />
+        <InviteLandingCard rawCode="AB23-CD45" />
       </I18nProvider>,
     )
 
-    const link = screen.getByRole('link', { name: '下载 UYi（macOS）' })
-    expect(link).toHaveAttribute('href', 'https://downloads.uyi.live/UYi.dmg')
+    const link = await screen.findByRole('link', { name: '下载 UYi（macOS） · v1.2.3 · 123.0 MB' })
+    expect(link).toHaveAttribute('href', 'https://downloads.uyi.live/macos/stable/UYI-42.dmg')
     expect(screen.queryByText(/即将推出/)).not.toBeInTheDocument()
   })
 
