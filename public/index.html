@@ -377,6 +377,8 @@ nav.community.inside{border-top:1px solid var(--line);padding-top:16px;margin:16
 
 /* The preview is playable now. The release light refers to the Mac app. */
 .release-tag{display:inline-flex;align-items:center;gap:9px;border:1px solid #f6d8b58c;background:linear-gradient(110deg,#261c28ed,#261e38e8);border-radius:6px;padding:7px 11px;min-height:32px;line-height:1;color:#fff1db;text-decoration:none;vertical-align:middle}
+.release-tag[hidden]{display:none}
+.stable-download{pointer-events:auto;margin:0 0 11px}
 button.release-tag{pointer-events:auto;cursor:pointer;margin:0 0 11px}
 button.release-tag:hover,button.release-tag:focus-visible{border-color:#ffe3b8;background:#3e2c3f}
 .release-light{width:6px;height:6px;border-radius:50%;background:#ffe2ac;box-shadow:0 0 9px #edc595a8;animation:release-glow 3.8s ease-in-out infinite}
@@ -736,6 +738,7 @@ button.release-tag{background:#1d1626f0}
 
 <div id="hero">
   <button type="button" class="release-tag" data-t="5"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span><span class="release-arrow" aria-hidden="true">↗</span></button>
+  <a class="release-tag stable-download" hidden><j>Mac版をダウンロード</j><e>Download for Mac</e><span data-release-label></span></a>
   <h1><j>あなたのひらめきに、<br>小さな世界が応える。</j><e>Your idea brings<br>this room to life.</e></h1>
   <p class="lede"><j>窓の月に触れてみて。月が大きくなったら、彼女はなんて言うかな。</j><e>What would she say if the moon were bigger? Tap the moon and see.</e></p>
   <div class="ideas"><button type="button" id="wish-moon" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.2 9.9A6 6 0 1 1 6.1 2.8a5 5 0 1 0 7.1 7.1z"/></svg></span><j>月を大きくして</j><e>Make the moon bigger</e></button><button type="button" id="wish-lamp" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.8a4.3 4.3 0 0 1 2.7 7.6c-.5.4-.8 1-.8 1.6H6.1c0-.6-.3-1.2-.8-1.6A4.3 4.3 0 0 1 8 1.8z"/><path d="M6.5 13.4h3"/></svg></span><j>あたたかい灯りにして</j><e>Warm up the light</e></button></div>
@@ -787,6 +790,7 @@ button.release-tag{background:#1d1626f0}
 </section>
 <dialog class="pn" id="p5" aria-labelledby="signup-title"><button type="button" class="x" aria-label="Close">×</button>
   <div class="release-tag release-note"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span></div>
+  <a class="release-tag stable-download" hidden><j>Mac版をダウンロード</j><e>Download for Mac</e><span data-release-label></span></a>
   <h2 id="signup-title"><j>先行体験のご案内</j><e>Hear when early access opens</e></h2>
   <p id="signup-purpose"><j>ご登録のメールアドレスに、先行体験の募集開始と開発の節目をお知らせします。</j><e>Sign up to receive early access news and occasional UYI development updates by email.</e></p>
   <form class="join" id="signup-form" action="/api/subscribe" method="post" aria-describedby="signup-purpose">
@@ -1850,6 +1854,18 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopReactio
     }
   });
 })();
+</script>
+<script type="module">
+import { loadStableRelease } from '/stable-release.js';
+const release = await loadStableRelease();
+if (release) {
+  for (const link of document.querySelectorAll('.stable-download')) {
+    link.href = release.url;
+    link.querySelector('[data-release-label]').textContent = release.label;
+    link.previousElementSibling.hidden = true;
+    link.hidden = false;
+  }
+}
 </script>
 </body>
 </html>

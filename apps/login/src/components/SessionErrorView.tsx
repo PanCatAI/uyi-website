@@ -2,7 +2,8 @@ import * as React from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { CONNECTION_ERROR_CODES, EXPIRED_SESSION_ERROR_CODES } from '@/lib/api'
-import { UYI_APP_SCHEME_URL, UYI_DOWNLOAD_URL, UYI_WAITLIST_URL } from '@/lib/config'
+import { UYI_APP_SCHEME_URL } from '@/lib/config'
+import { MacDownloadButton } from './MacDownloadButton'
 import { useI18n } from '@/lib/i18n'
 import { readStoredInvite } from '@/lib/invite'
 import { cn } from '@/lib/utils'
@@ -20,13 +21,10 @@ export function LoadingCard() {
   )
 }
 
-export function LaunchFromAppCard({ downloadUrl }: { downloadUrl?: string }) {
+export function LaunchFromAppCard() {
   const { t } = useI18n()
-  const effectiveDownloadUrl = (downloadUrl ?? UYI_DOWNLOAD_URL).trim()
   const storedInvite = React.useMemo(() => readStoredInvite(), [])
 
-  const primaryHref = effectiveDownloadUrl || UYI_WAITLIST_URL
-  const primaryLabel = effectiveDownloadUrl ? t.downloadMacButton : t.waitlistButton
 
   return (
     <section className="uyi-step-enter space-y-8">
@@ -38,12 +36,7 @@ export function LaunchFromAppCard({ downloadUrl }: { downloadUrl?: string }) {
       </header>
 
       <div className="space-y-4">
-        <a
-          href={primaryHref}
-          className={cn(buttonVariants({ variant: 'default', size: 'lg' }), 'w-full')}
-        >
-          {primaryLabel}
-        </a>
+        <MacDownloadButton />
 
         <div>
           <a
