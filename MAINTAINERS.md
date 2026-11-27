@@ -77,3 +77,23 @@ User-Agent with 1010; the native client's no-User-Agent request succeeded.
 Key rotation, fresh-install sign-in, real subscribed playback and forced-401
 recovery in the actual MusicKit SDK remain unverified. Node fixtures and
 endpoint probes do not establish those application behaviours.
+
+## Desktop login web app (`/login`) and auth proxy (`/api/auth/*`)
+
+The browser sign-in flow for the UYi desktop client lives in `apps/login`
+(Vite + React + TypeScript strict + TanStack Router / Query / Form + Tailwind CSS v4 + shadcn/ui).
+It builds into `public/login/` (`base: '/login/'`, ignored by git and generated in CI via `npm run build` before `wrangler pages deploy`).
+It reuses the landing page's self-hosted fonts (`UYI Geometry` / `UYI MPlus`) and room artwork from `public/assets/`, supports trilingual copy (`zh-CN` / `en` / `ja` via `?l=`, `localStorage('uyi-l')`, and browser language), and includes no tracking scripts.
+
+Routes and Pages Functions:
+
+- `functions/login/[[path]].js` serves `/login/assets/*` directly from `env.ASSETS` and falls back `/login`, `/login/continue`, and `/login/invite` to `public/login/index.html` with `Cache-Control: no-store`.
+- `functions/i/[[path]].js` falls back `/i` and `/i/:code` invite landing links to `public/login/index.html` with `Cache-Control: no-store`. Valid 8-character Crockford Base32 codes are normalized to `XXXX-XXXX` and stored in `localStorage('uyi-invite')` for 7 days; `/login` prefers query `?invite=` over `localStorage` and forwards `invite` to `POST /api/auth/web/start`.
+- `functions/api/auth/[[path]].js` proxies only the whitelisted JSON/OAuth endpoints (`/api/auth/web/start`, `/web/email/request-code`, `/web/email/verify`, `/web/google/start`, `/web/google/callback`, `/web/state`, `/web/invite`) to `${UYI_API_ORIGIN}/v1/auth/*`. It preserves method, body, query string, `Cookie`, `Set-Cookie`, and 303 `Location` redirects without following redirects, strips client-supplied proxy headers, and injects `X-UYI-Web-Proxy` (`UYI_WEB_PROXY_SECRET`) and `X-UYI-Client-IP` (`CF-Connecting-IP`).
+
+Pages runtime configuration on project `uyi-space`:
+
+- `UYI_API_ORIGIN`: `https://api.uyi.live` (production), `https://api-staging.uyi.live` (preview / `staging` branch).
+- `UYI_WEB_PROXY_SECRET`: Pages secret shared with `uyi-api` so the backend trusts `X-UYI-Client-IP` for rate limiting.
+
+Tests: `npm test` runs both the Pages Function unit tests (`test/*.test.mjs`, including `test/auth-proxy.test.mjs`) and the `apps/login` Vitest + Testing Library suite (`apps/login/src/test/login.test.tsx`).

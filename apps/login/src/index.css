@@ -1,0 +1,161 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "UYI Geometry";
+  src: url("/assets/fonts/geometry.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UYI MPlus";
+  src: url("/assets/fonts/mplus.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+20-7E, U+B7, U+D7, U+2013, U+2019, U+2026, U+3000-301F, U+3030-3035,
+    U+303B-3094, U+3099-30FD, U+4E00, U+4E16, U+4E2D, U+4E88, U+4ECA, U+4ED6-4ED8, U+4EFB,
+    U+4F11, U+4F1D, U+4F3C, U+4F53-4F55, U+4F5C, U+4F7F, U+4F9D, U+4FDD-4FE1, U+505C, U+5099,
+    U+50CF, U+5143, U+5148, U+5165, U+516C, U+5185, U+518D, U+51E6, U+51FA, U+521D, U+5229,
+    U+524A, U+529B, U+52A0, U+52D5, U+52DF, U+53C2, U+53D6-53D7, U+53E3, U+5408-540C, U+5411,
+    U+54C1, U+554F, U+55B6, U+56DE, U+5728, U+5831-5834, U+58F0, U+5909, U+5916, U+591C, U+5927,
+    U+5973, U+597D, U+59CB, U+5B57-5B58, U+5B9A, U+5BB9, U+5BFE, U+5C0F-5C11, U+5C4A-5C4B,
+    U+5EA6, U+5F0F, U+5F7C, U+5F85, U+5F8C, U+5FDC, U+601D, U+60C5, U+60D1, U+610F, U+623B,
+    U+624B, U+6295, U+629E, U+62BC, U+632F, U+63CF, U+64CD, U+6587, U+65B0, U+65B9, U+65E5,
+    U+660E, U+6620, U+6642, U+666F, U+66AE, U+66F8, U+6700, U+6708, U+671F, U+672C, U+6765,
+    U+6848, U+691C, U+696D, U+697D, U+6A5F, U+6B21, U+6B62-6B63, U+6D41, U+6E96, U+706F, U+7248,
+    U+7269, U+73FE, U+7406, U+751F, U+7528, U+7531, U+754C, U+767A-767B, U+7684, U+76EE, U+773A,
+    U+7740, U+77E5, U+78BA, U+793A, U+79D2, U+79FB, U+7A3F, U+7A7A, U+7A93, U+7BC0, U+7D2B,
+    U+7D4C, U+7D61, U+7D9A, U+7DD2, U+8005, U+8074, U+80FD, U+8349, U+843D, U+8449, U+884C,
+    U+8868, U+898B, U+89A7, U+89E6, U+8A00-8A02, U+8A0E, U+8A18, U+8A66, U+8A8D, U+8A9E,
+    U+8AAC-8AAD, U+8EE2, U+8FF7, U+9001, U+9023, U+904B-904E, U+9069, U+9078, U+90E8, U+914D,
+    U+9262, U+9332, U+9589-958B, U+9593, U+95B2, U+9632, U+9664, U+96A3, U+96C6, U+9759, U+9762,
+    U+97F3, U+983C, U+98FE, U+9A13, U+9AEA, U+FF01-FF60;
+}
+
+@theme inline {
+  --font-heading: "UYI Geometry", "UYI MPlus", "Hiragino Sans", "PingFang SC", "Noto Sans SC",
+    "Yu Gothic", system-ui, sans-serif;
+  --font-sans: "UYI Geometry", "UYI MPlus", "Hiragino Sans", "PingFang SC", "Noto Sans SC",
+    "Yu Gothic", system-ui, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-uyi-ink: var(--ink);
+  --color-uyi-text: var(--text);
+  --color-uyi-mute: var(--mute);
+  --color-uyi-line: var(--line);
+  --color-uyi-lamp: var(--lamp);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+}
+
+:root,
+.dark {
+  /* Landing page brand tokens */
+  --ink: #0b0920;
+  --text: #f2effc;
+  --mute: #b0acd0;
+  --line: #33305f;
+  --lamp: #ffe2a8;
+
+  /* shadcn semantic mapping onto landing page tokens */
+  --background: var(--ink);
+  --foreground: var(--text);
+  --card: var(--ink);
+  --card-foreground: var(--text);
+  --popover: var(--ink);
+  --popover-foreground: var(--text);
+  --primary: var(--lamp);
+  --primary-foreground: var(--ink);
+  --secondary: var(--ink);
+  --secondary-foreground: var(--text);
+  --muted: var(--ink);
+  --muted-foreground: var(--mute);
+  --accent: #151234;
+  --accent-foreground: var(--text);
+  --destructive: #f09595;
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--lamp);
+  --radius: 0.4375rem;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    background-color: var(--ink);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100%;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--lamp);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes uyi-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.uyi-step-enter {
+  animation: uyi-fade-in 180ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uyi-step-enter {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

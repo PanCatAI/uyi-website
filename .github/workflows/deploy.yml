@@ -21,7 +21,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/login/package-lock.json
+      - run: npm --prefix apps/login ci
       - run: npm test
+      - run: npm --prefix apps/login run build
 
   deploy:
     # Only main deploys. The Cloudflare token lives in the "production"
@@ -34,6 +38,12 @@ jobs:
       url: https://uyi.live
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/login/package-lock.json
+      - run: npm run build
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

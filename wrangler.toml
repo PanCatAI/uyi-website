@@ -1,3 +1,18 @@
 name = "uyi-space"
 pages_build_output_dir = "./public"
 compatibility_date = "2026-10-01"
+
+# Cloudflare Pages runtime variables for /api/auth/* (configured in Pages dashboard / secrets,
+# never commit secret values here):
+#   - UYI_API_ORIGIN:
+#       production = "https://api.uyi.live"
+#       preview    = "https://api-staging.uyi.live"
+#   - UYI_WEB_PROXY_SECRET (Pages secret, shared with uyi-api so X-UYI-Client-IP is trusted)
+
+# With wrangler.toml present, Pages reads plain variables from this file only;
+# the dashboard keeps secrets (UYI_WEB_PROXY_SECRET).
+[vars]
+UYI_API_ORIGIN = "https://api.uyi.live"
+
+[env.preview.vars]
+UYI_API_ORIGIN = "https://api-staging.uyi.live"
