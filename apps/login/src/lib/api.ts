@@ -152,6 +152,7 @@ export function submitInvite(body: {
   csrf: string
   invite: string
   consent: true
+  policyVersion: string
 }): Promise<CompleteResponse> {
   return requestJson<CompleteResponse>('/api/auth/web/invite', {
     method: 'POST',
