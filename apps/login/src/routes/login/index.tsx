@@ -173,7 +173,7 @@ function LoginIndexPage() {
       setCompleteRedirect(result.serverState.redirect)
       return
     }
-    if (result.serverState.status === 'invite_required' || result.serverState.status === 'consent_required') {
+    if (result.serverState.status === 'invite_required') {
       void navigate({ to: '/login/invite', replace: true })
       return
     }

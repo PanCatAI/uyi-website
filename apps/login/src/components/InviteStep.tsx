@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { RegistrationMode } from '@/lib/api'
 import { useI18n } from '@/lib/i18n'
-import { localizedConfiguredPolicyUrl } from '@/lib/policy'
 import { formatInviteInput, normalizeInviteInput } from '@/lib/invite'
 
 interface InviteStepProps {
@@ -34,7 +33,7 @@ export function InviteStep({
   onSubmitInvite,
   onClearError,
 }: InviteStepProps) {
-  const { t, formatError, locale } = useI18n()
+  const { t, formatError } = useI18n()
   const needsInvite = registrationMode !== 'open'
 
   const form = useForm({
@@ -165,7 +164,7 @@ export function InviteStep({
                       >
                         {t.consentPrefix}
                         <a
-                          href={localizedConfiguredPolicyUrl('terms', locale, termsUrl)}
+                          href={termsUrl || '/terms'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-uyi-lamp underline decoration-uyi-lamp/50 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
@@ -174,7 +173,7 @@ export function InviteStep({
                         </a>
                         {t.consentAnd}
                         <a
-                          href={localizedConfiguredPolicyUrl('privacy', locale, privacyUrl)}
+                          href={privacyUrl || '/privacy'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-uyi-lamp underline decoration-uyi-lamp/50 underline-offset-4 transition-colors hover:decoration-uyi-lamp"
