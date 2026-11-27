@@ -109,6 +109,30 @@ describe('UYi login web flow', () => {
     expect(attempts[1]).toEqual({ csrf: 'csrf-token-1', invite: 'AB23-CD45', consent: true, policyVersion: '2026-11-27' })
   })
 
+  it.each(['/login', '/login/continue', '/login/invite'])(
+    'restores a consent-only registration on %s without demanding an invitation', async path => {
+      const user = userEvent.setup()
+      writeLoginSession(START_RESPONSE)
+      fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (String(input) === '/api/auth/web/state') {
+          return jsonResponse({ status: 'consent_required', policyVersion: '2026-11-27', termsUrl: '/terms', privacyUrl: '/privacy' })
+        }
+        if (String(input) === '/api/auth/web/invite') {
+          expect(JSON.parse(String(init?.body))).toEqual({ csrf: START_RESPONSE.csrf, invite: '', consent: true, policyVersion: '2026-11-27' })
+          return jsonResponse({ status: 'complete', redirect: 'uyi://auth/callback?code=consent-test' })
+        }
+        throw new Error(`Unexpected fetch: ${input}`)
+      })
+      renderAt(path, 'en')
+      const checkbox = await screen.findByRole('checkbox')
+      expect(checkbox).not.toBeChecked()
+      expect(screen.queryByLabelText('Invite code')).not.toBeInTheDocument()
+      await user.click(checkbox)
+      await user.click(screen.getByRole('button', { name: 'Finish & open UYi' }))
+      expect(await screen.findByText('Returning to UYi')).toBeInTheDocument()
+    },
+  )
+
   it('completes sign-in for an existing account via email OTP and redirects to UYi', async () => {
     const user = userEvent.setup()
 

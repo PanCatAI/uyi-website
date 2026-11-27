@@ -98,14 +98,16 @@ function LoginInvitePage() {
     }
     return <LaunchFromAppCard />
   }
-  if (state.status !== 'invite_required') {
+  if (state.status !== 'invite_required' && state.status !== 'consent_required') {
     return <LoadingCard />
   }
 
   const cached = readLoginSession()
   const csrf = state.csrf || cached?.csrf || ''
   const email = state.email || cached?.email
-  const registrationMode = state.registrationMode ?? cached?.registrationMode ?? 'invite_only'
+  const registrationMode = state.status === 'consent_required'
+    ? 'open'
+    : state.registrationMode ?? cached?.registrationMode ?? 'invite_only'
   const termsUrl = state.termsUrl || cached?.termsUrl || '/terms'
   const privacyUrl = state.privacyUrl || cached?.privacyUrl || '/privacy'
   const policyVersion = state.policyVersion || cached?.policyVersion || ''
