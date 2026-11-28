@@ -1,122 +1,89 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { onRequest } from '../functions/api/subscribe.js';
 
-// This provider is an in-memory boundary mock. Every request is inspected;
-// no test calls Feishu or needs a real account, table, or credential.
+// Stateful provider-boundary tests only, not evidence of production permissions.
 const requestId = '5d5b7bd8-af5b-4c52-9315-5bd6c129ed72';
 const nextRequestId = 'c14b1770-e0de-436d-b2aa-89f34be4014a';
 const normalizedEmail = 'creator+uyi@example.com';
+const PRIMARY = 'fixture-table';
+const RAW = 'tblFeedbackFixture';
 let fixtureId = 0;
-const credentials = () => ({
-  FEISHU_APP_ID: `mac-application-fixture-${++fixtureId}`,
-  FEISHU_APP_SECRET: 'fixture-secret-only',
-  FEISHU_APP_TOKEN: 'fixture-base',
-  FEISHU_TABLE_ID: 'fixture-table',
-});
+const credentials = () => ({ FEISHU_APP_ID: `mac-application-fixture-${++fixtureId}`,
+  FEISHU_APP_SECRET: 'fixture-secret-only', FEISHU_APP_TOKEN: 'fixture-base',
+  FEISHU_TABLE_ID: PRIMARY, FEISHU_FEEDBACK_TABLE_ID: RAW });
 const application = (overrides = {}) => ({
-  kind: 'mac_application', email: ' Creator+UYI@Example.com ',
-  language: 'ja', requestId, website: '',
-  macConfirmed: true,
-  macEnvironment: 'MacBook Air / M2 / macOS 15',
-  creativeExperience: '3d',
-  experienceDirection: 'studio_experienced',
-  intent: '椅子を生成してAI空間に置き、操作で迷った点を具体的に伝えたいです。',
-  xAccount: '@creator_fixture',
-  source: 'homepage',
-  ...overrides,
+  kind: 'mac_application', email: ' Creator+UYI@Example.com ', language: 'ja', requestId, website: '',
+  macConfirmed: true, macEnvironment: 'MacBook Air / M2 / macOS 15', creativeExperience: '3d',
+  experienceDirection: 'studio_experienced', intent: '椅子を生成してAI空間に置き、操作で迷った点を具体的に伝えたいです。',
+  xAccount: '@creator_fixture', source: 'homepage', ...overrides,
 });
 const request = (body = application(), headers = {}) => new Request('https://uyi.live/api/subscribe', {
-  method: 'POST',
-  headers: { Origin: 'https://uyi.live', 'Content-Type': 'application/json', ...headers },
-  body: JSON.stringify(body),
+  method: 'POST', headers: { Origin: 'https://uyi.live', 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body),
 });
-const clone = value => JSON.parse(JSON.stringify(value));
+const clone = value => structuredClone(value);
+const text = value => Array.isArray(value) ? value.map(part => part.text).join('') : value;
 const sourceURL = source => `uyi.live/apply/?source=${source}`;
 const applicationFields = (input = application()) => ({
   Mac环境: input.macEnvironment.trim(),
-  创作经验: {
-    '3d': '3D制作・3D生成の経験あり',
-    other: 'その他の創作経験あり',
-    none: '創作経験なし',
-  }[input.creativeExperience],
-  报名意向: input.intent.trim(),
-  ...(input.xAccount.trim() ? { X账号: input.xAccount.trim() } : {}),
-  体验方向: {
-    ai_space: 'AI空間を中心に試したい',
-    studio_experienced: 'AI空間とUYI Studio（3D生成経験あり）',
-    studio_new: 'AI空間とUYI Studio（3D生成経験なし）',
-    undecided: '説明を聞いてから決めたい',
-  }[input.experienceDirection],
-  报名来源: {
-    homepage: 'UYI公式サイト', event: 'イベント・先行体験ページ',
-    creator: 'イベント・先行体験ページ', outreach: 'UYIからの直接のお誘い',
-    referral: '知人・クリエイターの紹介', other: 'その他',
-  }[input.source] || 'その他',
+  创作经验: { '3d': '3D制作・3D生成の経験あり', other: 'その他の創作経験あり', none: '創作経験なし' }[input.creativeExperience],
+  报名意向: input.intent.trim(), ...(input.xAccount?.trim() ? { X账号: input.xAccount.trim() } : {}),
+  体验方向: { ai_space: 'AI空間を中心に試したい', studio_experienced: 'AI空間とUYI Studio（3D生成経験あり）',
+    studio_new: 'AI空間とUYI Studio（3D生成経験なし）', undecided: '説明を聞いてから決めたい' }[input.experienceDirection],
+  报名来源: { homepage: 'UYI公式サイト', event: 'イベント・先行体験ページ', creator: 'イベント・先行体験ページ',
+    outreach: 'UYIからの直接のお誘い', referral: '知人・クリエイターの紹介', other: 'その他' }[input.source] || 'その他',
 });
 
 function mockProvider(t, initialRecords = [], hooks = {}) {
-  const state = {
-    records: clone(initialRecords), calls: [], writes: [],
-    createOperationIds: [], operations: new Map(),
-  };
+  const state = { records: clone(initialRecords), raw: [], calls: [], writes: [], createOperationIds: [], operations: new Map() };
   t.mock.method(globalThis, 'fetch', async (rawURL, options = {}) => {
     const url = new URL(rawURL);
-    const body = options.body ? JSON.parse(options.body) : undefined;
-    const method = options.method || 'GET';
-    let operation;
-    if (url.pathname.endsWith('/auth/v3/tenant_access_token/internal') && method === 'POST') operation = 'token';
-    else if (url.pathname.endsWith('/records/search') && method === 'POST') operation = 'search';
-    else if (url.pathname.endsWith('/records') && method === 'POST') operation = 'create';
-    else if (/\/records\/[^/]+$/.test(url.pathname) && method === 'PUT') operation = 'update';
-    else assert.fail(`Unexpected provider request: ${method} ${url.pathname}`);
-    const call = { operation, url: url.href, method, body };
-    state.calls.push(call);
-    if (operation !== 'token') {
+    assert.equal(url.origin, 'https://open.feishu.cn');
+    assert.equal(options.method, 'POST', 'Anonymous application must never PUT any existing record');
+    const body = JSON.parse(options.body);
+    let operation, table;
+    if (url.pathname.endsWith('/auth/v3/tenant_access_token/internal')) operation = 'token';
+    else {
+      const match = url.pathname.match(/^\/open-apis\/bitable\/v1\/apps\/fixture-base\/tables\/([^/]+)\/records(\/search)?$/);
+      assert.ok(match, `Unexpected provider route: ${url.pathname}`);
+      table = match[1];
+      assert.ok([PRIMARY, RAW].includes(table));
+      operation = match[2] ? 'search' : 'create';
       assert.equal(options.headers.Authorization, 'Bearer fixture-token');
     }
+    const call = { operation, table, url: url.href, method: options.method, body };
+    state.calls.push(call);
     const early = await hooks.before?.(call, state);
     if (early !== undefined) return early;
     let result;
-    if (operation === 'token') {
-      result = { code: 0, tenant_access_token: 'fixture-token', expire: 7200 };
-    } else if (operation === 'search') {
-      const conditions = body.filter?.conditions;
-      assert.equal(body.filter?.conjunction, 'and');
-      assert.deepEqual(conditions, [
-        { field_name: '邮箱', operator: 'is', value: [normalizedEmail] },
-      ]);
-      const matches = state.records.filter(record => {
-        const email = record.fields.邮箱;
-        return (Array.isArray(email) ? email.map(item => item.text).join('') : email) === normalizedEmail;
-      });
-      const pageSize = Number(url.searchParams.get('page_size')) || matches.length;
-      const projected = matches.slice(0, pageSize).map(record => ({
-        record_id: record.record_id,
-        fields: body.field_names ? Object.fromEntries(body.field_names
-          .filter(name => Object.hasOwn(record.fields, name))
-          .map(name => [name, clone(record.fields[name])])) : clone(record.fields),
+    if (operation === 'token') result = { code: 0, tenant_access_token: 'fixture-token', expire: 7200 };
+    else if (operation === 'search') {
+      assert.equal(body.filter.conjunction, 'and');
+      assert.equal(url.searchParams.get('page_size'), '2');
+      const rows = table === PRIMARY ? state.records : state.raw;
+      const matches = rows.filter(record => body.filter.conditions.every(condition => {
+        assert.equal(condition.operator, 'is');
+        return text(record.fields[condition.field_name]) === condition.value[0];
       }));
-      result = { code: 0, data: { items: projected, has_more: matches.length > pageSize } };
-    } else if (operation === 'create') {
+      const projected = matches.slice(0, 2).map(record => ({ record_id: record.record_id,
+        fields: Object.fromEntries(body.field_names.filter(name => Object.hasOwn(record.fields, name)).map(name => [name, clone(record.fields[name])])) }));
+      result = { code: 0, data: { items: projected, has_more: matches.length > 2 } };
+    } else {
       const operationId = url.searchParams.get('client_token');
       assert.match(operationId || '', /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/);
       assert.equal(url.searchParams.has('ignore_consistency_check'), false);
-      state.createOperationIds.push(operationId);
-      let record = state.operations.get(operationId);
+      state.createOperationIds.push({ table, operationId });
+      const key = `${table}/${operationId}`;
+      let record = state.operations.get(key);
       if (!record) {
-        record = { record_id: `rec-application-${state.records.length + 1}`, fields: clone(body.fields) };
-        state.records.push(record);
-        state.operations.set(operationId, record);
-        state.writes.push({ operation, record_id: record.record_id, fields: clone(body.fields) });
+        const rows = table === PRIMARY ? state.records : state.raw;
+        record = { record_id: `rec-${table}-${rows.length + 1}`, fields: clone(body.fields) };
+        if (table === RAW) record.fields.提交时间 = Date.now();
+        rows.push(record);
+        state.operations.set(key, record);
+        state.writes.push({ operation, table, record_id: record.record_id, fields: clone(body.fields) });
       }
-      result = { code: 0, data: { record: clone(record) } };
-    } else {
-      const recordId = decodeURIComponent(url.pathname.split('/').at(-1));
-      const record = state.records.find(item => item.record_id === recordId);
-      assert.ok(record, 'Updates must address an existing record ID');
-      Object.assign(record.fields, clone(body.fields));
-      state.writes.push({ operation, record_id: recordId, fields: clone(body.fields) });
       result = { code: 0, data: { record: clone(record) } };
     }
     const late = await hooks.after?.(call, state, clone(result));
@@ -124,10 +91,7 @@ function mockProvider(t, initialRecords = [], hooks = {}) {
   });
   return state;
 }
-
-async function submit(body, env = credentials()) {
-  return onRequest({ request: request(body), env });
-}
+const submit = (body = application(), env = credentials()) => onRequest({ request: request(body), env });
 async function expectSuccess(response) {
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { success: true });
@@ -137,158 +101,101 @@ async function expectUnavailable(response) {
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: 'unavailable' });
 }
+const masterCreates = state => state.writes.filter(write => write.table === PRIMARY);
+const rawCreates = state => state.writes.filter(write => write.table === RAW);
 
-test('maps a complete Mac application into the configured table and confirms durable storage', async t => {
+function assertRaw(raw, input, participantId) {
+  const fields = raw.fields;
+  assert.equal(fields.记录类型, '报名资料（待核对）');
+  assert.equal(fields.反馈编号, input.requestId.toLowerCase());
+  assert.equal(fields.请求编号, input.requestId.toLowerCase());
+  assert.equal(fields.邮箱, input.email.trim().toLowerCase());
+  assert.match(fields.内容校验, /^[a-f0-9]{64}$/);
+  assert.equal(fields.处理状态, participantId ? '报名待核对' : '待匹配');
+  if (participantId) assert.deepEqual(fields.参与者, [participantId]);
+  else assert.equal(fields.参与者, undefined);
+  for (const line of ['1. 联系邮箱：', '2. 可使用Mac：是', '3. 创作经验：', '4. 体验方向：',
+    '5. 报名意向：', '6. X账号：', '7. 报名来源：', `语言：${input.language}`]) assert.ok(fields.具体反馈.includes(line));
+  assert.ok(fields.具体反馈.includes(input.macEnvironment.trim()));
+  assert.ok(fields.具体反馈.includes(input.intent.trim()));
+  assert.equal(fields.实际体验日, undefined, 'application intake is not an experience day');
+}
+
+test('creates at most one new pending master and confirms an independent complete application log', async t => {
   const state = mockProvider(t);
-  const input = application({
-    source: 'event', macEnvironment: '  MacBook Air / M2 / macOS 15  ',
-    intent: '  小物を置いてサイズ調整の問題を確認したいです。  ', xAccount: '  @creator_fixture  ',
-  });
+  const input = application({ source: 'event', macEnvironment: '  MacBook Air / M2 / macOS 15  ',
+    intent: '  小物を置いてサイズ調整の問題を確認したいです。  ', xAccount: '  @creator_fixture  ' });
   await expectSuccess(await submit(input));
   assert.equal(state.records.length, 1);
   const record = state.records[0];
-  assert.deepEqual(record.fields, {
-    邮箱: normalizedEmail, 登记时间: record.fields.登记时间,
-    语言: 'ja', 来源: sourceURL('event'), 请求编号: requestId, 状态: '待通知',
-    ...applicationFields(input), 运营进度: '待筛选',
-  });
-  assert.ok(Number.isFinite(record.fields.登记时间));
-  const createIndex = state.calls.findIndex(call => call.operation === 'create');
-  assert.ok(createIndex >= 0);
-  assert.ok(state.calls.slice(createIndex + 1).some(call => call.operation === 'search'),
-    'Read back the stored record; a create operation receipt can belong to an earlier legacy subscription');
-  assert.ok(state.calls.filter(call => call.operation === 'search')
-    .every(call => new URL(call.url).searchParams.get('page_size') === '2'),
-  'Lookups must detect an existing duplicate email instead of silently picking one record');
+  assert.deepEqual(record.fields, { 邮箱: normalizedEmail, 登记时间: record.fields.登记时间,
+    语言: 'ja', 来源: sourceURL('event'), 请求编号: requestId, 状态: '待通知', ...applicationFields(input), 运营进度: '待筛选' });
+  assert.equal(state.raw.length, 1);
+  assertRaw(state.raw[0], input, record.record_id);
+  assert.equal(rawCreates(state)[0].fields.提交时间, undefined, 'creation time belongs to Feishu');
+  const rawCreate = state.calls.findIndex(call => call.operation === 'create' && call.table === RAW);
+  assert.ok(state.calls.slice(rawCreate + 1).some(call => call.operation === 'search' && call.table === RAW));
 });
 
-test('allows an empty optional X account and relies on explicit Mac self-confirmation rather than keyword guessing', async t => {
+test('records an explicitly empty X answer and only requires self-declared Mac availability', async t => {
   const state = mockProvider(t);
   const input = application({ xAccount: '   ', macEnvironment: '自宅のノート端末・機種確認中' });
   await expectSuccess(await submit(input));
-  assert.equal(state.records[0].fields.Mac环境, input.macEnvironment);
   assert.equal(Object.hasOwn(state.records[0].fields, 'X账号'), false);
+  assert.ok(state.raw[0].fields.具体反馈.includes('6. X账号：（未填写）'));
 });
 
-test('supplements the same legacy subscription record without changing its original or manual fields', async t => {
-  const original = {
-    record_id: 'rec-legacy-existing',
-    fields: {
-      邮箱: normalizedEmail, 登记时间: 1700000000000, 语言: 'en', 来源: 'uyi.live',
-      请求编号: 'original-operation', 状态: '已通知',
-      Mac环境: '', 创作经验: null, 报名意向: '', 体验方向: '', 报名来源: '',
-      运营进度: '已注册', 邀请码: 'TEST-DO-NOT-ISSUE', Credit核对: '测试已核对',
-      首次审核: '测试已通过', 应发礼品卡: 5000, 已发礼品卡: 5000,
-      邀请人: '测试人工指定', 反馈链接: 'https://example.invalid/fixture-feedback',
-    },
-  };
+test('leaves every existing master field including blanks and source untouched and appends a pending application', async t => {
+  const original = { record_id: 'rec-legacy', fields: { 邮箱: normalizedEmail, Mac环境: '', 创作经验: null,
+    来源: 'uyi.live', 状态: '已通知', 运营进度: '已注册', 邀请码: 'TEST-ONLY', Credit核对: '保留', 已发礼品卡: 5000 } };
   const state = mockProvider(t, [original]);
-  const input = application({
-    状态: '已入选', 运营进度: '已完成', 邀请码: 'ATTACKER-CODE', Credit核对: '伪造',
-    应发礼品卡: 999999, 已发礼品卡: 999999,
-    fields: { 状态: '已入选', 邀请码: 'ATTACKER-CODE', Credit: 999999, 已发礼品卡: 999999 },
-  });
+  const input = application({ 状态: '已入选', 运营进度: '已完成', 邀请码: 'FORGED', Credit核对: '伪造', 已发礼品卡: 999999,
+    fields: { Mac环境: '伪造覆写', 来源: 'FORGED' } });
   await expectSuccess(await submit(input));
-  assert.equal(state.records.length, 1);
-  assert.equal(state.records[0].record_id, original.record_id);
-  const expected = {
-    ...original.fields, ...applicationFields(input),
-    来源: `uyi.live\n${sourceURL('homepage')}`,
-  };
-  assert.deepEqual(state.records[0].fields, expected);
-  assert.equal(state.calls.some(call => call.operation === 'create'), false);
-  const updates = state.calls.filter(call => call.operation === 'update');
-  assert.ok(updates.length > 0);
-  for (const call of updates) {
-    assert.equal(new URL(call.url).pathname.split('/').at(-1), original.record_id);
-    assert.ok(Object.keys(call.body.fields).every(key => [
-      'Mac环境', '创作经验', '报名意向', 'X账号', '体验方向', '报名来源', '来源',
-    ].includes(key)), 'A public supplement must not write operational or legacy subscription fields');
-  }
-});
-
-test('a repeated application cannot overwrite filled application fields or operator decisions', async t => {
-  const originalInput = application();
-  const original = {
-    record_id: 'rec-complete-existing',
-    fields: {
-      邮箱: normalizedEmail, ...applicationFields(originalInput),
-      来源: sourceURL('homepage'), 状态: '已通知', 运营进度: '体验中',
-      邀请码: 'TEST-EXISTING-CODE', Credit核对: '保留', 已发礼品卡: 10000,
-    },
-  };
-  const state = mockProvider(t, [original]);
-  await expectSuccess(await submit(application({
-    requestId: nextRequestId, macEnvironment: '其他设备', creativeExperience: 'none',
-    experienceDirection: 'undecided', intent: '修改已填写的意向', xAccount: '@different',
-    运营进度: '已完成', 邀请码: 'FORGED', 已发礼品卡: 99999,
-  })));
   assert.deepEqual(state.records, [original]);
-  assert.equal(state.writes.length, 0);
+  assert.equal(masterCreates(state).length, 0);
+  assertRaw(state.raw[0], input, original.record_id);
+  assert.equal(state.raw[0].fields.具体反馈.includes('FORGED'), false);
 });
 
-test('appends a new entry source once while retaining the first application source and existing data', async t => {
-  const original = {
-    record_id: 'rec-source-existing',
-    fields: { 邮箱: normalizedEmail, ...applicationFields(application()),
-      来源: `uyi.live\n${sourceURL('homepage')}`, 运营进度: '已注册' },
-  };
+test('retains new source history in separate raw submissions without editing the first source or filled profile', async t => {
+  const original = { record_id: 'rec-source', fields: { 邮箱: normalizedEmail, ...applicationFields(), 来源: sourceURL('homepage'), 运营进度: '体验中' } };
   const state = mockProvider(t, [original]);
-  const env = credentials();
-  await expectSuccess(await submit(application({ source: 'event' }), env));
-  await expectSuccess(await submit(application({ source: 'event', requestId: nextRequestId }), env));
-  assert.equal(state.records.length, 1);
-  assert.deepEqual(state.records[0].fields, {
-    ...original.fields, 来源: `uyi.live\n${sourceURL('homepage')}\n${sourceURL('event')}`,
-  });
-  assert.equal(state.writes.length, 1);
+  await expectSuccess(await submit(application({ source: 'event' })));
+  await expectSuccess(await submit(application({ source: 'outreach', requestId: nextRequestId, intent: '新しい意向です。' })));
+  assert.deepEqual(state.records, [original]);
+  assert.equal(state.raw.length, 2);
+  assert.ok(state.raw[0].fields.具体反馈.includes('[event]'));
+  assert.ok(state.raw[1].fields.具体反馈.includes('[outreach]'));
+  assert.ok(state.raw[1].fields.具体反馈.includes('新しい意向です。'));
 });
 
-test('preserves text-segment values returned by Feishu and appends the source using a valid text write', async t => {
-  const fields = applicationFields(application());
-  const fixture = {
-    record_id: 'rec-text-segments',
-    fields: {
-      ...fields,
-      邮箱: [{ type: 'text', text: normalizedEmail }],
-      Mac环境: [{ type: 'text', text: '原始Mac环境' }],
-      报名意向: [{ type: 'text', text: '原始报名意向' }],
-      X账号: [{ type: 'text', text: '@original_fixture' }],
-      来源: [{ type: 'text', text: 'uyi.live' }],
-      运营进度: '体验中', 已发礼品卡: 5000,
-    },
-  };
-  const state = mockProvider(t, [fixture]);
-  await expectSuccess(await submit(application({ source: 'outreach' })));
-  assert.equal(state.records.length, 1);
-  assert.deepEqual(state.records[0], {
-    ...fixture, fields: { ...fixture.fields, 来源: `uyi.live\n${sourceURL('outreach')}` },
-  });
-  assert.deepEqual(state.writes.map(write => write.fields), [{ 来源: `uyi.live\n${sourceURL('outreach')}` }]);
+test('reads text-segment email values without rewriting any original field', async t => {
+  const original = { record_id: 'rec-rich-text', fields: { 邮箱: [{ type: 'text', text: normalizedEmail }],
+    来源: [{ type: 'text', text: 'uyi.live' }], Mac环境: [{ type: 'text', text: '人工核对设备' }] } };
+  const state = mockProvider(t, [original]);
+  await expectSuccess(await submit(application()));
+  assert.deepEqual(state.records, [original]);
+  assert.deepEqual(state.raw[0].fields.参与者, [original.record_id]);
 });
 
-test('maps all supported entry sources and falls back to other for an unknown source', async t => {
-  const state = mockProvider(t);
-  for (const source of ['homepage', 'event', 'creator', 'outreach', 'referral', 'other', 'not-a-supported-entry']) {
-    state.records.length = 0;
-    state.operations.clear();
-    const input = application({ source });
+test('preserves source codes and all Studio choices in raw original answers', async t => {
+  const state = mockProvider(t, [{ record_id: 'rec-one', fields: { 邮箱: normalizedEmail } }]);
+  for (const source of ['homepage', 'event', 'creator', 'outreach', 'referral', 'other', 'unknown']) {
+    const input = application({ requestId: randomUUID(), source, creativeExperience: 'other', experienceDirection: 'studio_new' });
     await expectSuccess(await submit(input));
-    assert.equal(state.records.length, 1);
-    assert.equal(state.records[0].fields.报名来源, applicationFields(input).报名来源);
-    const normalizedSource = source === 'not-a-supported-entry' ? 'other' : source;
-    assert.equal(state.records[0].fields.来源, sourceURL(normalizedSource));
+    const raw = state.raw.at(-1);
+    assert.ok(raw.fields.具体反馈.includes(`[${source === 'unknown' ? 'other' : source}]`));
+    assert.ok(raw.fields.具体反馈.includes('その他の創作経験あり [other]'));
+    assert.ok(raw.fields.具体反馈.includes('AI空間とUYI Studio（3D生成経験なし） [studio_new]'));
   }
+  assert.equal(state.raw.length, 7);
+  assert.equal(masterCreates(state).length, 0);
 });
 
-test('accepts all documented experience and optional Studio choices without rewriting the selected direction', async t => {
-  const state = mockProvider(t);
-  for (const [creativeExperience, experienceDirection] of [
-    ['3d', 'ai_space'], ['other', 'studio_new'], ['none', 'undecided'],
-    ['3d', 'studio_new'], ['none', 'studio_experienced'],
-  ]) {
-    state.records.length = 0;
-    state.operations.clear();
+test('accepts every supported experience direction for a new self-reported profile', async t => {
+  for (const [creativeExperience, experienceDirection] of [['3d', 'ai_space'], ['other', 'studio_new'], ['none', 'undecided'], ['none', 'studio_experienced']]) {
+    const state = mockProvider(t);
     const input = application({ creativeExperience, experienceDirection });
     await expectSuccess(await submit(input));
     assert.equal(state.records[0].fields.创作经验, applicationFields(input).创作经验);
@@ -296,138 +203,177 @@ test('accepts all documented experience and optional Studio choices without rewr
   }
 });
 
-test('handles retries with both the same request ID and a new request ID as one participant', async t => {
+test('same UUID/content retry is one raw log; a new UUID keeps another application for the same participant', async t => {
   const state = mockProvider(t);
   const env = credentials();
   await expectSuccess(await submit(application(), env));
-  await expectSuccess(await submit(application(), env));
-  await expectSuccess(await submit(application({ requestId: nextRequestId, email: normalizedEmail }), env));
+  await expectSuccess(await submit(application({ email: normalizedEmail, requestId: requestId.toUpperCase(), intent: ` ${application().intent} ` }), env));
+  await expectSuccess(await submit(application({ requestId: nextRequestId }), env));
   assert.equal(state.records.length, 1);
-  assert.equal(state.writes.filter(write => write.operation === 'create').length, 1);
-  assert.equal(state.writes.filter(write => write.operation === 'update').length, 0);
+  assert.equal(state.raw.length, 2);
+  assert.equal(masterCreates(state).length, 1);
 });
 
-test('concurrent first applications share one provider operation for the normalized email', async t => {
-  let initialSearches = 0;
-  let release;
-  const bothSearching = new Promise(resolve => { release = resolve; });
-  const state = mockProvider(t, [], {
-    before: async call => {
-      if (call.operation !== 'search') return;
-      initialSearches++;
-      if (initialSearches > 2) return;
-      if (initialSearches === 2) release();
-      await bothSearching;
-      return Response.json({ code: 0, data: { items: [], has_more: false } });
-    },
-  });
+test('same UUID with any changed business answer conflicts before another master can be created', async t => {
+  const state = mockProvider(t);
   const env = credentials();
-  const responses = await Promise.all([
-    submit(application(), env),
-    submit(application({ email: normalizedEmail, requestId: nextRequestId }), env),
-  ]);
-  for (const response of responses) await expectSuccess(response);
+  await expectSuccess(await submit(application(), env));
+  const priorMasterCalls = state.calls.filter(call => call.table === PRIMARY).length;
+  for (const override of [{ email: 'someone-else@example.com' }, { macEnvironment: '另一台设备' }, { intent: '不同意向' },
+    { source: 'event' }, { language: 'en' }, { xAccount: '' }, { creativeExperience: 'none' }, { experienceDirection: 'undecided' }]) {
+    const response = await submit(application(override), env);
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: 'conflict' });
+  }
   assert.equal(state.records.length, 1);
-  assert.equal(state.writes.filter(write => write.operation === 'create').length, 1);
-  assert.equal(state.createOperationIds.length, 2);
-  assert.equal(new Set(state.createOperationIds).size, 1);
+  assert.equal(state.raw.length, 1);
+  assert.equal(state.calls.filter(call => call.table === PRIMARY).length, priorMasterCalls);
 });
 
-test('readback supplements a legacy record returned by a concurrent subscription create', async t => {
-  const legacy = {
-    record_id: 'rec-concurrent-legacy',
-    fields: { 邮箱: normalizedEmail, 登记时间: 1700000000000, 语言: 'en',
-      来源: 'uyi.live', 请求编号: 'legacy-request', 状态: '待通知' },
-  };
-  const state = mockProvider(t, [], {
-    before(call, current) {
-      if (call.operation !== 'create') return;
-      current.records.push(clone(legacy));
-      return Response.json({ code: 0, data: { record: clone(legacy) } });
-    },
-  });
-  await expectSuccess(await submit(application()));
-  assert.equal(state.records.length, 1);
-  assert.equal(state.records[0].record_id, legacy.record_id);
-  assert.deepEqual(state.records[0].fields, {
-    ...legacy.fields, ...applicationFields(application()),
-    来源: `uyi.live\n${sourceURL('homepage')}`,
-  });
-  assert.ok(state.writes.some(write => write.operation === 'update' && write.record_id === legacy.record_id));
-});
-
-test('recovers a durably saved application after a create response is lost', async t => {
-  let dropped = false;
-  const state = mockProvider(t, [], {
-    after(call) {
-      if (call.operation === 'create' && !dropped) {
-        dropped = true;
-        throw new TypeError('simulated connection loss after provider commit');
+test('different applications racing for one new email survive changed-body replay rejection and keep both raw answers', async t => {
+  let initial = 0, creates = 0, rejectedReplay = 0, release, commit;
+  const barrier = new Promise(resolve => { release = resolve; });
+  const committed = new Promise(resolve => { commit = resolve; });
+  const state = mockProvider(t, [], { before: async (call, current) => {
+    if (call.table === PRIMARY && call.operation === 'create') {
+      creates++;
+      if (creates > 1) {
+        await committed;
+        assert.equal(current.records.length, 1);
+        rejectedReplay++;
+        return Response.json({ code: 1254001, msg: 'changed-body replay rejected' }, { status: 400 });
       }
-    },
-  });
+    }
+    if (call.table !== PRIMARY || call.operation !== 'search' || initial >= 2) return;
+    initial++;
+    if (initial === 2) release();
+    await barrier;
+    return Response.json({ code: 0, data: { items: [], has_more: false } });
+  }, after: call => { if (call.table === PRIMARY && call.operation === 'create') commit(); } });
+  const env = credentials();
+  const inputs = [application({ source: 'creator' }), application({ requestId: nextRequestId, intent: '别的创作意向', source: 'referral' })];
+  for (const response of await Promise.all(inputs.map(input => submit(input, env)))) await expectSuccess(response);
+  assert.equal(state.records.length, 1);
+  assert.equal(state.raw.length, 2);
+  assert.equal(masterCreates(state).length, 1);
+  const operations = state.calls.filter(call => call.table === PRIMARY && call.operation === 'create')
+    .map(call => ({ operationId: new URL(call.url).searchParams.get('client_token') }));
+  assert.equal(operations.length, 2);
+  assert.equal(new Set(operations.map(operation => operation.operationId)).size, 1);
+  assert.equal(rejectedReplay, 1, 'provider must reject the competing different-body replay in this regression');
+  for (const input of inputs) assert.ok(state.raw.some(raw => raw.fields.具体反馈.includes(input.intent)));
+});
+
+test('an email-only signup winning the concurrent create stays intact while the full application survives in raw', async t => {
+  const legacy = { record_id: 'rec-concurrent-legacy', fields: { 邮箱: normalizedEmail, 来源: 'uyi.live', 语言: 'en', 状态: '待通知' } };
+  const state = mockProvider(t, [], { before: (call, current) => {
+    if (call.table !== PRIMARY || call.operation !== 'create') return;
+    current.records.push(clone(legacy));
+    return Response.json({ code: 0, data: { record: clone(legacy) } });
+  } });
+  const input = application();
+  await expectSuccess(await submit(input));
+  assert.deepEqual(state.records, [legacy]);
+  assertRaw(state.raw[0], input, legacy.record_id);
+});
+
+test('continues raw intake when Feishu rejects changed-body email-key replay after another master commits', async t => {
+  const legacy = { record_id: 'rec-winner', fields: { 邮箱: normalizedEmail, 来源: 'uyi.live', 状态: '待通知' } };
+  const state = mockProvider(t, [], { before: (call, current) => {
+    if (call.table !== PRIMARY || call.operation !== 'create') return;
+    current.records.push(clone(legacy));
+    return Response.json({ code: 1254001, msg: 'different payload for the existing operation' }, { status: 400 });
+  } });
+  const input = application({ source: 'creator', intent: '后提交的创作计划应完整保留。' });
+  await expectSuccess(await submit(input));
+  assert.deepEqual(state.records, [legacy]);
+  assert.equal(state.calls.filter(call => call.table === PRIMARY && call.operation === 'create').length, 1);
+  assert.equal(masterCreates(state).length, 0);
+  assertRaw(state.raw[0], input, legacy.record_id);
+});
+
+test('existing blank profiles and an intervening operator correction survive concurrent applications without PUT', async t => {
+  const original = { record_id: 'rec-blank', fields: { 邮箱: normalizedEmail, Mac环境: '', 来源: 'uyi.live' } };
+  let reads = 0, release;
+  const barrier = new Promise(resolve => { release = resolve; });
+  const state = mockProvider(t, [original], { after: async (call, current, result) => {
+    if (call.table !== PRIMARY || call.operation !== 'search' || reads >= 2) return;
+    reads++;
+    if (reads === 2) {
+      Object.assign(current.records[0].fields, { Mac环境: '运营已核对的设备', 来源: '运营已修正来源', 运营进度: '已注册' });
+      release();
+    }
+    await barrier;
+    return Response.json(result);
+  } });
+  const env = credentials();
+  for (const response of await Promise.all([submit(application(), env), submit(application({ requestId: nextRequestId, macEnvironment: '另一设备', source: 'event' }), env)])) await expectSuccess(response);
+  assert.equal(state.records[0].fields.Mac环境, '运营已核对的设备');
+  assert.equal(state.records[0].fields.来源, '运营已修正来源');
+  assert.equal(state.records[0].fields.运营进度, '已注册');
+  assert.equal(state.raw.length, 2);
+  assert.equal(masterCreates(state).length, 0);
+});
+
+test('duplicate existing master emails are not merged or arbitrarily chosen; full application is retained for matching', async t => {
+  const originals = [{ record_id: 'rec-one', fields: { 邮箱: normalizedEmail } }, { record_id: 'rec-two', fields: { 邮箱: normalizedEmail } }];
+  const state = mockProvider(t, originals);
+  const input = application();
+  await expectSuccess(await submit(input));
+  assert.deepEqual(state.records, originals);
+  assertRaw(state.raw[0], input);
+  assert.equal(masterCreates(state).length, 0);
+});
+
+test('recovers an ambiguous raw commit and does not create another application or master', async t => {
+  let dropped = false;
+  const state = mockProvider(t, [], { after: call => {
+    if (call.table === RAW && call.operation === 'create' && !dropped) { dropped = true; throw new TypeError('response lost after commit'); }
+  } });
   await expectSuccess(await submit(application()));
   assert.equal(state.records.length, 1);
-  assert.equal(state.writes.length, 1);
-  assert.deepEqual(Object.fromEntries(Object.keys(applicationFields(application()))
-    .map(key => [key, state.records[0].fields[key]])), applicationFields(application()));
+  assert.equal(state.raw.length, 1);
 });
 
-test('fails safely when the email lookup finds multiple existing records', async t => {
+test('a raw failure after master creation is not success; retry safely saves only the missing raw log', async t => {
   t.mock.method(console, 'error', () => {});
-  const fixtures = [
-    { record_id: 'rec-duplicate-one', fields: { 邮箱: normalizedEmail, 来源: 'uyi.live' } },
-    { record_id: 'rec-duplicate-two', fields: { 邮箱: normalizedEmail, 来源: 'old-source' } },
-  ];
-  const state = mockProvider(t, fixtures);
-  await expectUnavailable(await submit(application()));
-  assert.deepEqual(state.records, fixtures);
-  assert.equal(state.writes.length, 0);
+  let blocked = true;
+  const state = mockProvider(t, [], { before: call => {
+    if (call.table === RAW && call.operation === 'create' && blocked) return Response.json({ code: 99991401 }, { status: 403 });
+  } });
+  const env = credentials();
+  await expectUnavailable(await submit(application(), env));
+  assert.equal(state.records.length, 1);
+  assert.equal(state.raw.length, 0);
+  blocked = false;
+  await expectSuccess(await submit(application(), env));
+  assert.equal(masterCreates(state).length, 1);
+  assert.equal(state.raw.length, 1);
 });
 
-test('does not report success when updating an existing subscription is forbidden', async t => {
-  t.mock.method(console, 'error', () => {});
-  const fixture = { record_id: 'rec-no-update-permission', fields: { 邮箱: normalizedEmail, 来源: 'uyi.live' } };
-  const state = mockProvider(t, [fixture], {
-    before(call) {
-      if (call.operation === 'update') return Response.json({ code: 99991401, msg: 'private permission details' }, { status: 403 });
-    },
-  });
-  await expectUnavailable(await submit(application()));
-  assert.deepEqual(state.records, [fixture]);
-  assert.equal(state.writes.length, 0);
-  assert.ok(state.calls.some(call => call.operation === 'update'));
-  assert.equal(state.calls.some(call => call.operation === 'create'), false);
+test('retries ambiguous master creation without ever filling a concurrently owned master', async t => {
+  let dropped = false;
+  const state = mockProvider(t, [], { after: call => {
+    if (call.table === PRIMARY && call.operation === 'create' && !dropped) { dropped = true; throw new TypeError('master receipt lost'); }
+  } });
+  await expectSuccess(await submit(application()));
+  assert.equal(state.records.length, 1);
+  assert.equal(state.raw.length, 1);
+  assert.equal(masterCreates(state).length, 1);
 });
 
-test('requires the update receipt to identify the exact existing record', async t => {
+test('requires actual raw hash confirmation and rejects malformed/business-error provider responses', async t => {
   t.mock.method(console, 'error', () => {});
-  const fixture = { record_id: 'rec-expected-update', fields: { 邮箱: normalizedEmail, 来源: 'uyi.live' } };
-  const state = mockProvider(t, [fixture], {
-    before(call) {
-      if (call.operation === 'update') return Response.json({ code: 0, data: { record: { record_id: 'rec-wrong-record' } } });
-    },
-  });
-  await expectUnavailable(await submit(application()));
-  assert.deepEqual(state.records, [fixture]);
-  assert.equal(state.writes.length, 0);
-});
-
-test('does not accept malformed create, search, or HTTP-200 business-error responses', async t => {
-  t.mock.method(console, 'error', () => {});
-  for (const [operation, result] of [
-    ['create', { code: 0, data: {} }],
-    ['search', { code: 0, data: { items: [{}] } }],
-    ['search', { code: 0, data: { items: null } }],
-    ['search', { code: 1254045, msg: 'private provider details' }],
-  ]) {
-    const state = mockProvider(t, [], {
-      before(call) {
-        if (call.operation === operation) return Response.json(result);
-      },
-    });
+  for (const [table, operation, response] of [[RAW, 'create', { code: 0, data: {} }],
+    [RAW, 'create', { code: 0, data: { record: { record_id: 'rec-not-stored' } } }],
+    [RAW, 'search', { code: 0, data: { items: [{}] } }],
+    [PRIMARY, 'search', { code: 0, data: { items: null } }],
+    [RAW, 'search', { code: 1254045, msg: 'private details' }]]) {
+    const state = mockProvider(t, [], { before: call => {
+      if (call.table === table && call.operation === operation) return Response.json(response);
+    } });
     await expectUnavailable(await submit(application()));
-    assert.equal(state.records.length, 0);
+    assert.equal(state.raw.length, 0);
   }
 });
 

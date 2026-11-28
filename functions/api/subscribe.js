@@ -1,3 +1,5 @@
+import { saveApplicationIntake } from './experience.js';
+
 // Runtime credentials are configured as Cloudflare Pages secrets.
 const FEISHU_API = 'https://open.feishu.cn/open-apis';
 const MAX_BODY_BYTES = 4096;
@@ -22,7 +24,6 @@ const APPLICATION_SOURCE = Object.freeze({
   homepage: 'UYI公式サイト', event: 'イベント・先行体験ページ', creator: 'イベント・先行体験ページ',
   outreach: 'UYIからの直接のお誘い', referral: '知人・クリエイターの紹介', other: 'その他',
 });
-const APPLICATION_FIELDS = ['邮箱', 'Mac环境', '创作经验', '体验方向', '报名意向', 'X账号', '报名来源', '来源'];
 
 function respond(body, status = 200) {
   const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
@@ -64,11 +65,11 @@ function providerError(status, code) {
   return error;
 }
 
-async function postFeishu(path, body, signal, token, method = 'POST') {
+async function postFeishu(path, body, signal, token) {
   const headers = { 'Content-Type': 'application/json; charset=utf-8' };
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(`${FEISHU_API}${path}`, {
-    method, headers, body: JSON.stringify(body), signal,
+    method: 'POST', headers, body: JSON.stringify(body), signal,
   });
   let result;
   try {
@@ -172,6 +173,7 @@ function normalizeApplication(payload) {
     if (payload[field].length > max || (required && !payload[field])) return false;
   }
   if (typeof payload.source !== 'string' || !Object.hasOwn(APPLICATION_SOURCE, payload.source)) payload.source = 'other';
+  payload.requestId = payload.requestId.toLowerCase();
   return true;
 }
 
@@ -197,38 +199,36 @@ function fieldText(value) {
 
 async function findApplication(path, email, token, signal) {
   const result = await postFeishu(`${path}/search?page_size=2`, {
-    field_names: APPLICATION_FIELDS,
+    field_names: ['邮箱'],
     filter: { conjunction: 'and', conditions: [{ field_name: '邮箱', operator: 'is', value: [email] }] },
   }, signal, token);
   const items = result.data?.items;
-  // Existing duplicate rows need an operator's decision; do not pick a person silently.
-  if (!Array.isArray(items) || items.length > 1 || result.data.has_more === true ||
+  if (!Array.isArray(items) ||
       items.some(record => typeof record?.record_id !== 'string' || !record.record_id ||
         !record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields))) {
     throw providerError(502, null);
   }
-  return items[0];
+  if (items.some(record => fieldText(record.fields['邮箱'])?.trim().toLowerCase() !== email)) throw providerError(502, null);
+  // Any existing match blocks another master create. Duplicate matches are kept
+  // for operators; raw application intake will not arbitrarily link one of them.
+  return items.length > 0 || result.data.has_more === true;
 }
 
-async function supplementApplication(path, record, payload, token, signal) {
-  const fields = {};
-  // The public form does not verify email ownership. Only fill blank application
-  // fields; never replace earlier answers or touch operators' private columns.
-  for (const [key, value] of Object.entries(publicApplicationFields(payload))) {
-    if (fieldText(record.fields[key])?.trim() === '') fields[key] = value;
-  }
-  const source = `uyi.live/apply/?source=${payload.source}`;
-  const oldSource = fieldText(record.fields['来源']);
-  if (oldSource === null || oldSource.length > 4096) throw providerError(502, null);
-  const sources = oldSource.split('\n').map(value => value.trim()).filter(Boolean);
-  if (!sources.includes(source)) fields['来源'] = [...sources, source].join('\n');
-  if (!Object.keys(fields).length) return;
-  const result = await postFeishu(`${path}/${encodeURIComponent(record.record_id)}`, { fields }, signal, token, 'PUT');
-  if (result.data?.record?.record_id !== record.record_id) throw providerError(502, null);
+function applicationText(payload) {
+  return [
+    '报名资料（用户自报，待运营核对）',
+    `1. 联系邮箱：${payload.email}`,
+    `2. 可使用Mac：是；设备与系统：${payload.macEnvironment}`,
+    `3. 创作经验：${CREATIVE_EXPERIENCE[payload.creativeExperience]} [${payload.creativeExperience}]`,
+    `4. 体验方向：${EXPERIENCE_DIRECTION[payload.experienceDirection]} [${payload.experienceDirection}]`,
+    `5. 报名意向：${payload.intent}`,
+    `6. X账号：${payload.xAccount || '（未填写）'}`,
+    `7. 报名来源：${APPLICATION_SOURCE[payload.source]} [${payload.source}]`,
+    `语言：${payload.language}`,
+  ].join('\n');
 }
 
 async function saveApplication(env, payload, signal) {
-  const token = await tenantToken(env, signal);
   const path = `/bitable/v1/apps/${encodeURIComponent(env.FEISHU_APP_TOKEN)}/tables/${encodeURIComponent(env.FEISHU_TABLE_ID)}/records`;
   const clientToken = await emailClientToken(env, payload.email);
   const body = { fields: {
@@ -236,33 +236,23 @@ async function saveApplication(env, payload, signal) {
     '来源': `uyi.live/apply/?source=${payload.source}`, '请求编号': payload.requestId,
     '状态': '待通知', ...publicApplicationFields(payload), '运营进度': '待筛选',
   } };
-  let lastError;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  await saveApplicationIntake(env, payload, applicationText(payload), async () => {
+    const token = await tenantToken(env, signal);
+    if (await findApplication(path, payload.email, token, signal)) return;
     try {
-      let record = await findApplication(path, payload.email, token, signal);
-      if (!record) {
-        const result = await postFeishu(`${path}?client_token=${clientToken}`, body, signal, token);
-        if (typeof result.data?.record?.record_id !== 'string' || !result.data.record.record_id) {
-          throw providerError(502, null);
-        }
-        // The same email operation may have just been created by the legacy
-        // subscription path. Read it back and fill any missing application fields.
-        record = await findApplication(path, payload.email, token, signal);
-        if (!record) throw providerError(502, null);
-      }
-      await supplementApplication(path, record, payload, token, signal);
-      return;
+      const result = await postFeishu(`${path}?client_token=${clientToken}`, body, signal, token);
+      if (typeof result.data?.record?.record_id !== 'string' || !result.data.record.record_id) throw providerError(502, null);
     } catch (error) {
-      lastError = error;
-      if (signal.aborted || (error.status && !error.retryable)) throw error;
-      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
+      // Feishu may reject a competing create's different body or lose a committed
+      // receipt. The original email key is never rotated: verify the master that
+      // now exists, leave it intact, then preserve this request in its own raw row.
+      if (!signal.aborted && await findApplication(path, payload.email, token, signal)) return;
+      throw error;
     }
-  }
-  // An ambiguous response can follow a committed create/update. Re-read and
-  // supplement instead of treating mere existence as a completed application.
-  const record = await findApplication(path, payload.email, token, signal);
-  if (record) return supplementApplication(path, record, payload, token, signal);
-  throw lastError;
+    // A concurrent email-only signup may own the same create operation. Keep its
+    // master intact; all seven application answers are saved separately below.
+    if (!await findApplication(path, payload.email, token, signal)) throw providerError(502, null);
+  }, signal);
 }
 
 export async function onRequest({ request, env }) {
@@ -306,6 +296,7 @@ export async function onRequest({ request, env }) {
     return respond({ success: true });
   } catch (error) {
     if (INVALID_TOKEN_CODES.has(error.code)) cachedToken = undefined;
+    if (error.publicStatus === 409) return respond({ error: 'conflict' }, 409);
     // Provider details can contain record data and credentials. Log codes only.
     console.error('subscription_failed', { status: error.status || 0, code: error.code || 0 });
     if ((error.status === 429 || error.code === 1254290) && error.code !== 99991403) {

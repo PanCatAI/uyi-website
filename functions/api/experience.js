@@ -152,6 +152,10 @@ async function contentHash(payload) {
   const content = payload.kind === 'experience_report'
     ? [payload.kind, payload.email, payload.experienceDate, payload.activities, payload.completion, payload.reuse, payload.comment, payload.recordLink]
     : [payload.kind, payload.email, payload.originalReportId, payload.recordLink, payload.note];
+  return hashContent(content);
+}
+
+async function hashContent(content) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(content)));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }
@@ -215,17 +219,17 @@ async function reportFields(env, rawPath, payload, hash, token, signal) {
   return { fields };
 }
 
-async function saveReport(env, tableId, payload, signal) {
+async function saveReport(env, tableId, payload, signal, buildFields = reportFields, suppliedHash) {
   const token = await tenantToken(env, signal);
   const path = tablePath(env, tableId);
-  const hash = await contentHash(payload);
+  const hash = suppliedHash ?? await contentHash(payload);
   const operationId = await clientToken(env, tableId, payload.requestId);
   let body;
   let lastError;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       if (await alreadySaved(path, payload, hash, token, signal)) return;
-      body ??= await reportFields(env, path, payload, hash, token, signal);
+      body ??= await buildFields(env, path, payload, hash, token, signal);
       const result = await postFeishu(`${path}?client_token=${operationId}`, body, signal, token);
       if (typeof result.data?.record?.record_id !== 'string' || !result.data.record.record_id) throw providerError(502, null);
       // Confirm the exact stored request/hash, including concurrent client-token
@@ -240,6 +244,39 @@ async function saveReport(env, tableId, payload, signal) {
   }
   if (await alreadySaved(path, payload, hash, token, signal)) return;
   throw lastError;
+}
+
+// Server-only reuse by /api/subscribe after its application validation. This is
+// not a new public /api/experience kind, account or participant-edit capability.
+export async function saveApplicationIntake(env, payload, applicationText, ensureParticipant, signal) {
+  const tableId = env.FEISHU_FEEDBACK_TABLE_ID ?? DEFAULT_FEEDBACK_TABLE_ID;
+  if (typeof tableId !== 'string' || !/^tbl[a-zA-Z0-9]+$/.test(tableId) || tableId === env.FEISHU_TABLE_ID) throw providerError(503, null);
+  const hash = await hashContent([
+    'mac_application', payload.email, payload.macConfirmed, payload.macEnvironment,
+    payload.creativeExperience, payload.experienceDirection, payload.intent,
+    payload.xAccount, payload.source, payload.language,
+  ]);
+  try {
+    await saveReport(env, tableId, payload, signal, async (_env, _path, _payload, _hash, token) => {
+      // The raw request/hash is checked before this callback can create a new
+      // master. Existing masters are never edited, including blank fields/source.
+      await ensureParticipant();
+      const participant = await search(tablePath(env, env.FEISHU_TABLE_ID), ['邮箱'], [equals('邮箱', payload.email)], token, signal);
+      const matched = !participant.ambiguous && participant.items.length === 1 &&
+        fieldText(participant.items[0].fields['邮箱'])?.trim().toLowerCase() === payload.email;
+      const fields = {
+        '反馈编号': payload.requestId, '请求编号': payload.requestId, '邮箱': payload.email,
+        '记录类型': '报名资料（待核对）', '具体反馈': applicationText, '内容校验': hash,
+        '处理状态': matched ? '报名待核对' : '待匹配',
+        '测试标记': payload.email.endsWith('.invalid') ? '自动验收测试' : '',
+      };
+      if (matched) fields['参与者'] = [participant.items[0].record_id];
+      return { fields };
+    }, hash);
+  } catch (error) {
+    if (INVALID_TOKEN_CODES.has(error.code)) cachedToken = undefined;
+    throw error;
+  }
 }
 
 export async function onRequest({ request, env }) {
