@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102631">
+  <title>Mac先行体験へのお申込み | UYI</title>
+  <meta name="description" content="UYIのMac向け先行体験・共創プログラムへのお申込み。実際に使った感想や具体的な改善提案をお寄せくださる方を募集しています。">
+  <link rel="canonical" href="https://uyi.live/apply/">
+  <link rel="icon" href="/event/creator-early-access/assets/logo-dark.png">
+  <link rel="stylesheet" href="/apply/styles.css">
+  <script src="/apply/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#application">申込みフォームへ</a>
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="UYI ホームへ"><img src="/event/creator-early-access/assets/logo-light.png" alt="" width="20" height="30"><span>UYI</span></a>
+    <a class="header-link" href="/event/creator-early-access/">プログラムの詳細 <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main class="layout wrap">
+    <div class="introduction">
+      <p class="eyebrow"><span class="light" aria-hidden="true"></span> EARLY ACCESS · MAC</p>
+      <h1>Mac先行体験への<br>お申込み。</h1>
+      <p class="lead">UYIを使い、あなたの視点で<br class="desktop-break">気づいたことを教えてください。</p>
+      <p class="intro-copy">AI空間を実際に試し、改善に協力してくださる方を募集しています。完成作品や好意的な評価は必要ありません。</p>
+      <p class="intro-copy">内容を確認後、参加方法をメールでご案内します。申込みだけで参加や謝礼が確定するものではありません。</p>
+      <a class="mobile-form-link" href="#application">申込みフォームへ <span aria-hidden="true">↓</span></a>
+
+      <section class="support-card" aria-labelledby="support-title">
+        <p class="eyebrow">正式参加者へのサポート</p>
+        <h2 id="support-title">体験用の無料Creditと、<br>フィードバックへの謝礼。</h2>
+        <p>対応するMac、Creditの対象機能・付与量・有効期限は、体験前にご案内します。</p>
+        <dl class="reward-summary">
+          <div><dt>初回体験・フィードバック</dt><dd>5,000<span>円分</span></dd></div>
+          <div><dt>別日の再体験 <small>任意</small></dt><dd>5,000<span>円分</span></dd></div>
+          <div><dt>継続して共創 <small>任意</small></dt><dd>10,000<span>円分</span></dd></div>
+        </dl>
+        <p class="small-copy">謝礼はAmazon.co.jpギフトカードで、条件の確認後にお渡しします。各段階の確認後7営業日以内、すべてSoft Launch正式終了後1か月以内に送付を完了します。</p>
+        <a class="inline-link" href="/event/creator-early-access/#support">各段階の参加条件・謝礼について <span aria-hidden="true">→</span></a>
+      </section>
+
+      <div class="participation-notes">
+        <p><strong>Discord</strong>正式参加時に、公式Discordへの参加をお願いします。</p>
+        <p><strong>UYI Studio</strong>利用は任意です。試した方は、実際の操作に基づく具体的な改善提案を1つ以上お寄せください。</p>
+        <p><strong>X</strong>フォロー・投稿・リポストはいずれも任意で、謝礼の条件ではありません。</p>
+      </div>
+    </div>
+
+    <section class="form-card" id="application" aria-labelledby="form-title">
+      <div class="form-heading">
+        <p class="eyebrow">PARTICIPATION FORM</p>
+        <h2 id="form-title">あなたのことを、少しだけ。</h2>
+        <p>「必須」の項目にご回答ください。<br>送信前に内容をご確認ください。</p>
+      </div>
+
+      <noscript><p class="form-message" role="alert">送信にはJavaScriptが必要です。有効にしてからお試しください。お困りの場合は <a href="mailto:partnerships@uyi.live">partnerships@uyi.live</a> へご連絡ください。</p></noscript>
+
+      <form id="mac-application-form" method="post" action="/api/subscribe" aria-describedby="privacy-note">
+        <div class="field">
+          <label for="application-email"><span class="field-number">01</span>メールアドレス <span class="required">必須</span></label>
+          <p class="field-help" id="email-help">UYIへの登録に使用する予定のメールアドレス。参加案内もこちらにお送りします。</p>
+          <input id="application-email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="254" placeholder="you@example.com" aria-describedby="email-help" required>
+        </div>
+
+        <div class="field">
+          <label for="mac-environment"><span class="field-number">02</span>お使いのMac <span class="required">必須</span></label>
+          <p class="field-help" id="mac-help">機種・チップ・macOSのバージョンをご記入ください。対応条件は参加前にご案内します。</p>
+          <textarea id="mac-environment" name="macEnvironment" rows="2" maxlength="300" placeholder="例：MacBook Air / M2 / macOS 15.6" aria-describedby="mac-help" required></textarea>
+          <label class="mac-confirmation" for="mac-confirmed"><input id="mac-confirmed" name="macConfirmed" type="checkbox" value="true" required><span>Macを利用できます</span></label>
+        </div>
+
+        <div class="field">
+          <label for="creative-experience"><span class="field-number">03</span>これまでの創作経験 <span class="required">必須</span></label>
+          <select id="creative-experience" name="creativeExperience" required>
+            <option value="" disabled selected>選択してください</option>
+            <option value="3d">3D制作・3D生成の経験がある</option>
+            <option value="other">イラスト・動画など、その他の創作経験がある</option>
+            <option value="none">創作経験はまだない</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="experience-direction"><span class="field-number">04</span>体験してみたい内容 <span class="required">必須</span></label>
+          <p class="field-help" id="direction-help">UYI Studioは開発中の3D制作ツールです。利用する場合は、具体的な改善提案をお願いします。</p>
+          <select id="experience-direction" name="experienceDirection" aria-describedby="direction-help" required>
+            <option value="" disabled selected>選択してください</option>
+            <option value="ai_space">AI空間を中心に試したい</option>
+            <option value="studio_experienced">AI空間＋UYI Studio（3D生成の経験あり）</option>
+            <option value="studio_new">AI空間＋UYI Studio（3D生成の経験なし）</option>
+            <option value="undecided">説明を聞いてから決めたい</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="application-intent"><span class="field-number">05</span>UYIで試してみたいこと <span class="required">必須</span></label>
+          <p class="field-help" id="intent-help">どんな場面で使いたいですか？ 1〜2文で教えてください。</p>
+          <textarea id="application-intent" name="intent" rows="3" maxlength="1000" placeholder="例：自分がつくった小物をAI空間に置き、キャラクターと過ごしてみたいです。" aria-describedby="intent-help" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="x-account"><span class="field-number">06</span>Xアカウント <span class="optional">任意</span></label>
+          <p class="field-help" id="x-help">@ユーザー名、またはプロフィールURL。お持ちでない場合は空欄で構いません。</p>
+          <input id="x-account" name="xAccount" type="text" maxlength="200" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="@username または https://x.com/username" aria-describedby="x-help">
+        </div>
+
+        <div class="field">
+          <label for="application-source"><span class="field-number">07</span>この案内をどこで知りましたか？ <span class="required">必須</span></label>
+          <p class="field-help" id="source-help">リンクから選択されている場合も、実際のきっかけに合わせて変更できます。</p>
+          <select id="application-source" name="source" aria-describedby="source-help" required>
+            <option value="" disabled selected>選択してください</option>
+            <option value="homepage">UYI公式サイト</option>
+            <option value="event">イベント一覧ページ</option>
+            <option value="creator">先行体験プログラムの紹介ページ</option>
+            <option value="outreach">UYIからの直接のお誘い</option>
+            <option value="referral">知人・クリエイターからの紹介</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+
+        <div class="honeypot" aria-hidden="true" inert><label for="application-website">Website</label><input id="application-website" name="website" type="text" tabindex="-1" autocomplete="off" maxlength="200"></div>
+        <p class="privacy-note" id="privacy-note">入力内容は、参加の選考・ご案内、体験への対応と改善のために使用します。詳細は<a href="/privacy" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a>をご確認ください。</p>
+        <p id="application-status" class="form-message" role="status" aria-live="polite" tabindex="-1" hidden></p>
+        <button class="button submit-button" id="application-submit" type="submit" disabled>申込みを送信する <span aria-hidden="true">→</span></button>
+        <p class="submit-note">送信後、この内容を別のフォームで入力し直す必要はありません。</p>
+      </form>
+
+      <div class="success-panel" id="application-success" hidden>
+        <span class="success-mark" aria-hidden="true">✓</span>
+        <h2 id="success-title" tabindex="-1">お申込みを<br>受け付けました。</h2>
+        <p>内容を確認し、ご入力のメールアドレスへ参加方法をご案内します。もう一度フォームを送る必要はありません。</p>
+        <p class="success-email" id="success-email"></p>
+        <a class="button" href="https://discord.gg/TMF8SECRMm" target="_blank" rel="noopener noreferrer">公式Discordを見る <span aria-hidden="true">↗</span></a>
+        <p class="small-copy">申込み時点での参加は任意です。正式参加時にご参加をお願いします。</p>
+        <a class="inline-link" href="/">UYIホームへ <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer wrap"><span>UYI · Use Your Illusion</span><a href="mailto:partnerships@uyi.live">お問い合わせ：partnerships@uyi.live</a></footer>
+</body>
+</html>

@@ -15,6 +15,16 @@ Everything the original inlined as base64 lives in `public/assets/` and loads on
 
 Email signup uses the in-page `#p5` dialog and `POST /api/subscribe`, implemented in `functions/api/subscribe.js`. The server validates the submission and writes it to Feishu Bitable before returning success. Configure `FEISHU_APP_ID`, `FEISHU_APP_SECRET`, `FEISHU_APP_TOKEN` (the Bitable app token) and `FEISHU_TABLE_ID` in the `uyi-space` Pages runtime environment. Keep the app secret in Pages secrets. The target table needs fields named `邮箱` (text), `登记时间` (date/time), `语言` (text), `来源` (text), `请求编号` (text) and `状态` (text). The app needs record lookup and creation permissions plus access to this table. Tests use fixture credentials and mocked Feishu responses. Live submission and digest email delivery require separate verification after configuration.
 
+### Mac early-access application (`/apply/`)
+
+The Japanese application page is shared by the homepage (`?source=homepage`), event hub (`event`) and creator details (`creator`). Direct invitations and referrals may use `outreach` and `referral`; the applicant can correct the source. The page submits JSON to the existing `/api/subscribe` with `kind: "mac_application"`. Legacy email-only requests without `kind` remain compatible (4 KiB limit); application requests are limited to 8 KiB. Mac availability is self-declared, not a compatibility verification or admission decision.
+
+Reuse the existing four `FEISHU_*` runtime settings and the same table, not a second base. In addition to the six legacy fields, this table needs text fields `Mac环境`, `报名意向`, `X账号`; single-select fields `创作经验`, `体验方向`, `报名来源`, `运营进度`. Exact option labels are the constants and create payload in `functions/api/subscribe.js`. The application needs record search, creation **and update** permission plus table editing access. Existing subscription permissions alone do not establish that update is enabled.
+
+The server normalizes email, reuses the existing provider idempotency key, reads back newly created rows and fills only blank public application fields in an existing record. Source URLs are appended without duplicates to `来源`; the first `报名来源` is preserved. Previously entered answers, registration details and operator-managed invitation, Credit, feedback, review and reward fields are not replaced. Anonymous applicants cannot edit existing answers; an operator must handle corrections. Two existing rows for one email fail closed for operator reconciliation. Source-history appends are read/modify/write and are not an atomic merge of simultaneous updates from different sources.
+
+After owner review and deployment, verify a marked test email on the configured production base: new application, same-email retry, upgrade an old email-only subscriber while retaining its `record_id`, and preservation of manually managed fields. Confirm record-update permission and the actual target table; mocked tests do not verify production configuration. Exclude test rows from participant counts. An accepted application is not registration, approval, code allocation, email delivery or a reward promise. Product usage/Credit synchronization, invitation emails, feedback intake and gift-card fulfillment are outside this change. The older downloadable PDF is unchanged and its embedded application links need a separate check before redistribution.
+
 The privacy policy and terms of use are in-page dialogs (`#privacy`, `#terms`, both drafts dated 2026-11-18); the top bar and signup dialog link to both. They describe Feishu and Cloudflare processing. The proposed signup retention period remains a draft.
 
 DNS for `uyi.live` is on Cloudflare: `uyi.live` and `www` are proxied CNAMEs to `uyi-space.pages.dev`; a zone redirect rule sends `www` to the apex.
@@ -97,3 +107,4 @@ Pages runtime configuration on project `uyi-space`:
 - `UYI_WEB_PROXY_SECRET`: Pages secret shared with `uyi-api` so the backend trusts `X-UYI-Client-IP` for rate limiting.
 
 Tests: `npm test` runs both the Pages Function unit tests (`test/*.test.mjs`, including `test/auth-proxy.test.mjs`) and the `apps/login` Vitest + Testing Library suite (`apps/login/src/test/login.test.tsx`).
+
