@@ -40,11 +40,32 @@ test('confirms success only after Feishu returns the created record', async t =>
   assert.deepEqual(calls[2].body.fields, {
     邮箱: 'visitor+uyi@example.com', 登记时间: calls[2].body.fields.登记时间,
     语言: 'en', 来源: 'uyi.live', 请求编号: requestId, 状态: '待通知',
+    报名来源: 'UYI公式サイト',
   });
   assert.ok(Number.isFinite(calls[2].body.fields.登记时间));
   assert.match(new URL(calls[2].url).searchParams.get('client_token'),
     /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/);
   assert.equal(new URL(calls[2].url).searchParams.has('ignore_consistency_check'), false);
+});
+
+test('records the official-site source only on a new email-only signup without advancing admission', async t => {
+  const writes = [];
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (url.endsWith('/tenant_access_token/internal')) return token();
+    if (url.includes('/search?')) return records();
+    writes.push(JSON.parse(options.body).fields);
+    return saved();
+  });
+  const response = await onRequest({ request: request({ ...payload, language: 'ja', source: 'homepage' }), env: credentials() });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { success: true });
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0]['报名来源'], 'UYI公式サイト');
+  assert.equal(writes[0]['来源'], 'uyi.live', 'legacy source text stays compatible');
+  assert.equal(writes[0]['状态'], '待通知');
+  for (const field of ['运营进度', 'Mac环境', '参与类型', '邀请码／邀请人', 'Credit核对']) {
+    assert.equal(Object.hasOwn(writes[0], field), false, `${field} must not be inferred from interest signup`);
+  }
 });
 
 test('keeps duplicate subscription responses private and avoids another write', async t => {
