@@ -57,7 +57,7 @@ button{font:inherit;color:inherit}
 #np{display:flex;align-items:center;gap:8px;font:500 13px/1 var(--en);color:var(--lamp);background:rgba(11,9,32,.85);border:1px solid #5b4b98;border-radius:8px;padding:0 12px;white-space:nowrap;transition:opacity .25s}
 #bub{position:absolute;max-width:min(300px,62vw);background:rgba(15,12,40,.9);backdrop-filter:blur(6px);border:1px solid #5b4b98;border-radius:16px 16px 16px 4px;padding:9px 14px;font-size:14px;line-height:1.5;transition:opacity .3s;pointer-events:none}
 #bub.sw{opacity:0}
-.hs{position:absolute;translate:-50% -50%;width:38px;height:38px;border-radius:50%;border:2px solid var(--lamp);background:rgba(255,226,168,.2);color:inherit;text-decoration:none;cursor:pointer;padding:0;z-index:3}
+.hs{position:absolute;translate:-50% -50%;width:38px;height:38px;border-radius:50%;border:2px solid var(--lamp);background:rgba(255,226,168,.2);cursor:pointer;padding:0;z-index:3}
 .hs::before{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--lamp);animation:r 2.2s ease-out infinite}
 @keyframes r{to{transform:scale(2);opacity:0}}
 .hs span{position:absolute;left:50%;top:calc(100% + 8px);translate:-50% 0;white-space:nowrap;font:500 12px/1.3 var(--en);background:rgba(15,12,40,.95);border:1px solid var(--line);border-radius:8px;padding:4px 9px;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -69,7 +69,7 @@ button{font:inherit;color:inherit}
 .r{display:flex;gap:10px;align-items:center}
 .sw2{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:rgba(11,9,32,.7)}
 .sw2 button{background:none;border:0;padding:7px 14px;font:500 13px var(--en);cursor:pointer;color:var(--mute)}
-.joinb{text-decoration:none;background:var(--lamp);color:#1a1230;border:0;border-radius:99px;padding:8px 18px;font-weight:700;font-size:14px;cursor:pointer}
+.joinb{background:var(--lamp);color:#1a1230;border:0;border-radius:99px;padding:8px 18px;font-weight:700;font-size:14px;cursor:pointer}
 #hero{position:fixed;left:24px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:4;max-width:min(760px,calc(100% - 48px));pointer-events:none;transition:opacity .4s}
 #stage.focus~#hero{opacity:0}
 .chip{display:inline-flex;gap:8px;align-items:center;font:500 13px var(--en);color:var(--lamp);border:1px solid var(--line);border-radius:99px;padding:5px 14px;background:rgba(11,9,32,.6)}
@@ -80,9 +80,9 @@ html[data-l=en] h1{font-family:var(--en);font-weight:700;letter-spacing:-.02em;l
 .lede{font-size:15px;color:#e2def5;max-width:36em;margin:0;text-shadow:0 1px 14px #0b0920}
 .cc{font-size:12px;color:var(--mute);margin:10px 0 0}
 #tl{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;overflow-x:auto;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,rgba(11,9,32,.96),rgba(11,9,32,.6));scrollbar-width:none}
-#tl :is(button,a[data-t="5"]){flex:0 0 auto;background:rgba(23,20,51,.8);border:1px solid var(--line);border-radius:12px;padding:8px 16px;cursor:pointer;text-align:left;text-decoration:none;line-height:1.3;transition:border-color .2s,background .2s}
-#tl :is(button,a[data-t="5"]) small{display:block;font:500 11px var(--en);color:var(--violet2)}
-#tl :is(button,a[data-t="5"]).cur{border-color:var(--lamp);background:rgba(255,226,168,.12)}
+#tl button{flex:0 0 auto;background:rgba(23,20,51,.8);border:1px solid var(--line);border-radius:12px;padding:8px 16px;cursor:pointer;text-align:left;line-height:1.3;transition:border-color .2s,background .2s}
+#tl button small{display:block;font:500 11px var(--en);color:var(--violet2)}
+#tl button.cur{border-color:var(--lamp);background:rgba(255,226,168,.12)}
 /* panel */
 .pn{position:fixed;z-index:6;top:0;right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));width:min(480px,100%);padding:calc(76px + env(safe-area-inset-top,0px)) 32px 32px;background:rgba(14,11,36,.88);backdrop-filter:blur(14px);border-left:1px solid var(--line);overflow:auto;translate:105% 0;transition:translate .5s cubic-bezier(.2,.8,.2,1);visibility:hidden}
 .pn.on{translate:0 0;visibility:visible}
@@ -108,8 +108,8 @@ form.join button{background:var(--lamp);color:#1a1230;border:0;border-radius:12p
 @media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 
 #room{transition:filter .6s}#moon-disc{border-radius:50%;opacity:0;transform:scale(.98);transition:transform .85s cubic-bezier(.2,.75,.18,1),opacity .35s;box-shadow:0 0 20px #ffd8b988}#stage.moon #moon-disc{opacity:1;transform:scale(1.94)}#stage.moon .mg{opacity:.77;scale:1.25}#stage.lamp-room #room{filter:brightness(1.12) sepia(.17) saturate(1.14)}#stage.lamp-room .lg{animation:none;opacity:1;scale:2.25;background:radial-gradient(ellipse,#ffd288c9 0%,#f6b85d70 29%,transparent 70%)}.lg{transform-origin:center;transition:opacity .55s,scale .55s}.eq{opacity:.53}#npw{opacity:0}#stage.focus #npw{opacity:1}.bar{z-index:8;pointer-events:none}.bar button,.bar a{pointer-events:auto}.brandline{display:flex;align-items:center;gap:20px}.community{display:flex;align-items:center;gap:13px;padding:5px 10px;border-radius:10px;background:#130d2399;backdrop-filter:blur(12px);font:600 12px/1.6 var(--en)}.community a{color:#f9ecf8;text-decoration:none;white-space:nowrap;display:block;padding:5px 2px}.community a:hover{text-decoration:underline;text-underline-offset:4px}.community.inside{justify-content:flex-start;gap:18px;flex-wrap:wrap;padding:12px 0 0;border-top:1px solid var(--line);border-radius:0;background:none}.community.inside a{color:#e1c8ed}
-#hero{max-width:min(610px,calc(100% - 48px));bottom:calc(78px + env(safe-area-inset-bottom,0px))}h1{font-size:clamp(36px,4.7vw,75px);line-height:1.14;margin:0 0 12px;font-feature-settings:"palt";letter-spacing:-.055em}html[data-l=en] h1{font-size:clamp(35px,5vw,78px);line-height:1.02}.lede{font-size:14px;line-height:1.6}.ideas{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0 0}.ideas button{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #f6dfa096;border-radius:30px;font-size:13px;font-weight:700;line-height:1.45;background:#2d2034d9;backdrop-filter:blur(10px);color:#ffedc4;pointer-events:auto;cursor:pointer}.ideas button:first-child{background:#ffe4aa;color:#31243b;border-color:#ffe4aa}.ideas button[aria-pressed=true]{box-shadow:0 0 0 2px #d6afdc}.gist{font:400 19px/1 system-ui}#stage.focus~#hero{visibility:hidden}#hero .cc{margin:7px 0 0;font-size:10px;color:#e2d3e6}.hs{width:36px;height:36px;border-width:1.5px}.hs:after{content:'+';display:grid;place-items:center;font:400 19px/1 system-ui;color:#ffefd3;text-shadow:0 1px 5px #20102b}.hs span{border-color:#c7a2b9a8}#bub{z-index:3;font-size:13px;box-shadow:0 4px 20px #18102040}#dim{background:linear-gradient(90deg,#0c092426,#0c092458 69%,#0c092488)}#tl{gap:6px}#tl :is(button,a[data-t="5"]){font-size:13px;min-height:42px}.pn{padding-top:84px}.pn h2{padding-right:22px;font-size:27px}.pn .x{top:79px}.b.hide,.hide{display:none}#hero button:focus-visible,.hs:focus-visible{outline-offset:5px}.pn:focus{outline:none}
-@media(max-width:700px){.bar{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0}.logo{font-size:23px}.brandline{gap:0}.brandline .community{position:absolute;left:12px;top:calc(48px + env(safe-area-inset-top,0px));gap:8px;padding:1px 7px;line-height:1.3;font-size:11px}.community a{padding:5px 2px}.sw2 button{padding:6px 9px}.joinb{font-size:12px;padding:6px 12px}.r{gap:6px}#hero{left:14px;bottom:calc(67px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 28px)}h1,html[data-l=en] h1{font-size:clamp(28px,7.5vw,48px)}#hero .lede{font-size:12px;max-width:31em}.ideas{margin-top:10px;gap:6px}.ideas button{padding:8px 10px;font-size:12px}.hs{width:38px;height:38px}#tl{padding:7px 10px calc(8px + env(safe-area-inset-bottom,0px));gap:5px}#tl :is(button,a[data-t="5"]){padding:7px 10px;min-height:40px;white-space:nowrap}.pn{height:min(70svh,calc(100svh - 145px));bottom:calc(55px + env(safe-area-inset-bottom,0px));padding:43px 18px 16px}.pn .x{top:9px}.pn h2{font-size:23px}.pn .k{margin-bottom:10px}.ideas .gist{font-size:16px}#shade{background:linear-gradient(0deg,#0c0924fb 0,#0c0924c7 20%,#0c092445 43%,transparent 65%),linear-gradient(180deg,#0c092473,transparent 20%)}}@media(max-height:550px){#hero h1{font-size:30px;margin-bottom:3px}.ideas{margin-top:6px}.cc{display:none}.pn{padding-top:60px}.pn .x{top:55px}}
+#hero{max-width:min(610px,calc(100% - 48px));bottom:calc(78px + env(safe-area-inset-bottom,0px))}h1{font-size:clamp(36px,4.7vw,75px);line-height:1.14;margin:0 0 12px;font-feature-settings:"palt";letter-spacing:-.055em}html[data-l=en] h1{font-size:clamp(35px,5vw,78px);line-height:1.02}.lede{font-size:14px;line-height:1.6}.ideas{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0 0}.ideas button{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #f6dfa096;border-radius:30px;font-size:13px;font-weight:700;line-height:1.45;background:#2d2034d9;backdrop-filter:blur(10px);color:#ffedc4;pointer-events:auto;cursor:pointer}.ideas button:first-child{background:#ffe4aa;color:#31243b;border-color:#ffe4aa}.ideas button[aria-pressed=true]{box-shadow:0 0 0 2px #d6afdc}.gist{font:400 19px/1 system-ui}#stage.focus~#hero{visibility:hidden}#hero .cc{margin:7px 0 0;font-size:10px;color:#e2d3e6}.hs{width:36px;height:36px;border-width:1.5px}.hs:after{content:'+';display:grid;place-items:center;font:400 19px/1 system-ui;color:#ffefd3;text-shadow:0 1px 5px #20102b}.hs span{border-color:#c7a2b9a8}#bub{z-index:3;font-size:13px;box-shadow:0 4px 20px #18102040}#dim{background:linear-gradient(90deg,#0c092426,#0c092458 69%,#0c092488)}#tl{gap:6px}#tl button{font-size:13px;min-height:42px}.pn{padding-top:84px}.pn h2{padding-right:22px;font-size:27px}.pn .x{top:79px}.b.hide,.hide{display:none}#hero button:focus-visible,.hs:focus-visible{outline-offset:5px}.pn:focus{outline:none}
+@media(max-width:700px){.bar{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0}.logo{font-size:23px}.brandline{gap:0}.brandline .community{position:absolute;left:12px;top:calc(48px + env(safe-area-inset-top,0px));gap:8px;padding:1px 7px;line-height:1.3;font-size:11px}.community a{padding:5px 2px}.sw2 button{padding:6px 9px}.joinb{font-size:12px;padding:6px 12px}.r{gap:6px}#hero{left:14px;bottom:calc(67px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 28px)}h1,html[data-l=en] h1{font-size:clamp(28px,7.5vw,48px)}#hero .lede{font-size:12px;max-width:31em}.ideas{margin-top:10px;gap:6px}.ideas button{padding:8px 10px;font-size:12px}.hs{width:38px;height:38px}#tl{padding:7px 10px calc(8px + env(safe-area-inset-bottom,0px));gap:5px}#tl button{padding:7px 10px;min-height:40px;white-space:nowrap}.pn{height:min(70svh,calc(100svh - 145px));bottom:calc(55px + env(safe-area-inset-bottom,0px));padding:43px 18px 16px}.pn .x{top:9px}.pn h2{font-size:23px}.pn .k{margin-bottom:10px}.ideas .gist{font-size:16px}#shade{background:linear-gradient(0deg,#0c0924fb 0,#0c0924c7 20%,#0c092445 43%,transparent 65%),linear-gradient(180deg,#0c092473,transparent 20%)}}@media(max-height:550px){#hero h1{font-size:30px;margin-bottom:3px}.ideas{margin-top:6px}.cc{display:none}.pn{padding-top:60px}.pn .x{top:55px}}
 
 
 .provider{font-size:12px!important;line-height:1.55;opacity:.8}.msg:empty{display:none}
@@ -329,7 +329,7 @@ html[data-l=en] .pn h2 {letter-spacing:-.032em}
 .lede,#bub,.pn p,.b,.later,.pn ol {font-weight:400}
 .lede {line-height:1.7}
 #bub {line-height:1.55}
-#tl :is(button,a[data-t="5"]),.pn .k,.hs span,.sw2 button,.community a {font-weight:470}
+#tl button,.pn .k,.hs span,.sw2 button,.community a {font-weight:470}
 .ideas button,form.join button,.joinb {font-weight:520}
 form.join input,.hs span,#np {font-family:var(--jp)}
 @media(max-width:700px){
@@ -379,8 +379,8 @@ nav.community.inside{border-top:1px solid var(--line);padding-top:16px;margin:16
 .release-tag{display:inline-flex;align-items:center;gap:9px;border:1px solid #f6d8b58c;background:linear-gradient(110deg,#261c28ed,#261e38e8);border-radius:6px;padding:7px 11px;min-height:32px;line-height:1;color:#fff1db;text-decoration:none;vertical-align:middle}
 .release-tag[hidden]{display:none}
 .stable-download{pointer-events:auto;margin:0 0 11px}
-.release-tag[data-t="5"]{pointer-events:auto;cursor:pointer;margin:0 0 11px}
-.release-tag[data-t="5"]:hover,.release-tag[data-t="5"]:focus-visible{border-color:#ffe3b8;background:#3e2c3f}
+button.release-tag{pointer-events:auto;cursor:pointer;margin:0 0 11px}
+button.release-tag:hover,button.release-tag:focus-visible{border-color:#ffe3b8;background:#3e2c3f}
 .release-light{width:6px;height:6px;border-radius:50%;background:#ffe2ac;box-shadow:0 0 9px #edc595a8;animation:release-glow 3.8s ease-in-out infinite}
 .soon-en{font:550 11px/1 var(--en);letter-spacing:.13em;text-transform:uppercase}
 .release-platform{font:450 11px/1.15 var(--jp);color:#f0e3ec;border-left:1px solid #d8adc159;padding-left:9px}
@@ -388,7 +388,7 @@ nav.community.inside{border-top:1px solid var(--line);padding-top:16px;margin:16
 .release-note{margin-bottom:14px}.pn h2+p{margin-top:12px}
 @keyframes release-glow{50%{box-shadow:0 0 3px #edc59555}}
 @media(prefers-reduced-motion:reduce){.release-light{animation:none}}
-@media(max-height:540px){.release-tag[data-t="5"]{min-height:25px;padding-block:4px;margin-bottom:4px}}
+@media(max-height:540px){button.release-tag{min-height:25px;padding-block:4px;margin-bottom:4px}}
 
 #hero .film-cta{display:block;margin:4px 0 0}
 #uyi-watch-film{display:inline-flex;align-items:center;gap:7px;min-height:29px;padding:2px 4px 2px 0;border:0;background:transparent;color:#fff1e6;font:480 12px/1.35 var(--jp);letter-spacing:.02em;text-shadow:0 1px 6px #110b1a,0 1px 2px #110b1a;cursor:pointer;pointer-events:auto}
@@ -606,14 +606,14 @@ html[data-l=ja] #bub.with-reaction e,html[data-l=en] #bub.with-reaction j{displa
 #p5 nav.community.inside {margin:8px 0 0;padding:8px 0 0;border-top:1px solid #ffffff40;gap:6px}
 #p5 nav.community.inside a {min-height:32px;padding:5px 9px;font-size:12px}
 #p5 nav.community.inside svg {height:14px}
-#tl :is(button,a[data-t="5"]) {padding-inline:11px;min-height:36px}
+#tl button {padding-inline:11px;min-height:36px}
 @media(max-width:700px) {
   .pn,#p1 {
     top:auto;right:max(12px,calc((100% - var(--card-width))/2));
     bottom:calc(58px + env(safe-area-inset-bottom,0px));
     max-height:min(48dvh,calc(100dvh - 150px));padding:13px 14px 14px;border-radius:12px;
   }
-  #tl :is(button,a[data-t="5"]) {padding-inline:9px;min-height:38px}
+  #tl button {padding-inline:9px;min-height:38px}
 }
 @media(max-height:520px) and (min-width:701px) {
   .pn,#p1 {--card-top:54px;max-height:calc(100dvh - 113px)}
@@ -625,17 +625,17 @@ html[data-l=ja] #bub.with-reaction e,html[data-l=en] #bub.with-reaction j{displa
   gap:6px;padding:8px 16px calc(9px + env(safe-area-inset-bottom,0px));
   background:linear-gradient(0deg,rgba(13,10,27,.55),rgba(13,10,27,.17));
 }
-#tl :is(button,a[data-t="5"]) {
+#tl button {
   min-height:34px;padding:5px 10px;font-size:12px;border-radius:9px;
   color:#fff5fe;background:rgba(29,23,43,.45);border-color:rgba(229,209,239,.33);
   -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
 }
-#tl :is(button,a[data-t="5"]):hover,#tl :is(button,a[data-t="5"]):focus-visible {background:rgba(64,46,69,.67);border-color:#dbbfdb}
-#tl :is(button,a[data-t="5"]).cur {background:rgba(102,77,69,.58);border-color:#eed7a4;color:#fff0d0}
+#tl button:hover,#tl button:focus-visible {background:rgba(64,46,69,.67);border-color:#dbbfdb}
+#tl button.cur {background:rgba(102,77,69,.58);border-color:#eed7a4;color:#fff0d0}
 #p1 .sound-choices button {white-space:nowrap;padding-inline:2px}
 @media(max-width:700px) {
   #tl {gap:5px;padding:6px 9px calc(7px + env(safe-area-inset-bottom,0px))}
-  #tl :is(button,a[data-t="5"]) {min-height:36px;padding-inline:8px}
+  #tl button {min-height:36px;padding-inline:8px}
 }
 
 #stage.company-open #bub {visibility:visible}
@@ -675,11 +675,11 @@ html[data-l=ja] #bub.with-reaction e,html[data-l=en] #bub.with-reaction j{displa
 #p1{background:#241c2ef7}
 .community{backdrop-filter:none;background:#130d23ef}
 .ideas button{backdrop-filter:none;background:#241b2ee8}
-.release-tag[data-t="5"]{background:#1d1626f0}
+button.release-tag{background:#1d1626f0}
 .sound-display{background:#17131d}
 #tl{background:rgba(11,9,32,.95)}
 /* calmer corner scale (no full pills) */
-.sw2,.joinb,.ideas button,#music-transport,#tl :is(button,a[data-t="5"]),.community{border-radius:8px}
+.sw2,.joinb,.ideas button,#music-transport,#tl button,.community{border-radius:8px}
 #p1{border-radius:12px}
 .pn{border-radius:12px}
 #bub{border-radius:10px 10px 10px 2px}
@@ -730,27 +730,26 @@ html[data-l=ja] #bub.with-reaction e,html[data-l=en] #bub.with-reaction j{displa
   <button class="hs" id="hello-spot" type="button" data-x="880" data-y="312"><span><j>声をかける</j><e>Say hello</e></span></button>
   <button type="button" class="hs" id="lamp-spot" aria-pressed="false" data-x="85" data-y="385"><span><j>ランプ</j><e>Lamp</e></span></button>
   <button class="hs" data-t="4" data-x="1290" data-y="590"><span><j>最初の部屋</j><e>First room</e></span></button>
-  <a class="hs" data-t="5" data-x="260" data-y="605" href="/apply/?source=homepage"><span><j>Mac先行体験</j><e>Mac early access</e></span></a>
+  <button class="hs" data-t="5" data-x="260" data-y="605"><span><j>先行案内</j><e>Get updates</e></span></button>
   <button type="button" class="hs" aria-pressed="false" id="hm" data-x="1567" data-y="235"><span><j>月</j><e>Moon</e></span></button>
 </div>
 
-<div class="bar"><div class="brandline"><span class="logo">UYI</span><nav class="community" aria-label="UYIの公式SNS"><a class="social social-x" href="https://x.com/UYI_jp" aria-label="UYIの日本語公式Xアカウント" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg><span class="handle">@UYI_jp</span></a><a class="social social-discord" href="https://discord.gg/TMF8SECRMm" aria-label="UYIのDiscordコミュニティに参加する" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M40.9051 0C40.2863 1.09866 39.7306 2.2352 39.2255 3.397C34.4268 2.67719 29.5396 2.67719 24.7283 3.397C24.2358 2.2352 23.6675 1.09866 23.0487 0C18.5404 0.770324 14.1458 2.12155 9.97847 4.02841C1.71959 16.2652 -0.51561 28.1863 0.595677 39.9432C5.4323 43.517 10.8498 46.2447 16.6209 47.9874C17.9216 46.2447 19.0708 44.3883 20.0558 42.4562C18.1868 41.7616 16.381 40.8903 14.6509 39.88C15.1055 39.5517 15.5475 39.2107 15.9769 38.8824C26.1174 43.6559 37.8617 43.6559 48.0148 38.8824C48.4441 39.236 48.8861 39.577 49.3407 39.88C47.6107 40.9029 45.8048 41.7616 43.9232 42.4688C44.9082 44.4009 46.0574 46.2573 47.3581 48C53.1292 46.2573 58.5467 43.5422 63.3834 39.9684C64.6967 26.3299 61.1355 14.5099 53.9753 4.04104C49.8206 2.13418 45.426 0.782952 40.9177 0.0252565L40.9051 0ZM21.4702 32.7072C18.351 32.7072 15.7622 29.8785 15.7622 26.3804C15.7622 22.8824 18.25 20.041 21.4576 20.041C24.6651 20.041 27.216 22.895 27.1655 26.3804C27.115 29.8658 24.6525 32.7072 21.4702 32.7072ZM42.5089 32.7072C39.3771 32.7072 36.8135 29.8785 36.8135 26.3804C36.8135 22.8824 39.3013 20.041 42.5089 20.041C45.7164 20.041 48.2547 22.895 48.2042 26.3804C48.1537 29.8658 45.6912 32.7072 42.5089 32.7072Z"/></svg><span>Discord</span></a></nav></div><div class="r"><a class="joinb" data-t="5" href="/apply/?source=homepage"><j>Mac先行体験</j><e>Mac early access</e></a><div class="sw2" role="group" aria-label="Language"><button id="bj0" data-set="ja">日本語</button><button id="be0" data-set="en">EN</button></div></div></div>
+<div class="bar"><div class="brandline"><span class="logo">UYI</span><nav class="community" aria-label="UYIの公式SNS"><a class="social social-x" href="https://x.com/UYI_jp" aria-label="UYIの日本語公式Xアカウント" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg><span class="handle">@UYI_jp</span></a><a class="social social-discord" href="https://discord.gg/TMF8SECRMm" aria-label="UYIのDiscordコミュニティに参加する" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M40.9051 0C40.2863 1.09866 39.7306 2.2352 39.2255 3.397C34.4268 2.67719 29.5396 2.67719 24.7283 3.397C24.2358 2.2352 23.6675 1.09866 23.0487 0C18.5404 0.770324 14.1458 2.12155 9.97847 4.02841C1.71959 16.2652 -0.51561 28.1863 0.595677 39.9432C5.4323 43.517 10.8498 46.2447 16.6209 47.9874C17.9216 46.2447 19.0708 44.3883 20.0558 42.4562C18.1868 41.7616 16.381 40.8903 14.6509 39.88C15.1055 39.5517 15.5475 39.2107 15.9769 38.8824C26.1174 43.6559 37.8617 43.6559 48.0148 38.8824C48.4441 39.236 48.8861 39.577 49.3407 39.88C47.6107 40.9029 45.8048 41.7616 43.9232 42.4688C44.9082 44.4009 46.0574 46.2573 47.3581 48C53.1292 46.2573 58.5467 43.5422 63.3834 39.9684C64.6967 26.3299 61.1355 14.5099 53.9753 4.04104C49.8206 2.13418 45.426 0.782952 40.9177 0.0252565L40.9051 0ZM21.4702 32.7072C18.351 32.7072 15.7622 29.8785 15.7622 26.3804C15.7622 22.8824 18.25 20.041 21.4576 20.041C24.6651 20.041 27.216 22.895 27.1655 26.3804C27.115 29.8658 24.6525 32.7072 21.4702 32.7072ZM42.5089 32.7072C39.3771 32.7072 36.8135 29.8785 36.8135 26.3804C36.8135 22.8824 39.3013 20.041 42.5089 20.041C45.7164 20.041 48.2547 22.895 48.2042 26.3804C48.1537 29.8658 45.6912 32.7072 42.5089 32.7072Z"/></svg><span>Discord</span></a></nav></div><div class="r"><button class="joinb" data-t="5"><j>先行案内</j><e>Notify me</e></button><div class="sw2" role="group" aria-label="Language"><button id="bj0" data-set="ja">日本語</button><button id="be0" data-set="en">EN</button></div></div></div>
 
 <div id="hero">
-  <a class="release-tag" data-t="5" href="/apply/?source=homepage"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span><span class="release-arrow" aria-hidden="true">↗</span></a>
+  <button type="button" class="release-tag" data-t="5"><span class="release-light" aria-hidden="true"></span><span class="soon-en" lang="en">Coming Soon</span><span class="release-platform"><svg class="mac-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" rx="1.5"/><path d="M2 19h20l-2-3H4z"/></svg><j>Mac版</j><e>for Mac</e></span><span class="platform-later" role="img" aria-label="Windowsにも対応予定"><svg class="path-mark" viewBox="0 0 16 10" aria-hidden="true"><path d="M.5 5h12M9.5 1.5 13 5 9.5 8.5"/></svg><svg class="win-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M0 0h9v9H0zM11 0h9v9h-9zM0 11h9v9H0zM11 11h9v9h-9z"/></svg></span><span class="release-arrow" aria-hidden="true">↗</span></button>
   <a class="release-tag stable-download" hidden><j>Mac版をダウンロード</j><e>Download for Mac</e><span data-release-label></span></a>
   <h1><j>あなたのひらめきに、<br>小さな世界が応える。</j><e>Your idea brings<br>this room to life.</e></h1>
   <p class="lede"><j>窓の月に触れてみて。月が大きくなったら、彼女はなんて言うかな。</j><e>What would she say if the moon were bigger? Tap the moon and see.</e></p>
   <div class="ideas"><button type="button" id="wish-moon" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.2 9.9A6 6 0 1 1 6.1 2.8a5 5 0 1 0 7.1 7.1z"/></svg></span><j>月を大きくして</j><e>Make the moon bigger</e></button><button type="button" id="wish-lamp" aria-pressed="false"><span class="gist" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.8a4.3 4.3 0 0 1 2.7 7.6c-.5.4-.8 1-.8 1.6H6.1c0-.6-.3-1.2-.8-1.6A4.3 4.3 0 0 1 8 1.8z"/><path d="M6.5 13.4h3"/></svg></span><j>あたたかい灯りにして</j><e>Warm up the light</e></button></div>
   <p class="cc film-cta"><button type="button" id="uyi-watch-film" aria-haspopup="dialog" aria-controls="uyi-film-dialog"><span class="film-playmark" aria-hidden="true"></span><j>コンセプト映像を見る</j><e>Watch the concept visualization</e></button></p>
-  <p class="cc"><j>Mac向け先行体験。応募内容を確認後、参加方法をメールでご案内します。</j><e>Mac-only early access. We review applications and email next steps.</e></p>
 </div>
 <nav id="tl" aria-label="Room guide">
   <button data-t="1" aria-controls="p1" aria-expanded="false"><j>一緒に聴く</j><e>Listen together</e></button>
   <button data-t="2"><j>一緒に過ごす</j><e>Spend time together</e></button>
   <button data-t="3"><j>クリエイター</j><e>Creators</e> <span class="creator-soon" lang="en">Coming soon</span></button>
   <button data-t="4"><j>最初の部屋</j><e>First room</e></button>
-  <a data-t="5" href="/apply/?source=homepage"><j>Mac先行体験</j><e>Mac early access</e></a>
+  <button data-t="5"><j>先行案内</j><e>Get updates</e></button>
   <a class="event-entry" href="/event/"><j>イベント</j><e>Events</e></a>
   <span class="legal-nav"><a href="#privacy" data-privacy-open aria-controls="privacy" aria-haspopup="dialog"><j>プライバシーポリシー</j><e>Privacy Policy</e></a><a href="#terms" data-terms-open aria-controls="terms" aria-haspopup="dialog"><j>利用規約</j><e>Terms of Use</e></a></span></nav>
 
@@ -940,7 +939,7 @@ window.uyiFilmEnURL = window.UyiAssets.filmEn;
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)},S=$('stage'),R=$('room'),W=1672,H=941,cur=0,bt,ni=0,camera='home',cameraX=.42,anim=0,lastUser=0;
-var T={1:["一緒に聴く","Listen together"],2:["一緒に過ごす","Spend time together"],3:["クリエイター","Creators"],4:["最初の部屋","First room"],5:["Mac先行体験","Mac early access"]};
+var T={1:["一緒に聴く","Listen together"],2:["一緒に過ごす","Spend time together"],3:["クリエイター","Creators"],4:["最初の部屋","First room"],5:["先行案内","Get updates"]};
 var L=[["見て、この鉢。新しい葉っぱが出てきたよ。","There’s a new leaf on my plant."],["作業、続けてていいよ。わたし、ここにいるから。","Take your time. I’ll be right here."],["今夜は、ここから月がよく見えるね。","The moon is so clear tonight."]];
 var P={1:["ねえ、一緒に音楽でも聴かない？","Want to put some music on?"],2:["隣、空いてるよ。今日はどう過ごそうか。","There’s room beside me. What would you like to do?"],3:["この部屋には、どんなランプが似合うかな。","What kind of lamp would suit this room?"],4:["ここから始めるよ。","This is where we start."],5:["待ってるね。","I’ll be waiting."]};
 function lang(){return document.documentElement.dataset.l}
@@ -995,14 +994,15 @@ function open(n){
  }
  S.classList.toggle('music-open',n===1);
  document.querySelectorAll('[data-t="1"]').forEach(b=>b.setAttribute('aria-expanded',String(n===1)));
+ document.querySelectorAll('[data-t="5"]').forEach(b=>b.setAttribute('aria-expanded',String(n===5)));
  cur=n;lastUser=Date.now();if(n||camera!=='home')aim('home');document.querySelectorAll('.pn').forEach(function(p){p.classList.toggle('on',p.id=='p'+n)});
- document.querySelectorAll('#tl :is(button,a[data-t="5"]),.hs').forEach(function(b){b.classList.toggle('cur',+b.dataset.t===n)});
+ document.querySelectorAll('#tl button,.hs').forEach(function(b){b.classList.toggle('cur',+b.dataset.t===n)});
  S.classList.toggle('focus',!!n);S.classList.toggle('lamp',n===3);np();if(n)say(P[n]);
  if(n===5&&!signupDialog.open)signupDialog.showModal();
 }
 function close(){open(0)}
-document.querySelectorAll('button[data-t]').forEach(function(b){b.addEventListener('click',function(){var n=+b.dataset.t;open(cur===n?0:n)})});
-
+document.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){var n=+b.dataset.t;if(n===5)signupOpener=b;open(cur===n?0:n)})});
+document.querySelectorAll('[data-t="5"]').forEach(b=>{b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-controls','p5');b.setAttribute('aria-expanded','false')});
 signupDialog.addEventListener('cancel',event=>{event.preventDefault();close()});
 signupDialog.addEventListener('keydown',event=>{if(event.key==='Escape')event.stopPropagation()});
 signupDialog.addEventListener('close',()=>{
@@ -1098,10 +1098,7 @@ renderStyle(selectedStyle);
 function localizeChannels(language){
   const japanese=language==='ja';
   document.querySelectorAll('.platform-later').forEach(el=>el.setAttribute('aria-label',japanese?'今後はWindowsなど他のプラットフォームにも対応予定':'Windows and other platforms are planned for later'));
-  document.querySelectorAll('a[data-t="5"]').forEach(link=>{
-    const label=japanese?'Mac向け先行体験に応募。内容確認後、参加方法をメールでご案内します（日本語フォーム）':'Apply for Mac-only early access. We will review your application and email next steps (Japanese form).';
-    link.setAttribute('aria-label',label);link.title=label;
-  });
+  document.querySelector('button.release-tag').setAttribute('aria-label',japanese?'Mac版を開発中です。ほかのプラットフォームにも対応予定です。先行案内を受け取る':'Coming soon for Mac, with more platforms planned. Get early access updates.');
   const handle=japanese?'UYI_jp':'UYI_en';
   document.querySelectorAll('.community').forEach(function(nav){
     nav.setAttribute('aria-label',japanese?'UYIの公式SNS':'Official UYI channels');
@@ -1779,7 +1776,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)stopReactio
         attempt={address,payload:{
           email:email.value,
           language:document.documentElement.lang==='en'?'en':'ja',
-          source:'uyi.live',
+          source:'homepage',
           requestId:crypto.randomUUID(),
           website:website.value
         }};
@@ -1829,5 +1826,4 @@ if (release) {
 </script>
 </body>
 </html>
-
 

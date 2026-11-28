@@ -134,6 +134,7 @@ async function saveSubscription(env, payload, signal) {
     '来源': 'uyi.live',
     '请求编号': payload.requestId,
     '状态': '待通知',
+    '报名来源': 'UYI公式サイト',
   } };
   let lastError;
   for (let attempt = 0; attempt < 3; attempt++) {
